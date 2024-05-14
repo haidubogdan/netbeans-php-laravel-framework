@@ -14,12 +14,9 @@ import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 import org.netbeans.api.editor.document.LineDocumentUtils;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.api.lsp.HyperlinkLocation;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
-import org.netbeans.spi.lsp.HyperlinkLocationProvider;
-import org.netbeans.spi.lsp.HyperlinkTypeDefLocationProvider;
 import org.openide.cookies.EditorCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -136,21 +133,4 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
         return bladePath;
     }
 
-    @MimeRegistration(mimeType = "text/x-php5", service = HyperlinkLocationProvider.class)
-    public static class LocationProvider implements HyperlinkLocationProvider {
-
-        @Override
-        public CompletableFuture<HyperlinkLocation> getHyperlinkLocation(Document doc, int offset) {
-            return GoToSupportLaravel.getGoToLocation(doc, offset, false);
-        }
-    }
-
-    @MimeRegistration(mimeType = "text/x-php5", service = HyperlinkTypeDefLocationProvider.class)
-    public static class TypeDefLocationProvider implements HyperlinkTypeDefLocationProvider {
-
-        @Override
-        public CompletableFuture<HyperlinkLocation> getHyperlinkTypeDefLocation(Document doc, int offset) {
-            return GoToSupportLaravel.getGoToLocation(doc, offset, true);
-        }
-    }
 }
