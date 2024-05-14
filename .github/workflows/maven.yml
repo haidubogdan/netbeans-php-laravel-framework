@@ -8,7 +8,7 @@ on:
 
 env:
   NB_RELEASE_VERSION: 210  
-
+  NB_META_INF: 21-b15c9b7692b2764be5a997d056e2283b72ae9131
 jobs:
   build:
 
@@ -47,10 +47,22 @@ jobs:
     - name : package  
       working-directory: ./nb-plugin-package
       run : mvn package
-    - name : upload nbm
+    - name : upload nbm 210
       uses: actions/upload-artifact@v4
       with:
-        name: php-laravel-nbm
+        name: php-laravel-nbm-210
+        path: ./nb-plugin-package/target/nbm/*.nbm
+    - name : set env nb 200
+      run: echo "NB_META_INF=20-91f9ed846ac143b52d50b5ea323a42c2f7e78392"
+    - name : set env nb 200
+      run: echo "NB_RELEASE_VERSION=20-91f9ed846ac143b52d50b5ea323a42c2f7e78392"  
+    - name : package  
+      working-directory: ./nb-plugin-package
+      run : mvn package  
+    - name : upload nbm 200
+      uses: actions/upload-artifact@v4
+      with:
+        name: php-laravel-nbm-200
         path: ./nb-plugin-package/target/nbm/*.nbm
 #    - name: release
 #      uses: actions/create-release@v1
