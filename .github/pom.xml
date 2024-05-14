@@ -130,13 +130,13 @@
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-php-api-framework</id>
                             <type>impl</type>
-                            <explicitValue>org.netbeans.modules.php.api.framework/0 = 0</explicitValue>
+                            <explicitValue>org.netbeans.modules.php.api.framework/0 = 0.50</explicitValue>
                         </dependency>
-                        <dependency>
+<!--                        <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-php-api-phpmodule</id>
                             <type>impl</type>
                             <explicitValue>org.netbeans.modules.php.api.phpmodule/0 = 0</explicitValue>
-                        </dependency>
+                        </dependency>-->
                     </moduleDependencies>
                 </configuration>
             </plugin>
