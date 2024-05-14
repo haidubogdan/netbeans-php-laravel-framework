@@ -127,6 +127,16 @@
                             <type>impl</type>
                             <explicitValue>org.netbeans.modules.php.editor/2 = 2</explicitValue>
                         </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-php-api-framework</id>
+                            <type>impl</type>
+                            <explicitValue>org.netbeans.modules.php.api.framework/0 = 0</explicitValue>
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-php-api-phpmodule</id>
+                            <type>impl</type>
+                            <explicitValue>org.netbeans.modules.php.api.phpmodule/0 = 0</explicitValue>
+                        </dependency>
                     </moduleDependencies>
                 </configuration>
             </plugin>
@@ -342,6 +352,11 @@
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-php-api-framework</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-php-api-phpmodule</artifactId>
             <version>${nbversion}</version>
         </dependency>
     </dependencies>
