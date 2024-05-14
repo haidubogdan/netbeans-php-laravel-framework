@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <name>BladePlugin for netbeans</name>
-    <description>BladePlugin for netbeans</description>
-    <url>https://github.com/haidubogdan/netbeans-php-blade-plugin</url>
+    <name>LaravelPlugin for netbeans</name>
+    <description>LaravelPlugin for netbeans</description>
+    <url>https://github.com/haidubogdan/netbeans-php-laravel-framework</url>
 
-    <groupId>netbeans.modules.php.blade</groupId>
-    <artifactId>php.blade</artifactId>
+    <groupId>netbeans.modules.php.laravel</groupId>
+    <artifactId>php.laravel.framework</artifactId>
     
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -106,7 +106,7 @@
                 <version>4.8</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <codeNameBase>php.blade</codeNameBase>
+                    <codeNameBase>php.laravel</codeNameBase>
                     <author>haidubogdan@gmail.com</author>
                     <verifyRuntime>warn</verifyRuntime>
                     <licenseName>LICENSE</licenseName>
@@ -115,12 +115,12 @@
                     <nbmNeedsRestart>true</nbmNeedsRestart>
                     <additionalArguments>
                     </additionalArguments>
-                    <publicPackages>
+<!--                    <publicPackages>
                         <publicPackage>org.netbeans.modules.php.blade.csl.elements</publicPackage>
                         <publicPackage>org.netbeans.modules.php.blade.editor.*</publicPackage>
                         <publicPackage>org.netbeans.modules.php.blade.project</publicPackage>
                         <publicPackage>org.netbeans.modules.php.blade.syntax.*</publicPackage>
-                    </publicPackages>
+                    </publicPackages>-->
                     <moduleDependencies>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-php-editor</id>
