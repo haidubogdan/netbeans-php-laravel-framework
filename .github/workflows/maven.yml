@@ -44,9 +44,9 @@ jobs:
       run : cp ./nbproject/project.properties nb-plugin-package/project.properties
     - name : prepare the files from project  
       run : cp ./LICENSE nb-plugin-package/LICENSE
-    - name : package  
+    - name : package 210
       working-directory: ./nb-plugin-package
-      run : mvn nbm package 210
+      run : mvn package
     - name : upload nbm 210
       uses: actions/upload-artifact@v4
       with:
