@@ -46,17 +46,17 @@ jobs:
       run : cp ./LICENSE nb-plugin-package/LICENSE
     - name : package  
       working-directory: ./nb-plugin-package
-      run : mvn package
+      run : mvn nbm package 210
     - name : upload nbm 210
       uses: actions/upload-artifact@v4
       with:
         name: php-laravel-nbm-210
         path: ./nb-plugin-package/target/nbm/*.nbm
     - name : set env nb 200
-      run: echo "NB_META_INF=20-91f9ed846ac143b52d50b5ea323a42c2f7e78392"
+      run: NB_META_INF=20-91f9ed846ac143b52d50b5ea323a42c2f7e78392
     - name : set env nb 200
-      run: echo "NB_RELEASE_VERSION=200"  
-    - name : package  
+      run: NB_RELEASE_VERSION=200 
+    - name : package nmb 200
       working-directory: ./nb-plugin-package
       run : mvn package  
     - name : upload nbm 200
