@@ -53,7 +53,7 @@ jobs:
         name: php-laravel-nbm-210
         path: ./nb-plugin-package/target/nbm/*.nbm
     - name : set env nb 200
-      run: NB_META_INF=20-91f9ed846ac143b52d50b5ea323a42c2f7e78392
+      run: echo "NB_META_INF=20-91f9ed846ac143b52d50b5ea323a42c2f7e78392" >> "$GITHUB_ENV"
     - name : set env nb 200
       run: NB_RELEASE_VERSION=200 
     - name : package nmb 200
