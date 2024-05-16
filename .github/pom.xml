@@ -409,5 +409,10 @@
             <artifactId>org-openide-dialogs</artifactId>
             <version>${nbversion}</version>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-extexecution-base</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
     </dependencies>
 </project>

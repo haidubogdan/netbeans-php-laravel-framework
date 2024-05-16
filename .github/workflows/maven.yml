@@ -32,11 +32,15 @@ jobs:
       run : mkdir -p nb-plugin-package/src/main/nbm
     - name : prepare the files from project  
       run : mkdir -p nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel
-    - name : prepare the files from project  
+    - name : copy main app java
       run : cp -rf ./src/org nb-plugin-package/src/main/java
-    - name : prepare the files from project  
+    - name : copy base resources
       run : cp -rf ./src/org/netbeans/modules/php/laravel/resources nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel
-    - name : prepare the files from project  
+    - name : create ui bundle resource 
+      run : mkdir -p nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
+    - name : copy bundle customizer
+      run : cp  ./src/org/netbeans/modules/php/laravel/laravel/ui/customizer/Bundle.properties nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
+    - name : prepare the files from project
       run : cp ./manifest.mf nb-plugin-package/src/main/nbm/manifest.mf
     - name : prepare the files from project  
       run : cp ./.github/pom.xml nb-plugin-package/pom.xml
