@@ -7,6 +7,7 @@ import java.util.EnumSet;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.netbeans.modules.php.laravel.ui.customizer.LaravelCustomizerPanel;
 import org.netbeans.modules.php.spi.framework.PhpModuleCustomizerExtender;
 import org.openide.util.HelpCtx;
@@ -38,6 +39,7 @@ public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExten
         if (component == null) {
             component = new LaravelCustomizerPanel(phpModule.getSourceDirectory());
             component.setLaravelVersion(composerPackages.getLaravelVersion());
+            component.initModuleValues(phpModule);
         }
         return component;
     }
@@ -74,6 +76,12 @@ public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExten
 
     @Override
     public EnumSet<Change> save(PhpModule pm) {
+        if (component == null){
+            return null;
+        }
+
+        component.saveChanges(pm);
+        
         return null;
     }
 

@@ -35,4 +35,12 @@ public final class LaravelUtils {
     public static boolean isViewWithAction(FileObject fo) {
         return isView(fo);
     }
+    
+    public static String[] methodsForParamCompletion(){
+        return new String[]{"config", "view"}; //NOI18N
+    }
+    
+    public static String[] methodsWithViewArg(){
+        return new String[]{"make", "view", "render"}; //NOI18N
+    }
 }

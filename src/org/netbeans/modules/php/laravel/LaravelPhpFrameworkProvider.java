@@ -9,6 +9,7 @@ import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.phpmodule.PhpModuleProperties;
 import org.netbeans.modules.php.editor.parser.astnodes.ArrayElement;
 import org.netbeans.modules.php.laravel.commands.LaravelCommandSupport;
+import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
 import org.netbeans.modules.php.spi.editor.EditorExtender;
 import org.netbeans.modules.php.spi.framework.PhpFrameworkProvider;
@@ -72,7 +73,10 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
 
         ComposerPackages composerPackages = ComposerPackages.fromPhpModule(phpModule);
 
-        isInModule = composerPackages != null && composerPackages.getLaravelVersion() != null;
+        if (composerPackages != null) {
+            String laravelVersion = composerPackages.getLaravelVersion();
+            isInModule = laravelVersion != null;
+        }
         inPhpModuleChecked.put(projectHash, isInModule);
         return isInModule;
     }
@@ -87,6 +91,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     @Override
     public PhpModuleExtender createPhpModuleExtender(PhpModule pm) {
         //should we disable it ??
+       
         return new LaravelPhpModuleExtender();
     }
 

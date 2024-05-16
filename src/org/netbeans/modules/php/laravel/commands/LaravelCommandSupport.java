@@ -1,33 +1,21 @@
 package org.netbeans.modules.php.laravel.commands;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Future;
-import javax.swing.SwingUtilities;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
-import org.netbeans.api.extexecution.ExecutionService;
-import org.netbeans.modules.dlight.api.terminal.TerminalSupport;
-import org.netbeans.modules.dlight.terminal.ui.TerminalContainerTopComponent;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
-import org.netbeans.modules.nativeexecution.api.NativeProcessBuilder;
-import org.netbeans.modules.nativeexecution.api.execution.NativeExecutionDescriptor;
-import org.netbeans.modules.nativeexecution.api.util.ProcessUtils;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.laravel.executable.RemotePhpExecutable;
+import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommand;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommandSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
-import org.openide.windows.IOColorPrint;
-import org.openide.windows.IOColors;
-import org.openide.windows.IOContainer;
-import org.openide.windows.IOProvider;
-import org.openide.windows.InputOutput;
+import org.netbeans.modules.php.api.executable.PhpExecutable;
 
 /**
  *
@@ -55,20 +43,28 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
         List<String> params = new ArrayList<>(commands.length + commandParams.length);
         params.addAll(Arrays.asList(commands));
         params.addAll(Arrays.asList(commandParams));
-        ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
-        String dockerContainer = "lmc_back_v2"; 
-        String bashPath = "sh";
-        String command = "php artisan";
         
-        RP.post(new Runnable() {
-            @Override
-            public void run() {
-                createRemoteExecutable(phpModule, env)
-                        //.displayName(getDisplayName(phpModule))
-                        //                .additionalParameters(getAllParameters(parameters))
-                        .runRemoteDocker(dockerContainer, bashPath, command, getDescriptor(postExecution));
-            }
-        });
+        if (1>1){
+            ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
+            String dockerContainer = getDockerContainerName(); 
+            String bashPath = getDockerBashPath();
+            String command = "php artisan";
+
+            RP.post(new Runnable() {
+                @Override
+                public void run() {
+                    createRemoteExecutable(phpModule, env)
+                            //.displayName(getDisplayName(phpModule))
+                            //                .additionalParameters(getAllParameters(parameters))
+                            .runRemoteDocker(dockerContainer, bashPath, command, getDescriptor(postExecution));
+                }
+            });
+        } else {
+            createPhpExecutable(phpModule)
+            .displayName(getDisplayName(phpModule))
+                //.additionalParameters(getAllParameters(parameters))
+                .run(getDescriptor(postExecution));
+        }
     }
 
     private ExecutionDescriptor getDescriptor(Runnable postExecution) {
@@ -87,6 +83,12 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
 
     private RemotePhpExecutable createRemoteExecutable(PhpModule phpModule, ExecutionEnvironment env) {
         return new RemotePhpExecutable(laravelPath, env);
+    }
+    
+    private PhpExecutable createPhpExecutable(PhpModule phpModule) {
+        return new PhpExecutable("artisan")
+                .environmentVariables(Collections.singletonMap("SHELL_INTERACTIVE", "true")) // NOI18N
+                .workDir(FileUtil.toFile(phpModule.getSourceDirectory()));
     }
 
     @Override
@@ -113,6 +115,14 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
         List<FrameworkCommand> commands = new ArrayList<>();
         commands.add(new ArtisanCommand(phpModule, "controller", "test c", "controller preview"));
         return commands;
+    }
+    
+    private String getDockerContainerName(){
+        return LaravelPreferences.getDockerContainerName(phpModule);
+    }
+    
+    private String getDockerBashPath(){
+        return LaravelPreferences.getDockerBashPath(phpModule);
     }
 
 }
