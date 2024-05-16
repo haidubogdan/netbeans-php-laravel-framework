@@ -142,6 +142,16 @@
                             <type>impl</type>
                             <explicitValue>org.netbeans.modules.php.api.phpmodule = ${env.NB_META_INF}</explicitValue>
                         </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-dlight-nativeexecution</id>
+                            <type>impl</type>
+                            <explicitValue>org.netbeans.modules.dlight.nativeexecution = 1</explicitValue>
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-dlight-terminal</id>
+                            <type>impl</type>
+                            <explicitValue>org.netbeans.modules.dlight.terminal = 1</explicitValue>
+                        </dependency>
                     </moduleDependencies>
                 </configuration>
             </plugin>
@@ -372,6 +382,31 @@
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-php-api-editor</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-api-progress</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-dlight-nativeexecution</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-extexecution</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-dlight-terminal</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-openide-dialogs</artifactId>
             <version>${nbversion}</version>
         </dependency>
     </dependencies>

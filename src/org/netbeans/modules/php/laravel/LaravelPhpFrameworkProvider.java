@@ -8,6 +8,7 @@ import org.netbeans.modules.php.api.framework.BadgeIcon;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.phpmodule.PhpModuleProperties;
 import org.netbeans.modules.php.editor.parser.astnodes.ArrayElement;
+import org.netbeans.modules.php.laravel.commands.LaravelCommandSupport;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
 import org.netbeans.modules.php.spi.editor.EditorExtender;
 import org.netbeans.modules.php.spi.framework.PhpFrameworkProvider;
@@ -144,7 +145,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
      */
     @Override
     public FrameworkCommandSupport getFrameworkCommandSupport(PhpModule pm) {
-        return null;
+        return new LaravelCommandSupport(pm);
     }
 
     public FileObject getSourceDirectory() {
