@@ -39,7 +39,7 @@ jobs:
     - name : create ui bundle resource 
       run : mkdir -p nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
     - name : copy bundle customizer
-      run : cp  ./src/org/netbeans/modules/php/laravel/laravel/ui/customizer/Bundle.properties nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
+      run : cp  ./src/org/netbeans/modules/php/laravel/ui/customizer/Bundle.properties nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
     - name : prepare the files from project
       run : cp ./manifest.mf nb-plugin-package/src/main/nbm/manifest.mf
     - name : prepare the files from project  
