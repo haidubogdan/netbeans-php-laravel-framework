@@ -16,6 +16,7 @@ import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.RequestProcessor;
 import org.netbeans.modules.php.api.executable.PhpExecutable;
+import org.netbeans.modules.php.laravel.utils.StringUtils;
 
 /**
  *
@@ -43,27 +44,42 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
         List<String> params = new ArrayList<>(commands.length + commandParams.length);
         params.addAll(Arrays.asList(commands));
         params.addAll(Arrays.asList(commandParams));
-        
-        if (1>1){
+
+        if (useRemoteConnection()) {
+            //REMOTE WITH docker
             ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
-            String dockerContainer = getDockerContainerName(); 
+            String dockerContainer = getDockerContainerName();
             String bashPath = getDockerBashPath();
-            String command = "php artisan";
+
+            String command;
+
+            String preScript = getPreScript();
+
+            if (preScript != null && !preScript.isEmpty()) {
+                command = preScript + " " + "php artisan " + StringUtils.implode(params, " ");
+            } else {
+                command = "php artisan " + StringUtils.implode(params, " ");
+            }
 
             RP.post(new Runnable() {
                 @Override
                 public void run() {
-                    createRemoteExecutable(phpModule, env)
-                            //.displayName(getDisplayName(phpModule))
-                            //                .additionalParameters(getAllParameters(parameters))
-                            .runRemoteDocker(dockerContainer, bashPath, command, getDescriptor(postExecution));
+                    RemotePhpExecutable exec = createRemoteExecutable(phpModule, env);
+
+                    if (useDocker()) {
+                        exec.runRemoteDocker(dockerContainer, bashPath, command, getDescriptor(postExecution));
+                    } else {
+                        exec.runRemote(dockerContainer, bashPath, command, getDescriptor(postExecution));
+                    }
                 }
             });
+        } else if (useDocker()) {
+            throw new UnsupportedOperationException("Feature incomplete.");
         } else {
             createPhpExecutable(phpModule)
-            .displayName(getDisplayName(phpModule))
-                //.additionalParameters(getAllParameters(parameters))
-                .run(getDescriptor(postExecution));
+                    .displayName(getDisplayName(phpModule))
+                    .additionalParameters(params)
+                    .run(getDescriptor(postExecution));
         }
     }
 
@@ -84,9 +100,10 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
     private RemotePhpExecutable createRemoteExecutable(PhpModule phpModule, ExecutionEnvironment env) {
         return new RemotePhpExecutable(laravelPath, env);
     }
-    
+
     private PhpExecutable createPhpExecutable(PhpModule phpModule) {
-        return new PhpExecutable("artisan")
+        String absolutePath = FileUtil.toFile(phpModule.getSourceDirectory()).getAbsolutePath();
+        return new PhpExecutable(absolutePath + "/artisan") //??
                 .environmentVariables(Collections.singletonMap("SHELL_INTERACTIVE", "true")) // NOI18N
                 .workDir(FileUtil.toFile(phpModule.getSourceDirectory()));
     }
@@ -113,15 +130,29 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
     @Override
     protected List<FrameworkCommand> getFrameworkCommandsInternal() {
         List<FrameworkCommand> commands = new ArrayList<>();
-        commands.add(new ArtisanCommand(phpModule, "controller", "test c", "controller preview"));
+        commands.add(new ArtisanCommand(phpModule, "", "basic command", "Artisan"));
+        //temporary hardcode
+        commands.add(new ArtisanCommand(phpModule, "about", "Display basic information about your application", "About"));
         return commands;
     }
-    
-    private String getDockerContainerName(){
+
+    private String getPreScript() {
+        return LaravelPreferences.getPreScript(phpModule);
+    }
+
+    private boolean useRemoteConnection() {
+        return LaravelPreferences.getRemoteConnectionFlag(phpModule);
+    }
+
+    private boolean useDocker() {
+        return LaravelPreferences.getUseDocker(phpModule);
+    }
+
+    private String getDockerContainerName() {
         return LaravelPreferences.getDockerContainerName(phpModule);
     }
-    
-    private String getDockerBashPath(){
+
+    private String getDockerBashPath() {
         return LaravelPreferences.getDockerBashPath(phpModule);
     }
 

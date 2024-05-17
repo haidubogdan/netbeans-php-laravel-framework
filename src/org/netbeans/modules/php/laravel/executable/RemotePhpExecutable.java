@@ -111,17 +111,34 @@ public class RemotePhpExecutable {
      * @see ExecutionService#run()
      * @since 0.28
      */
-    
     @CheckForNull
     public Future<Integer> runRemoteDocker(String dockerContainer,
             String bashPath, String command, ExecutionDescriptor executionDescriptor) {
         Parameters.notNull("executionDescriptor", executionDescriptor); // NOI18N
 
         NativeProcessBuilder processBuilder = NativeProcessBuilder.newProcessBuilder(env);
-        processBuilder.setExecutable("docker").setArguments("exec", dockerContainer, "sh", "-c", command).redirectError(); // NOI18N
         if (processBuilder == null) {
             return null;
         }
+        processBuilder.setExecutable("docker").setArguments("exec", dockerContainer, "sh", "-c", command).redirectError(); // NOI18N
+
+        executionDescriptor = getExecutionDescriptor(executionDescriptor, null);
+        return ExecutionService.newService(processBuilder, executionDescriptor, getDisplayName()).run();
+    }
+
+    public Future<Integer> runRemote(String dockerContainer,
+            String bashPath, String command, ExecutionDescriptor executionDescriptor) {
+        Parameters.notNull("executionDescriptor", executionDescriptor); // NOI18N
+
+        NativeProcessBuilder processBuilder = NativeProcessBuilder.newProcessBuilder(env);
+        
+        //add remote process path ??
+        if (processBuilder == null) {
+            return null;
+        }
+
+        processBuilder.setExecutable("php").setArguments(command).redirectError(); // NOI18N
+
         executionDescriptor = getExecutionDescriptor(executionDescriptor, null);
         return ExecutionService.newService(processBuilder, executionDescriptor, getDisplayName()).run();
     }

@@ -16,8 +16,11 @@ public final class LaravelPreferences {
 
     private static final String APP_DIR = "appDir-path"; // NOI18N
     private static final String DEFAULT_APP_DIR = "app"; // NOI18N
+    private static final String USE_REMOTE_CONNECTION = "use_remote_connection";
+    private static final String USE_DOCKER = "use_docker";
     private static final String DOCKER_CONTAINER_NAME = "docker_container_name"; // NOI18N
     private static final String DOCKER_BASH_PATH = "docker_bash_path"; // NOI18N
+    private static final String PRESCRIPT = "prescript"; // NOI18N
 
     private LaravelPreferences() {
     }
@@ -38,6 +41,18 @@ public final class LaravelPreferences {
         getPreferences(module).put(DOCKER_BASH_PATH, bashPath);
     }
 
+    public static void setPrescript(PhpModule module, String text) {
+         getPreferences(module).put(PRESCRIPT, text);
+    }
+    
+    public static void setRemoteConnectionFlag(PhpModule module, boolean remoteConnFlag) {
+        getPreferences(module).putBoolean(USE_REMOTE_CONNECTION, remoteConnFlag);
+    }
+
+    public static void setUseDocker(PhpModule module, boolean useDocker) {
+        getPreferences(module).putBoolean(USE_DOCKER, useDocker);
+    }
+
     private static Preferences getPreferences(PhpModule module) {
         return module.getPreferences(LaravelPhpFrameworkProvider.class, true);
     }
@@ -53,4 +68,17 @@ public final class LaravelPreferences {
     public static String getDockerBashPath(PhpModule module) {
         return getPreferences(module).get(DOCKER_BASH_PATH, null);
     }
+    
+    public static boolean getRemoteConnectionFlag(PhpModule module) {
+        return getPreferences(module).getBoolean(USE_REMOTE_CONNECTION, false);
+    }
+    
+    public static boolean getUseDocker(PhpModule module) {
+        return getPreferences(module).getBoolean(USE_DOCKER, false);
+    }
+    
+    public static String getPreScript(PhpModule module) {
+        return getPreferences(module).get(PRESCRIPT, null);
+    }
+
 }
