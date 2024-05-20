@@ -422,5 +422,15 @@
             <artifactId>org-netbeans-modules-php-api-executable</artifactId>
             <version>${nbversion}</version>
         </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectapi</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.api</groupId>
+            <artifactId>org-netbeans-modules-projectuiapi</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
     </dependencies>
 </project>
