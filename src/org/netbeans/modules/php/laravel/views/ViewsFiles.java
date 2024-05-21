@@ -26,7 +26,6 @@ import org.openide.util.Exceptions;
  */
 public class ViewsFiles {
     private static final Node iconDelegate = DataFolder.findFolder(FileUtil.getConfigRoot()).getNodeDelegate();
-    private static String rootPath;
      
     @NodeFactory.Registration(projectType = "org-netbeans-modules-php-project", position = 400)
     public static NodeFactory forPhpProject() {
@@ -39,8 +38,9 @@ public class ViewsFiles {
         public NodeList<?> createNodes(Project project) {
             assert project != null;
             FileObject source = project.getProjectDirectory();
-            rootPath = source.getPath() + "/resources/views/";
-            return new BladeViewsNodeList(project);
+            String rootAbsPath = FileUtil.toFile(source).getAbsolutePath() + "\\resources\\views\\";
+            String rootPath = FileUtil.toFile(source).getAbsolutePath() + "\\resources\\views\\";
+            return new BladeViewsNodeList(project, rootPath);
         }
 
     }
@@ -51,15 +51,17 @@ public class ViewsFiles {
 //        private final ChangeSupport changeSupport = new ChangeSupport(this);
         private final List<FileObject> viewsFiles = new ArrayList<>();
         private final List<FileObject> viewsFolders = new ArrayList<>();
+        public String rootPath;
        
 
-        BladeViewsNodeList(Project project) {
+        BladeViewsNodeList(Project project, String rootPath) {
             //this.project = project;
             FileObject viewsFolder = project.getProjectDirectory().getFileObject("resources/views");
 
             if (viewsFolder != null && viewsFolder.isValid() && viewsFolder.isFolder()) {
                 extractFolderAsTemplatePath(viewsFolder);
             }
+            this.rootPath = rootPath;
         }
 
         private void extractFolderAsTemplatePath(FileObject dir) {
@@ -88,7 +90,7 @@ public class ViewsFiles {
         public List<Node> keys() {
             List<Node> keysList = new ArrayList<>(1);
             if (!viewsFolders.isEmpty()) {
-                BladeTemplateFolderNodeList folders = new BladeTemplateFolderNodeList(viewsFolders);
+                BladeTemplateFolderNodeList folders = new BladeTemplateFolderNodeList(viewsFolders, rootPath);
                 folders.setKeys();
                 keysList.add(new MainNode(folders));
             }
@@ -129,45 +131,19 @@ public class ViewsFiles {
     private static final class BladeTemplateFolderNodeList extends Children.Keys<FileObject> {
 
         List<FileObject> files = new ArrayList<>();
+        private String rootPath;
 
-        BladeTemplateFolderNodeList(List<FileObject> mdFiles) {
+        BladeTemplateFolderNodeList(List<FileObject> bladeTemplatesFiles, String rootPath) {
             super(true);
-            this.files = mdFiles;
+            this.files = bladeTemplatesFiles;
+            this.rootPath = rootPath;
         }
 
         @Override
         protected Node[] createNodes(FileObject file) {
             try {
                 DataObject dobj = DataObject.find(file);
-                FilterNode fn = new BladeFolderNode(dobj.getNodeDelegate(), file);
-                return new Node[]{fn};
-            } catch (DataObjectNotFoundException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-            return null;
-        }
-
-        public void setKeys() {
-            List<FileObject> keys = new ArrayList<>(files.size());
-            keys.addAll(files);
-            setKeys(keys);
-        }
-    }
-
-    private static final class MarkdownFilesNodeList extends Children.Keys<FileObject> {
-
-        List<FileObject> files = new ArrayList<>();
-
-        MarkdownFilesNodeList(List<FileObject> mdFiles) {
-            super(true);
-            this.files = mdFiles;
-        }
-
-        @Override
-        protected Node[] createNodes(FileObject file) {
-            try {
-                DataObject dobj = DataObject.find(file);
-                FilterNode fn = new FilterNode(dobj.getNodeDelegate(), Children.LEAF);
+                FilterNode fn = new BladeFolderNode(dobj.getNodeDelegate(), file, rootPath);
                 return new Node[]{fn};
             } catch (DataObjectNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
@@ -203,10 +179,12 @@ public class ViewsFiles {
     private static final class BladeFolderNode extends FilterNode {
 
         FileObject folder;
+        String rootPath;
         
-        BladeFolderNode(Node node, FileObject folder) {
+        BladeFolderNode(Node node, FileObject folder, String rootPath) {
             super(node);
             this.folder = folder;
+            this.rootPath = rootPath;
         }
 
         @Override
@@ -221,7 +199,7 @@ public class ViewsFiles {
         
         @Override
         public String getDisplayName(){
-            return folder.getPath().replace(rootPath, "").replace("/", ".").replace("\\", ".");
+            return FileUtil.toFile(folder).getAbsolutePath().replace(rootPath, "").replace("\\", ".");
         }
     }
 }
