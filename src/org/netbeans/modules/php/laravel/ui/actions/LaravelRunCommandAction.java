@@ -6,6 +6,7 @@ package org.netbeans.modules.php.laravel.ui.actions;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 import org.netbeans.modules.php.spi.framework.actions.RunCommandAction;
+import org.openide.util.NbBundle.Messages;
 
 /**
  *
@@ -31,8 +32,12 @@ public final class LaravelRunCommandAction extends RunCommandAction {
         LaravelPhpFrameworkProvider.getInstance().getFrameworkCommandSupport(phpModule).openPanel();
     }
 
+    @Messages({
+        "# {0} - command name",
+        "LaravelRunCommandAction.name=Laravel: {0}",
+    })
     @Override
     protected String getFullName() {
-        return "my laravel action";
+        return Bundle.LaravelRunCommandAction_name(getPureName());
     }
 }

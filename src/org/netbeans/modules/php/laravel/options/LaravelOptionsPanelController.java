@@ -14,14 +14,15 @@ import org.openide.util.HelpCtx;
 import org.openide.util.Lookup;
 
 @UiUtils.PhpOptionsPanelRegistration(
-    id = LaravelOptionsPanelController.ID,
-    displayName = "Laravel 9",
-    position = 2200
+        id = LaravelOptionsPanelController.ID,
+        displayName = "Laravel 9",
+        position = 2200
 )
 public class LaravelOptionsPanelController extends OptionsPanelController {
 
     static final String ID = "Laravel"; // NOI18N
     static final String OPTIONS_PATH = UiUtils.FRAMEWORKS_AND_TOOLS_SUB_PATH + "/" + ID; // NOI18N
+    public static final String OPTIONS_SUBPATH = UiUtils.FRAMEWORKS_AND_TOOLS_SUB_PATH + "/" + ID; // NOI18N
 
     private LaravelPanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
@@ -87,5 +88,9 @@ public class LaravelOptionsPanelController extends OptionsPanelController {
             pcs.firePropertyChange(OptionsPanelController.PROP_CHANGED, false, true);
         }
         pcs.firePropertyChange(OptionsPanelController.PROP_VALID, null, null);
+    }
+
+    public static String getOptionsPath() {
+        return UiUtils.OPTIONS_PATH + "/" + OPTIONS_SUBPATH; // NOI18N
     }
 }

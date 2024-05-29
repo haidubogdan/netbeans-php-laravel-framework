@@ -8,6 +8,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.WeakHashMap;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
@@ -21,7 +22,7 @@ import org.openide.util.Exceptions;
 public class ComposerPackages {
 
     private final PhpModule phpModule;
-    private static ComposerPackages INSTANCE = null;
+    private static final Map<String, ComposerPackages> INSTANCES = new WeakHashMap<>();
     private Map<String, Object> composerJsonContent = new HashMap<>();
     private boolean composerFileFound = false;
 
@@ -73,12 +74,21 @@ public class ComposerPackages {
     }
 
     public static ComposerPackages fromPhpModule(PhpModule phpModule) {
-        INSTANCE = new ComposerPackages(phpModule);
-        return INSTANCE;
+        return new ComposerPackages(phpModule);
     }
 
-    public static ComposerPackages getInstance() {
-        return INSTANCE;
+    public static ComposerPackages getInstance(PhpModule phpModule)
+    {
+        String projectPath = phpModule.getProjectDirectory().getPath();
+
+        synchronized (INSTANCES) {
+            ComposerPackages composerPackage = INSTANCES.get(projectPath);
+            if (composerPackage == null) {
+                composerPackage = fromPhpModule(phpModule);
+                INSTANCES.put(projectPath, composerPackage);
+            }
+            return composerPackage;
+        }
     }
     
     public boolean composerFileFound() {
