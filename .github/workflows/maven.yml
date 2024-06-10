@@ -68,6 +68,18 @@ jobs:
       with:
         name: php-laravel-nbm-200
         path: ./nb-plugin-package/target/nbm/*.nbm
+    - name : set env nb 220
+      run: echo "NB_META_INF=22-0d0bfcf3faf364a2643238f2a44e1bb6eb8217bd" >> "$GITHUB_ENV"
+    - name : set env nb 220
+      run: NB_RELEASE_VERSION=220 
+    - name : package nmb 220
+      working-directory: ./nb-plugin-package
+      run : mvn package  
+    - name : upload nbm 220
+      uses: actions/upload-artifact@v4
+      with:
+        name: php-laravel-nbm-220
+        path: ./nb-plugin-package/target/nbm/*.nbm        
 #    - name: release
 #      uses: actions/create-release@v1
 #      env:
