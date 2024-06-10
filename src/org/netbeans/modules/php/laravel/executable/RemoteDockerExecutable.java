@@ -149,6 +149,23 @@ public class RemoteDockerExecutable {
         runTask(awtTask);
     }
 
+    private void outputErrorMessage(String message) {
+        Runnable awtTask = new Runnable() {
+            @Override
+            public void run() {
+                TerminalComponent errorOutput = TerminalComponent.getInstance(phpModule);
+
+                if (!errorOutput.isOpened()) {
+                    errorOutput.open();
+                    errorOutput.requestActive();
+                }
+                InputOutput io = errorOutput.getIo();
+                io.getOut().println(message);
+            }
+        };
+        runTask(awtTask);
+    }
+
     private void runTask(Runnable awtTask) {
         if (SwingUtilities.isEventDispatchThread()) {
             awtTask.run();
@@ -162,6 +179,10 @@ public class RemoteDockerExecutable {
     }
 
     public void runGetCommands(ExecutionEnvironment env) {
+        if (env == null || env.getHost() == null || env.getUser() == null) {
+            outputErrorMessage("Error! Remote terminal not configured.");
+            return;
+        }
         String[] args = new String[]{DOCKER_EXEC, dockerCommand.dockerContainer,
             dockerCommand.bashPath, "-c", dockerCommand.command + " --ansi"};
 

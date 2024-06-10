@@ -78,6 +78,10 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
             isInModule = laravelVersion != null;
         }
         inPhpModuleChecked.put(projectHash, isInModule);
+
+        if (!LaravelPreferences.hasEnabledConfigured(phpModule)){
+            LaravelPreferences.setEnabled(phpModule, isInModule);
+        }
         return isInModule;
     }
 

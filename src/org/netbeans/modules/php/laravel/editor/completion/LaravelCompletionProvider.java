@@ -3,6 +3,9 @@ Licensed to the Apache Software Foundation (ASF)
  */
 package org.netbeans.modules.php.laravel.editor.completion;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.*;
@@ -12,14 +15,21 @@ import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.csl.api.OffsetRange;
+import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.util.FileUtils;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
+import org.netbeans.modules.php.editor.parser.astnodes.ArrayElement;
+import org.netbeans.modules.php.laravel.ConfigurationFiles;
 import org.netbeans.modules.php.laravel.editor.EditorUtils;
+import org.netbeans.modules.php.laravel.project.ProjectUtils;
+import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
+import org.netbeans.spi.editor.completion.support.CompletionUtilities;
 
 /**
  *
@@ -30,25 +40,39 @@ public class LaravelCompletionProvider implements CompletionProvider {
 
     private String methodName;
 
+    public static String[] QUERY_METHODS = new String[]{"config", "view"};
+   
     @Override
-    public CompletionTask createTask(int queryType, JTextComponent jtc) {
-        int offset = jtc.getCaretPosition();
-        BaseDocument baseDoc = (BaseDocument) jtc.getDocument();
-        int lineStart = LineDocumentUtils.getLineStart(baseDoc, offset);
-        TokenSequence<PHPTokenId> tokensq = EditorUtils.getTokenSequence(jtc.getDocument(), offset);
+    public CompletionTask createTask(int queryType, JTextComponent component) {
+        PhpModule module = ProjectUtils.getPhpModule(component.getDocument());
 
-        if (tokensq == null){
+        if (module == null) {
             return null;
         }
-        
+
+        if (!ProjectUtils.isInLaravelModule(module)) {
+            return null;
+        }
+
+        int offset = component.getCaretPosition();
+        BaseDocument baseDoc = (BaseDocument) component.getDocument();
+
+        int lineStart = LineDocumentUtils.getLineStart(baseDoc, offset);
+        TokenSequence<PHPTokenId> tokensq = EditorUtils.getTokenSequence(component.getDocument(), offset);
+
+        if (tokensq == null) {
+            return null;
+        }
+
         Token<PHPTokenId> currentToken = tokensq.token();
-        int startOffset = tokensq.offset();
 
         if (currentToken == null) {
             return null;
         }
 
         PHPTokenId prevTokenId = null;
+
+        String quotedReference = "";
 
         while (tokensq.movePrevious() && tokensq.offset() >= lineStart) {
             Token<PHPTokenId> token = tokensq.token();
@@ -59,24 +83,134 @@ public class LaravelCompletionProvider implements CompletionProvider {
             PHPTokenId id = token.id();
 
             if (prevTokenId != null && id.equals(PHPTokenId.PHP_STRING)
-                    && (text.equals("config"))) {
+                    && (Arrays.asList(QUERY_METHODS).indexOf(text)> -1)) {
                 methodName = text;
-                String quotedBladePath = currentToken.text().toString();
-                int x = 1;
-//                bladePath = quotedBladePath.substring(1, quotedBladePath.length() - 1);
-//                return new int[]{startOffset, startOffset + currentToken.length()};
+                quotedReference = currentToken.text().toString();
+                break;
             }
 
             if (id.equals(PHPTokenId.PHP_TOKEN) && text.equals("(")) {
                 prevTokenId = id;
             }
         }
+
+        if (quotedReference.length() < 2 || quotedReference.startsWith("$")) {
+            return null;
+        }
+        if (quotedReference.startsWith("'") || quotedReference.startsWith("\\\"")) {
+            String reference = quotedReference.substring(1, quotedReference.length() - 1);
+            AsyncCompletionQuery completionQuery;
+            
+            switch (methodName){
+                case "config":
+                    completionQuery = new ConfigurationCompletionQuery(reference, module);
+                    break;
+                default:
+                    return null;
+            }
+            
+            return new AsyncCompletionTask(completionQuery, component);
+        }
         return null;
     }
 
     @Override
     public int getAutoQueryTypes(JTextComponent component, String typedText) {
+        if (component.getDocument() == null) {
+            return 0;
+        }
+        if (!ProjectUtils.isInLaravelModule(component.getDocument())) {
+            return 0;
+        }
         return COMPLETION_QUERY_TYPE;
     }
 
+    private class ConfigurationCompletionQuery extends AsyncCompletionQuery {
+
+        String query;
+        PhpModule module;
+
+        public ConfigurationCompletionQuery(String query, PhpModule module) {
+            this.query = query;
+            this.module = module;
+        }
+
+        @Override
+        protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
+            long startTime = System.currentTimeMillis();
+
+            try {
+                ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+                if (confFiles != null) {
+                    confFiles.extractConfigurationMapping(false);
+                    String[] queryConfigNamespace = query.split("\\.");
+                    Map<String, Map<String, List<String>>> confFileList = confFiles.getConfigurationMapping();
+                    String filterQuery = query;
+                    if (query.endsWith(".")) {
+                        filterQuery = query.substring(0, query.length() - 1);
+                    }
+                    for (Map.Entry<String, Map<String, List<String>>> entry : confFileList.entrySet()) {
+                        if (!entry.getKey().startsWith(queryConfigNamespace[0])) {
+                            continue;
+                        }
+                        if (queryConfigNamespace.length == 1 && query.endsWith(".") && !entry.getValue().isEmpty()){
+                            for (Map.Entry<String, List<String>> namespace : entry.getValue().entrySet()) {
+                                String rootKey = entry.getKey() + "." + namespace.getKey();
+                                addSimplCompletionItem(query, rootKey, caretOffset, resultSet);
+                            }
+                            //should be only a unique namespace
+                            break;
+                        }
+                        if (queryConfigNamespace.length < 2){
+                            continue;
+                        }
+                        for (Map.Entry<String, List<String>> namespace : entry.getValue().entrySet()) {
+                            String rootKey = entry.getKey() + "." + namespace.getKey();
+
+                            if (!rootKey.startsWith(queryConfigNamespace[0] + "." + queryConfigNamespace[1])) {
+                                continue;
+                            }
+
+                            if (queryConfigNamespace.length == 2 && !query.endsWith(".")){
+                                addSimplCompletionItem(query, rootKey, caretOffset, resultSet);
+                            }
+
+                            if (query.endsWith(".") && !namespace.getValue().isEmpty()){
+                                
+                                for (String configNamespace : namespace.getValue()) {
+                                    String fullConfigNamespace = entry.getKey() + "." + configNamespace;
+                                    addSimplCompletionItem(query, fullConfigNamespace, caretOffset, resultSet);
+                                }
+                                //should be only a unique namespace
+                                break;
+                            }
+
+                            
+                            for (String configNamespace : namespace.getValue()) {
+                                String fullConfigNamespace = entry.getKey() + "." + configNamespace;
+                                if (fullConfigNamespace.startsWith(filterQuery)) {
+                                    addSimplCompletionItem(query, fullConfigNamespace, caretOffset, resultSet);
+                                }
+                            }
+                        }
+                    }
+                }
+            } finally {
+//                long time = System.currentTimeMillis() - startTime;
+                resultSet.finish();
+            }
+        }
+    }
+
+    private void addSimplCompletionItem(String prefix, String value, int caretOffset, CompletionResultSet resultSet) {
+        int insertOffset = caretOffset - prefix.length();
+        CompletionItem item = CompletionUtilities.newCompletionItemBuilder(value)
+                //.iconResource(getReferenceIcon(CompletionType.HTML_COMPONENT_TAG))
+                .startOffset(insertOffset)
+                .leftHtmlText(value)
+                //.rightHtmlText(plugin)
+                .sortPriority(1)
+                .build();
+        resultSet.addItem(item);
+    }
 }

@@ -15,6 +15,7 @@ import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 public final class LaravelPreferences {
 
     private static final String APP_DIR = "appDir-path"; // NOI18N
+    private static final String ENABLED = "laravel_enabled"; // NOI18N
     private static final String DEFAULT_APP_DIR = "app"; // NOI18N
     private static final String USE_REMOTE_CONNECTION = "use_remote_connection";
     private static final String USE_DOCKER = "use_docker";
@@ -23,14 +24,6 @@ public final class LaravelPreferences {
     private static final String PRESCRIPT = "prescript"; // NOI18N
 
     private LaravelPreferences() {
-    }
-
-    public static void setAppDir(PhpModule module, String appDir) {
-        if (appDir.equals(DEFAULT_APP_DIR)) {
-            getPreferences(module).remove(APP_DIR);
-        } else {
-            getPreferences(module).put(APP_DIR, appDir);
-        }
     }
 
     public static void setDockerContainerName(PhpModule module, String dockerContainerName) {
@@ -52,6 +45,10 @@ public final class LaravelPreferences {
     public static void setUseDocker(PhpModule module, boolean useDocker) {
         getPreferences(module).putBoolean(USE_DOCKER, useDocker);
     }
+    
+    public static void setEnabled(PhpModule module, boolean useDocker) {
+        getPreferences(module).putBoolean(ENABLED, useDocker);
+    }
 
     private static Preferences getPreferences(PhpModule module) {
         return module.getPreferences(LaravelPhpFrameworkProvider.class, true);
@@ -59,6 +56,15 @@ public final class LaravelPreferences {
 
     public static String getAppDir(PhpModule module) {
         return getPreferences(module).get(APP_DIR, DEFAULT_APP_DIR);
+    }
+    
+    public static boolean hasEnabledConfigured(PhpModule module) {
+        Preferences pref = getPreferences(module);
+        return pref.get(ENABLED, null) != null;
+    }
+    
+    public static boolean isEnabled(PhpModule module) {
+        return getPreferences(module).getBoolean(ENABLED, false);
     }
 
     public static String getDockerContainerName(PhpModule module) {

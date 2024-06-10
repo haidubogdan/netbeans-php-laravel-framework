@@ -34,7 +34,7 @@ public class ComposerPackages {
     private void extractPackageInfo() {
         FileObject sourceDir = phpModule.getSourceDirectory();
 
-        if (sourceDir == null){
+        if (sourceDir == null) {
             return;
         }
         FileObject composerJsonFile = sourceDir.getFileObject("composer.json");
@@ -60,15 +60,15 @@ public class ComposerPackages {
     }
 
     public String getLaravelVersion() {
-        if (composerJsonContent == null){
+        if (composerJsonContent == null) {
             return null;
         }
         Map<String, Object> require = (Map<String, Object>) composerJsonContent.get("require");
-       
-        if (require == null){
+
+        if (require == null) {
             return null;
         }
-        
+
         String laravelVersion = (String) require.get("laravel/framework");
         return laravelVersion;
     }
@@ -77,8 +77,7 @@ public class ComposerPackages {
         return new ComposerPackages(phpModule);
     }
 
-    public static ComposerPackages getInstance(PhpModule phpModule)
-    {
+    public static ComposerPackages getInstance(PhpModule phpModule) {
         String projectPath = phpModule.getProjectDirectory().getPath();
 
         synchronized (INSTANCES) {
@@ -90,11 +89,16 @@ public class ComposerPackages {
             return composerPackage;
         }
     }
-    
+
+    public static ComposerPackages getInstance(String projectPath) {
+        ComposerPackages composerPackage = INSTANCES.get(projectPath);
+        return composerPackage;
+    }
+
     public boolean composerFileFound() {
         return composerFileFound;
     }
-    
+
     public boolean hasPhpModule() {
         return phpModule != null;
     }

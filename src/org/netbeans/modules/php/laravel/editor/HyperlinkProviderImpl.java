@@ -1,12 +1,15 @@
 package org.netbeans.modules.php.laravel.editor;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
+import javax.swing.tree.MutableTreeNode;
 import org.netbeans.api.editor.*;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
@@ -15,15 +18,22 @@ import org.netbeans.api.editor.document.LineDocumentUtils;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
+import org.netbeans.modules.php.laravel.ConfigurationFiles;
 import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
+import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
+import org.netbeans.modules.php.laravel.project.ProjectUtils;
 import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.text.DataEditorSupport;
+import org.openide.text.Line;
+import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 
 /**
+ * Similar to a declaration finder
  *
  * @author bhaidu
  */
@@ -31,7 +41,7 @@ import org.openide.util.Exceptions;
 public class HyperlinkProviderImpl implements HyperlinkProviderExt {
 
     String methodName;
-    String bladePath;
+    String identifiableText;
 
     public enum DeclarationType {
         VIEW_PATH;
@@ -39,20 +49,20 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
 
     @Override
     public Set<HyperlinkType> getSupportedHyperlinkTypes() {
-        if (!hasLaravelProvider()){
-            return null;
-        }
         return EnumSet.of(HyperlinkType.GO_TO_DECLARATION, HyperlinkType.ALT_HYPERLINK);
     }
 
     @Override
     public boolean isHyperlinkPoint(Document doc, int offset, HyperlinkType type) {
+        if (!isInLaravelModule(doc)) {
+            return false;
+        }
         return getHyperlinkSpan(doc, offset, type) != null;
     }
 
     @Override
     public int[] getHyperlinkSpan(Document doc, int offset, HyperlinkType type) {
-        if (!hasLaravelProvider()){
+        if (!isInLaravelModule(doc)) {
             return null;
         }
         if (!type.equals(HyperlinkType.GO_TO_DECLARATION)) {
@@ -64,18 +74,18 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
         int lineStart = LineDocumentUtils.getLineStart(baseDoc, offset);
         TokenSequence<PHPTokenId> tokensq = EditorUtils.getTokenSequence(doc, offset);
 
-        if (tokensq == null){
+        if (tokensq == null) {
             return null;
         }
-        
+
         Token<PHPTokenId> currentToken = tokensq.token();
         int startOffset = tokensq.offset();
 
         if (currentToken == null) {
             return null;
         }
-        
-        List<String> methodsWithViewArg =  Arrays.asList(LaravelUtils.methodsWithViewArg());
+
+        List<String> methodsWithViewArg = Arrays.asList(LaravelUtils.methodsWithViewArg());
 
         PHPTokenId prevTokenId = null;
 
@@ -88,10 +98,10 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
             PHPTokenId id = token.id();
 
             if (prevTokenId != null && id.equals(PHPTokenId.PHP_STRING)
-                    && methodsWithViewArg.contains(text)) {
+                    && (methodsWithViewArg.contains(text) || text.equals("config"))) {
                 methodName = text;
                 String quotedBladePath = currentToken.text().toString();
-                bladePath = quotedBladePath.substring(1, quotedBladePath.length() - 1);
+                identifiableText = quotedBladePath.substring(1, quotedBladePath.length() - 1);
                 return new int[]{startOffset, startOffset + currentToken.length()};
             }
 
@@ -106,17 +116,73 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
     public void performClickAction(Document doc, int offset, HyperlinkType type) {
         switch (type) {
             case GO_TO_DECLARATION:
-                FileObject dir = LaravelPhpFrameworkProvider.getInstance().getSourceDirectory();
-                if (dir != null) {
-                    String viewPath = "resources/views/" + bladePath.replace(".", "/") + ".blade.php";
-                    //FileObject views = dir.getFileObject("resources/views");
-                    FileObject viewFile = dir.getFileObject(viewPath);
-                    if (viewFile == null){
-                        return;
-                    }
-                    openDocument(viewFile);
+                switch (methodName) {
+                    case "view":
+                    case "make":
+                    case "render":
+                        FileObject dir = LaravelPhpFrameworkProvider.getInstance().getSourceDirectory();
+                        if (dir != null) {
+                            String viewPath = "resources/views/" + identifiableText.replace(".", "/") + ".blade.php";
+                            //FileObject views = dir.getFileObject("resources/views");
+                            FileObject viewFile = dir.getFileObject(viewPath);
+                            if (viewFile == null) {
+                                return;
+                            }
+                            openDocument(viewFile, 0);
+                            return;
+                        }
+                        break;
+                    case "config":
+                        PhpModule module = ProjectUtils.getPhpModule(doc);
+                        if (module == null) {
+                            return;
+                        }
+                        String[] queryConfigNamespace = identifiableText.split("\\.");
+
+                        ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+
+                        if (confFiles == null) {
+                            return;
+                        }
+
+                        confFiles.extractConfigurationMapping(true);
+                        Map<FileObject, ConfigNamespace> confFileNamespace = confFiles.getConfigurationFileNamespace();
+                        
+                        ArrayList<ConfigNamespace> queue = new ArrayList<>();
+                        String configNamespaceConcat;
+
+                        for (Map.Entry<FileObject, ConfigNamespace> entry : confFileNamespace.entrySet()) {
+                            ConfigNamespace root = entry.getValue();
+                            if (!root.namespace.equals(queryConfigNamespace[0])) {
+                                continue;
+                            }
+                            queue.addAll(root.children);
+                            configNamespaceConcat = root.namespace;
+                            int treeDepth = 2;
+                            while (queue.size() > 0) {
+                                ConfigNamespace children = queue.get(0);
+                                queue.remove(0);//remove from queue
+                                if (queryConfigNamespace.length < treeDepth){
+                                    continue;
+                                }
+                                String configPart = queryConfigNamespace[treeDepth - 1];
+
+                                if (configPart.equals(children.namespace)){
+                                    configNamespaceConcat += "." + children.namespace;
+                                    treeDepth++;
+                                    queue.addAll(children.children);
+                                    if (configNamespaceConcat.equals(identifiableText)){
+                                        //match
+                                        openDocument(entry.getKey(), children.offset);
+                                        return;
+                                    }
+                                }
+                            }
+                        }
+
+                        break;
                 }
-                break;
+
             case ALT_HYPERLINK:
                 JTextComponent focused = EditorRegistry.focusedComponent();
                 if (focused != null && focused.getDocument() == doc) {
@@ -127,26 +193,24 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
         }
     }
 
-    private void openDocument(FileObject f) {
+    private void openDocument(FileObject f, int offset) {
         try {
             DataObject dob = DataObject.find(f);
-            DataEditorSupport ed = dob.getLookup().lookup(DataEditorSupport.class);
-            //boolean isLoaded = ed.isDocumentLoaded();
-            ed.open();
-        }  catch (IOException ex) {
+            NbDocument.openDocument(dob, offset, Line.ShowOpenType.OPEN, Line.ShowVisibilityType.FOCUS);
+
+        } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
 
     }
-    
-    private boolean hasLaravelProvider(){
-        //??not sure how
-        return true;
+
+    private boolean isInLaravelModule(Document doc) {
+        return ProjectUtils.isInLaravelModule(doc);
     }
 
     @Override
     public String getTooltipText(Document doc, int offset, HyperlinkType type) {
-        return bladePath;
+        return identifiableText;
     }
 
 }
