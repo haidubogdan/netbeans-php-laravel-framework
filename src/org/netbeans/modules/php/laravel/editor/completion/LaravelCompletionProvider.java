@@ -8,21 +8,20 @@ import java.util.List;
 import java.util.Map;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import org.netbeans.*;
-import org.netbeans.api.*;
 import org.netbeans.api.editor.document.LineDocumentUtils;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
-import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.util.FileUtils;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
-import org.netbeans.modules.php.editor.parser.astnodes.ArrayElement;
 import org.netbeans.modules.php.laravel.ConfigurationFiles;
 import org.netbeans.modules.php.laravel.editor.EditorUtils;
+import org.netbeans.modules.php.laravel.editor.ResourceUtilities;
+import org.netbeans.modules.php.laravel.editor.completion.LaravelCompletionItem.ConfigPath;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
+import org.netbeans.modules.php.laravel.utils.StringUtils;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionProvider;
 import org.netbeans.spi.editor.completion.CompletionResultSet;
@@ -30,6 +29,7 @@ import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
+import org.openide.filesystems.FileObject;
 
 /**
  *
@@ -41,7 +41,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
     private String methodName;
 
     public static String[] QUERY_METHODS = new String[]{"config", "view"};
-   
+
     @Override
     public CompletionTask createTask(int queryType, JTextComponent component) {
         PhpModule module = ProjectUtils.getPhpModule(component.getDocument());
@@ -83,7 +83,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
             PHPTokenId id = token.id();
 
             if (prevTokenId != null && id.equals(PHPTokenId.PHP_STRING)
-                    && (Arrays.asList(QUERY_METHODS).indexOf(text)> -1)) {
+                    && (Arrays.asList(QUERY_METHODS).indexOf(text) > -1)) {
                 methodName = text;
                 quotedReference = currentToken.text().toString();
                 break;
@@ -97,18 +97,18 @@ public class LaravelCompletionProvider implements CompletionProvider {
         if (quotedReference.length() < 2 || quotedReference.startsWith("$")) {
             return null;
         }
-        if (quotedReference.startsWith("'") || quotedReference.startsWith("\\\"")) {
+        if (StringUtils.isQuotedString(quotedReference)) {
             String reference = quotedReference.substring(1, quotedReference.length() - 1);
             AsyncCompletionQuery completionQuery;
-            
-            switch (methodName){
+
+            switch (methodName) {
                 case "config":
                     completionQuery = new ConfigurationCompletionQuery(reference, module);
                     break;
                 default:
                     return null;
             }
-            
+
             return new AsyncCompletionTask(completionQuery, component);
         }
         return null;
@@ -145,6 +145,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
                     confFiles.extractConfigurationMapping(false);
                     String[] queryConfigNamespace = query.split("\\.");
                     Map<String, Map<String, List<String>>> confFileList = confFiles.getConfigurationMapping();
+                    Map<String, FileObject> confFileAlias = confFiles.getConfigurationFilesAlias();
                     String filterQuery = query;
                     if (query.endsWith(".")) {
                         filterQuery = query.substring(0, query.length() - 1);
@@ -153,15 +154,20 @@ public class LaravelCompletionProvider implements CompletionProvider {
                         if (!entry.getKey().startsWith(queryConfigNamespace[0])) {
                             continue;
                         }
-                        if (queryConfigNamespace.length == 1 && query.endsWith(".") && !entry.getValue().isEmpty()){
+                        FileObject configFile = confFileAlias.get(entry.getKey());
+                        String configPath = "";
+                        if (configFile != null) {
+                            configPath = "config/" + configFile.getNameExt();
+                        }
+                        if (queryConfigNamespace.length == 1 && query.endsWith(".") && !entry.getValue().isEmpty()) {
                             for (Map.Entry<String, List<String>> namespace : entry.getValue().entrySet()) {
                                 String rootKey = entry.getKey() + "." + namespace.getKey();
-                                addSimplCompletionItem(query, rootKey, caretOffset, resultSet);
+                                addConfigCompletionItem(query, rootKey, configPath, caretOffset, resultSet);
                             }
                             //should be only a unique namespace
                             break;
                         }
-                        if (queryConfigNamespace.length < 2){
+                        if (queryConfigNamespace.length < 2) {
                             continue;
                         }
                         for (Map.Entry<String, List<String>> namespace : entry.getValue().entrySet()) {
@@ -171,25 +177,25 @@ public class LaravelCompletionProvider implements CompletionProvider {
                                 continue;
                             }
 
-                            if (queryConfigNamespace.length == 2 && !query.endsWith(".")){
-                                addSimplCompletionItem(query, rootKey, caretOffset, resultSet);
+                            if (queryConfigNamespace.length == 2 && !query.endsWith(".")) {
+                                addConfigCompletionItem(query, rootKey, configPath, caretOffset, resultSet);
                             }
 
-                            if (query.endsWith(".") && !namespace.getValue().isEmpty()){
-                                
+                            if (query.endsWith(".") && !namespace.getValue().isEmpty()) {
+
                                 for (String configNamespace : namespace.getValue()) {
                                     String fullConfigNamespace = entry.getKey() + "." + configNamespace;
-                                    addSimplCompletionItem(query, fullConfigNamespace, caretOffset, resultSet);
+                                    addConfigCompletionItem(query, fullConfigNamespace, configPath, caretOffset, resultSet);
                                 }
                                 //should be only a unique namespace
                                 break;
                             }
 
-                            
                             for (String configNamespace : namespace.getValue()) {
                                 String fullConfigNamespace = entry.getKey() + "." + configNamespace;
                                 if (fullConfigNamespace.startsWith(filterQuery)) {
-                                    addSimplCompletionItem(query, fullConfigNamespace, caretOffset, resultSet);
+
+                                    addConfigCompletionItem(query, fullConfigNamespace, configPath, caretOffset, resultSet);
                                 }
                             }
                         }
@@ -202,15 +208,20 @@ public class LaravelCompletionProvider implements CompletionProvider {
         }
     }
 
-    private void addSimplCompletionItem(String prefix, String value, int caretOffset, CompletionResultSet resultSet) {
-        int insertOffset = caretOffset - prefix.length();
-        CompletionItem item = CompletionUtilities.newCompletionItemBuilder(value)
-                //.iconResource(getReferenceIcon(CompletionType.HTML_COMPONENT_TAG))
+    private void addConfigCompletionItem(String prefix, String value, String filePath, int caretOffset, CompletionResultSet resultSet) {
+
+        int strOffset = value.indexOf(prefix);
+
+        String completionValue = value.replace(prefix, "");
+        int insertOffset = caretOffset;
+        CompletionItem item = CompletionUtilities.newCompletionItemBuilder(completionValue)
+                .iconResource(ResourceUtilities.ICON_BASE + "icons/config.png")
                 .startOffset(insertOffset)
-                .leftHtmlText(value)
-                //.rightHtmlText(plugin)
+                .leftHtmlText(completionValue)
+                .rightHtmlText(filePath)
                 .sortPriority(1)
                 .build();
         resultSet.addItem(item);
     }
+
 }

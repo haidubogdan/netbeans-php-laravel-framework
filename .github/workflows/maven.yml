@@ -80,23 +80,23 @@ jobs:
       with:
         name: php-laravel-nbm-220
         path: ./nb-plugin-package/target/nbm/*.nbm        
-#    - name: release
-#      uses: actions/create-release@v1
-#      env:
-#          GITHUB_TOKEN: ${{ github.token }}
-#      id: create_release
-#      with:
-#        draft: false
-#        prerelease: false
-#        release_name: Netbeans Blade Php release ${{ steps.nbm_version.outputs.version }}  
-#        tag_name: nbpr1.0.3
-#        body_path: .github/workflows/CHANGELOG.md
-#    - name: upload nbm artifact
-#      uses: actions/upload-release-asset@v1
-#      env:
-#          GITHUB_TOKEN: ${{ github.token }}
-#      with:
-#        upload_url: ${{ steps.create_release.outputs.upload_url }}
-#        asset_path: ./nb-plugin-package/target/nbm/php.blade-1.0.0.nbm
-#        asset_name: php-blade180-${{ steps.nbm_version.outputs.version }}.nbm
-#        asset_content_type: application/nbm
+    - name: pre-release220
+      uses: actions/create-release@v1
+      env:
+          GITHUB_TOKEN: ${{ github.token }}
+      id: create_release
+      with:
+        draft: false
+        prerelease: true
+        release_name: Netbeans Blade Php release ${{ steps.nbm_version.outputs.version }}  
+        tag_name: nblaravelv1.0.0
+        body_path: .github/workflows/CHANGELOG.md
+    - name: upload nbm artifact
+      uses: actions/upload-release-asset@v1
+      env:
+          GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./nb-plugin-package/target/nbm/php.blade-1.0.0.nbm
+        asset_name: php-laravel220-${{ steps.nbm_version.outputs.version }}.nbm
+        asset_content_type: application/nbm

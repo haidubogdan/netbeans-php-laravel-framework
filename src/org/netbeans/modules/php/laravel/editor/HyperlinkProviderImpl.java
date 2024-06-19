@@ -25,6 +25,7 @@ import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
 import org.netbeans.modules.php.laravel.utils.LaravelUtils;
+import org.netbeans.modules.php.laravel.utils.StringUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
 import org.openide.text.DataEditorSupport;
@@ -42,6 +43,10 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
 
     String methodName;
     String identifiableText;
+    String tooltipText = "";
+    FileObject goToFile;
+    int goToOffset = 0;
+    int triggeredEvent = 0;
 
     public enum DeclarationType {
         VIEW_PATH;
@@ -85,8 +90,14 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
             return null;
         }
 
-        List<String> methodsWithViewArg = Arrays.asList(LaravelUtils.methodsWithViewArg());
+        String focusedText = currentToken.text().toString();
 
+        //2 char config are not that relevant
+        if (focusedText.length() < 5 || !StringUtils.isQuotedString(focusedText)) {
+            return null;
+        }
+
+        identifiableText = focusedText.substring(1, focusedText.length() - 1);
         PHPTokenId prevTokenId = null;
 
         while (tokensq.movePrevious() && tokensq.offset() >= lineStart) {
@@ -97,12 +108,80 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
             String text = token.text().toString();
             PHPTokenId id = token.id();
 
-            if (prevTokenId != null && id.equals(PHPTokenId.PHP_STRING)
-                    && (methodsWithViewArg.contains(text) || text.equals("config"))) {
+            if (prevTokenId != null && id.equals(PHPTokenId.PHP_STRING)) {
                 methodName = text;
-                String quotedBladePath = currentToken.text().toString();
-                identifiableText = quotedBladePath.substring(1, quotedBladePath.length() - 1);
-                return new int[]{startOffset, startOffset + currentToken.length()};
+                PhpModule module;
+                //tooltip text
+                switch (methodName) {
+                    case "view":
+                    case "make":
+                    case "render":
+                        module = ProjectUtils.getPhpModule(doc);
+                        FileObject dir = module.getSourceDirectory();
+                        if (dir != null) {
+                            String viewPath = "resources/views/" + identifiableText.replace(".", "/") + ".blade.php";
+                            //FileObject views = dir.getFileObject("resources/views");
+                            FileObject viewFile = dir.getFileObject(viewPath);
+                            goToFile = viewFile;
+                            tooltipText = "Blade Template File : <b>" + viewPath
+                                    + "</b><br><br><i style='margin-left:20px;'>" + identifiableText + "</i>";
+                            goToOffset = 0;
+                        }
+                        return new int[]{startOffset, startOffset + currentToken.length()};
+                    case "config":
+                        module = ProjectUtils.getPhpModule(doc);
+                        if (module == null) {
+                            break;
+                        }
+                        String[] queryConfigNamespace = identifiableText.split("\\.");
+
+                        ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+
+                        if (confFiles == null) {
+                            break;
+                        }
+
+                        confFiles.extractConfigurationMapping(true);
+                        Map<FileObject, ConfigNamespace> confFileNamespace = confFiles.getConfigurationFileNamespace();
+
+                        ArrayList<ConfigNamespace> queue = new ArrayList<>();
+                        String configNamespaceConcat;
+
+                        for (Map.Entry<FileObject, ConfigNamespace> entry : confFileNamespace.entrySet()) {
+                            ConfigNamespace root = entry.getValue();
+                            if (!root.namespace.equals(queryConfigNamespace[0])) {
+                                continue;
+                            }
+                            queue.addAll(root.children);
+                            configNamespaceConcat = root.namespace;
+                            int treeDepth = 2;
+                            while (queue.size() > 0) {
+                                ConfigNamespace children = queue.get(0);
+                                queue.remove(0);//remove from queue
+                                if (queryConfigNamespace.length < treeDepth) {
+                                    continue;
+                                }
+                                String configPart = queryConfigNamespace[treeDepth - 1];
+
+                                if (configPart.equals(children.namespace)) {
+                                    configNamespaceConcat += "." + children.namespace;
+                                    treeDepth++;
+                                    queue.addAll(children.children);
+                                    if (configNamespaceConcat.equals(identifiableText)) {
+                                        //match
+                                        goToFile = entry.getKey();
+                                        goToOffset = children.offset;
+                                        tooltipText = "Config File : <b>" + entry.getKey().getNameExt()
+                                                + "</b><br><br><i style='margin-left:20px;'>" + identifiableText + "</i>";
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        return new int[]{startOffset, startOffset + currentToken.length()};
+                    default:
+                        return null;
+                }
             }
 
             if (id.equals(PHPTokenId.PHP_TOKEN) && text.equals("(")) {
@@ -120,66 +199,11 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                     case "view":
                     case "make":
                     case "render":
-                        FileObject dir = LaravelPhpFrameworkProvider.getInstance().getSourceDirectory();
-                        if (dir != null) {
-                            String viewPath = "resources/views/" + identifiableText.replace(".", "/") + ".blade.php";
-                            //FileObject views = dir.getFileObject("resources/views");
-                            FileObject viewFile = dir.getFileObject(viewPath);
-                            if (viewFile == null) {
-                                return;
-                            }
-                            openDocument(viewFile, 0);
-                            return;
-                        }
-                        break;
                     case "config":
-                        PhpModule module = ProjectUtils.getPhpModule(doc);
-                        if (module == null) {
-                            return;
+                        if (goToFile != null) {
+                            openDocument(goToFile, goToOffset);
+                            triggeredEvent++;
                         }
-                        String[] queryConfigNamespace = identifiableText.split("\\.");
-
-                        ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
-
-                        if (confFiles == null) {
-                            return;
-                        }
-
-                        confFiles.extractConfigurationMapping(true);
-                        Map<FileObject, ConfigNamespace> confFileNamespace = confFiles.getConfigurationFileNamespace();
-                        
-                        ArrayList<ConfigNamespace> queue = new ArrayList<>();
-                        String configNamespaceConcat;
-
-                        for (Map.Entry<FileObject, ConfigNamespace> entry : confFileNamespace.entrySet()) {
-                            ConfigNamespace root = entry.getValue();
-                            if (!root.namespace.equals(queryConfigNamespace[0])) {
-                                continue;
-                            }
-                            queue.addAll(root.children);
-                            configNamespaceConcat = root.namespace;
-                            int treeDepth = 2;
-                            while (queue.size() > 0) {
-                                ConfigNamespace children = queue.get(0);
-                                queue.remove(0);//remove from queue
-                                if (queryConfigNamespace.length < treeDepth){
-                                    continue;
-                                }
-                                String configPart = queryConfigNamespace[treeDepth - 1];
-
-                                if (configPart.equals(children.namespace)){
-                                    configNamespaceConcat += "." + children.namespace;
-                                    treeDepth++;
-                                    queue.addAll(children.children);
-                                    if (configNamespaceConcat.equals(identifiableText)){
-                                        //match
-                                        openDocument(entry.getKey(), children.offset);
-                                        return;
-                                    }
-                                }
-                            }
-                        }
-
                         break;
                 }
 
@@ -210,7 +234,7 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
 
     @Override
     public String getTooltipText(Document doc, int offset, HyperlinkType type) {
-        return identifiableText;
+        return "<html><body>" + tooltipText + "</body></html>";
     }
 
 }

@@ -24,7 +24,7 @@ public class LaravelOptionsPanelController extends OptionsPanelController {
     static final String OPTIONS_PATH = UiUtils.FRAMEWORKS_AND_TOOLS_SUB_PATH + "/" + ID; // NOI18N
     public static final String OPTIONS_SUBPATH = UiUtils.FRAMEWORKS_AND_TOOLS_SUB_PATH + "/" + ID; // NOI18N
 
-    private LaravelPanel panel;
+    private LaravelOptionsPanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private volatile boolean changed;
 
@@ -75,9 +75,9 @@ public class LaravelOptionsPanelController extends OptionsPanelController {
         pcs.removePropertyChangeListener(l);
     }
 
-    private LaravelPanel getPanel() {
+    private LaravelOptionsPanel getPanel() {
         if (panel == null) {
-            panel = new LaravelPanel(this);
+            panel = new LaravelOptionsPanel(this);
         }
         return panel;
     }

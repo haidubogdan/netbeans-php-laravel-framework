@@ -17,11 +17,11 @@ import org.netbeans.spi.options.OptionsPanelController;
         location = UiUtils.OPTIONS_PATH,
         tabTitle = "Laravel tab"
 )
-public class LaravelPanel extends javax.swing.JPanel {
+public class LaravelOptionsPanel extends javax.swing.JPanel {
 
     private final LaravelOptionsPanelController controller;
 
-    LaravelPanel(LaravelOptionsPanelController controller) {
+    LaravelOptionsPanel(LaravelOptionsPanelController controller) {
         this.controller = controller;
         initComponents();
     }
@@ -35,15 +35,25 @@ public class LaravelPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jLabel1 = new javax.swing.JLabel();
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.jLabel1.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addContainerGap(357, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jLabel1)
+                .addContainerGap(278, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -69,5 +79,6 @@ public class LaravelPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
     // End of variables declaration//GEN-END:variables
 }

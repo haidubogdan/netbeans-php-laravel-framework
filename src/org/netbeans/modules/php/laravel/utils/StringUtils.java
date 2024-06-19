@@ -28,4 +28,12 @@ public class StringUtils {
         }
         return buffer.toString();
     }
+    
+    public static boolean isQuotedString(String text){
+        if (text.length() < 2){
+            return false;
+        }
+        return (text.startsWith("'") && text.endsWith("'")) 
+                || (text.startsWith("\\\"") && text.endsWith("\\\""));
+    }
 }
