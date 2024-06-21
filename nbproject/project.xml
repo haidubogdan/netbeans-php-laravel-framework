@@ -343,17 +343,20 @@
             </module-dependencies>
             <public-packages>
                 <package>org.netbeans.modules.php.laravel</package>
+                <package>org.netbeans.modules.php.laravel.astnodes</package>
                 <package>org.netbeans.modules.php.laravel.commands</package>
                 <package>org.netbeans.modules.php.laravel.editor</package>
                 <package>org.netbeans.modules.php.laravel.editor.completion</package>
                 <package>org.netbeans.modules.php.laravel.executable</package>
                 <package>org.netbeans.modules.php.laravel.options</package>
+                <package>org.netbeans.modules.php.laravel.parser</package>
                 <package>org.netbeans.modules.php.laravel.preferences</package>
                 <package>org.netbeans.modules.php.laravel.project</package>
                 <package>org.netbeans.modules.php.laravel.ui.actions</package>
                 <package>org.netbeans.modules.php.laravel.ui.customizer</package>
                 <package>org.netbeans.modules.php.laravel.ui.wizards</package>
                 <package>org.netbeans.modules.php.laravel.utils</package>
+                <package>org.netbeans.modules.php.laravel.views</package>
             </public-packages>
         </data>
     </configuration>

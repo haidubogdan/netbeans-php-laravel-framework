@@ -105,6 +105,11 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 case "config":
                     completionQuery = new ConfigurationCompletionQuery(reference, module);
                     break;
+                case "view":
+                case "make":
+                case "render":
+                    completionQuery = new ViewCompletionQuery(reference, module);
+                    break;
                 default:
                     return null;
             }
@@ -206,22 +211,79 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 resultSet.finish();
             }
         }
+
+        private void addConfigCompletionItem(String prefix, String value, String filePath, int caretOffset, CompletionResultSet resultSet) {
+            String completionValue = value.replace(prefix, "");
+            int insertOffset = caretOffset;
+            CompletionItem item = CompletionUtilities.newCompletionItemBuilder(completionValue)
+                    .iconResource(ResourceUtilities.ICON_BASE + "icons/config.png")
+                    .startOffset(insertOffset)
+                    .leftHtmlText(completionValue)
+                    .rightHtmlText(filePath)
+                    .sortPriority(1)
+                    .build();
+            resultSet.addItem(item);
+        }
     }
 
-    private void addConfigCompletionItem(String prefix, String value, String filePath, int caretOffset, CompletionResultSet resultSet) {
+    private class ViewCompletionQuery extends AsyncCompletionQuery {
 
-        int strOffset = value.indexOf(prefix);
+        String query;
+        PhpModule module;
 
-        String completionValue = value.replace(prefix, "");
-        int insertOffset = caretOffset;
-        CompletionItem item = CompletionUtilities.newCompletionItemBuilder(completionValue)
-                .iconResource(ResourceUtilities.ICON_BASE + "icons/config.png")
-                .startOffset(insertOffset)
-                .leftHtmlText(completionValue)
-                .rightHtmlText(filePath)
-                .sortPriority(1)
-                .build();
-        resultSet.addItem(item);
+        public ViewCompletionQuery(String query, PhpModule module) {
+            this.query = query;
+            this.module = module;
+        }
+
+        @Override
+        protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
+            try {
+                FileObject sourceDir = module.getSourceDirectory();
+                if (sourceDir == null) {
+                    return;
+                }
+                int lastDotPos;
+
+                if (query.endsWith(".")) {
+                    lastDotPos = query.length();
+                } else {
+                    lastDotPos = query.lastIndexOf(".");
+                }
+                int pathOffset;
+
+                if (lastDotPos > 0) {
+                    int dotFix = query.endsWith(".") ? 0 : 1;
+                    pathOffset = caretOffset - query.length() + lastDotPos + dotFix;
+                } else {
+                    pathOffset = caretOffset - query.length();
+                }
+                FileObject viewFolder = sourceDir.getFileObject("resources/views");
+                List<FileObject> childrenFiles = PathUtils.getParentChildrenFromPrefixPath(viewFolder, query);
+                for (FileObject file : childrenFiles) {
+                    String pathFileName = file.getName();
+                    if (!file.isFolder()) {
+                        pathFileName = pathFileName.replace(".blade", "");
+                    }
+                    addViewCompletionItem(pathFileName, file, pathOffset, resultSet);
+                }
+
+            } finally {
+//                long time = System.currentTimeMillis() - startTime;
+                resultSet.finish();
+            }
+        }
+
+        private void addViewCompletionItem(String completion, FileObject file, int caretOffset, CompletionResultSet resultSet) {
+            int insertOffset = caretOffset;
+            CompletionItem item = CompletionUtilities.newCompletionItemBuilder(completion)
+                    .iconResource(ResourceUtilities.ICON_BASE + "icons/config.png")
+                    .startOffset(insertOffset)
+                    .leftHtmlText(completion)
+                    .rightHtmlText(file.getPath())
+                    .sortPriority(1)
+                    .build();
+            resultSet.addItem(item);
+        }
     }
-
 }

@@ -7,7 +7,7 @@ import org.netbeans.modules.php.spi.framework.PhpModuleActionsExtender;
 import java.util.Collections;
 import java.util.List;
 import javax.swing.Action;
-import org.netbeans.modules.php.laravel.ui.actions.ClearCacheAction;
+import org.netbeans.modules.php.laravel.ui.actions.GenerateAppKeyAction;
 import org.netbeans.modules.php.laravel.ui.actions.LaravelRunCommandAction;
 import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.netbeans.modules.php.spi.framework.actions.GoToActionAction;
@@ -21,7 +21,7 @@ import org.openide.filesystems.FileObject;
  */
 public class LaravelPhpModuleActionsExtender extends PhpModuleActionsExtender {
 
-    private static final List<Action> ACTIONS = Collections.<Action>singletonList(ClearCacheAction.getInstance());
+    private static final List<Action> ACTIONS = Collections.<Action>singletonList(GenerateAppKeyAction.getInstance());
 
     @Override
     public String getMenuName() {
