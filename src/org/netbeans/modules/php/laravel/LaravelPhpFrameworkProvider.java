@@ -80,7 +80,8 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
         inPhpModuleChecked.put(projectHash, isInModule);
 
         if (!LaravelPreferences.hasEnabledConfigured(phpModule)){
-            LaravelPreferences.setEnabled(phpModule, isInModule);
+            //WARNING: Going from readAccess to writeAccess
+            //LaravelPreferences.setEnabled(phpModule, isInModule);
         }
         return isInModule;
     }
