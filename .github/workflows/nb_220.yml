@@ -1,14 +1,14 @@
 # This workflow will build a Java project with Ant
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-ant
 
-name: netbeans-nbm
+name: nbm package && pre-release 220
 
 on:
   workflow_dispatch:
 
 env:
-  NB_RELEASE_VERSION: 180  
-  NB_META_INF: 21-b15c9b7692b2764be5a997d056e2283b72ae9131
+  NB_RELEASE_VERSION: 220  
+  NB_META_INF: 22-0d0bfcf3faf364a2643238f2a44e1bb6eb8217bd
 jobs:
   build:
 
@@ -50,30 +50,6 @@ jobs:
       run : cp ./nbproject/project.properties nb-plugin-package/project.properties
     - name : prepare the files from project  
       run : cp ./LICENSE nb-plugin-package/LICENSE
-    - name : package 210
-      working-directory: ./nb-plugin-package
-      run : mvn package
-    - name : upload nbm 210
-      uses: actions/upload-artifact@v4
-      with:
-        name: php-laravel-nbm-210
-        path: ./nb-plugin-package/target/nbm/*.nbm
-    - name : set env nb 200
-      run: echo "NB_META_INF=20-91f9ed846ac143b52d50b5ea323a42c2f7e78392" >> "$GITHUB_ENV"
-    - name : set env nb 200
-      run: NB_RELEASE_VERSION=200 
-    - name : package nmb 200
-      working-directory: ./nb-plugin-package
-      run : mvn package  
-    - name : upload nbm 200
-      uses: actions/upload-artifact@v4
-      with:
-        name: php-laravel-nbm-200
-        path: ./nb-plugin-package/target/nbm/*.nbm
-    - name : set env nb 220
-      run: echo "NB_META_INF=22-0d0bfcf3faf364a2643238f2a44e1bb6eb8217bd" >> "$GITHUB_ENV"
-    - name : set env nb 220
-      run: NB_RELEASE_VERSION=220 
     - name : package nmb 220
       working-directory: ./nb-plugin-package
       run : mvn package  
@@ -91,7 +67,7 @@ jobs:
         draft: false
         prerelease: true
         release_name: Netbeans Blade Php release ${{ steps.nbm_version.outputs.version }}  
-        tag_name: nblaravelv1.0.2
+        tag_name: nb220laravelv1.0.3
         body_path: .github/workflows/CHANGELOG.md
     - name: upload nbm artifact
       uses: actions/upload-release-asset@v1
