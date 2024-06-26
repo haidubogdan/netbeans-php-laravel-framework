@@ -1,4 +1,4 @@
-package org.netbeans.modules.php.laravel.options;
+package org.netbeans.modules.php.laravel.ui.options;
 
 import org.openide.util.ChangeSupport;
 

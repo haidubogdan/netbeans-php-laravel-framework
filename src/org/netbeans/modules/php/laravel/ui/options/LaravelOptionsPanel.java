@@ -1,7 +1,7 @@
 /*
 Licensed to the Apache Software Foundation (ASF)
  */
-package org.netbeans.modules.php.laravel.options;
+package org.netbeans.modules.php.laravel.ui.options;
 
 import org.netbeans.modules.php.api.util.UiUtils;
 import org.netbeans.spi.options.OptionsPanelController;

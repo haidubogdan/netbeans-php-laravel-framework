@@ -12,7 +12,7 @@ import org.netbeans.modules.php.api.executable.PhpExecutable;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.laravel.executable.RemoteDockerExecutable;
 import org.netbeans.modules.php.laravel.executable.TerminalComponent;
-import org.netbeans.modules.php.laravel.options.LaravelOptionsPanelController;
+import org.netbeans.modules.php.laravel.ui.options.LaravelOptionsPanelController;
 import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommand;
