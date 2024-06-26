@@ -3,19 +3,21 @@ Licensed to the Apache Software Foundation (ASF)
  */
 package org.netbeans.modules.php.laravel.ui.actions;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
-import org.netbeans.modules.php.api.util.UiUtils;
 import org.netbeans.modules.php.laravel.commands.ArtisanCommandSupport;
 import org.netbeans.modules.php.laravel.commands.ExecutableService;
+import org.netbeans.modules.php.laravel.executable.RemoteDockerExecutable;
 import org.netbeans.modules.php.spi.framework.actions.BaseAction;
-import org.openide.util.NbBundle;
+import org.openide.util.RequestProcessor;
 
 /**
  * @author Tomas Mysik
  */
 public final class GenerateAppKeyAction extends BaseAction {
+
     private static final long serialVersionUID = 36068831502227572L;
     private static final GenerateAppKeyAction INSTANCE = new GenerateAppKeyAction();
 
@@ -31,8 +33,20 @@ public final class GenerateAppKeyAction extends BaseAction {
         //todo add action
         ArtisanCommandSupport artisanSupport = ArtisanCommandSupport.getInstance(phpModule);
         List<String> params = new ArrayList<>();
-        params.add("app:key");
-        ExecutableService.executeCommand(phpModule, artisanSupport, params);
+        params.add("key:generate");
+        RequestProcessor RP = new RequestProcessor(GenerateAppKeyAction.class);
+        RP.post(new Runnable() {
+            @Override
+            public void run() {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        ExecutableService.executeCommand(phpModule, artisanSupport, params);
+                    }
+                });
+            }
+        });
+        
     }
 
     @Override
