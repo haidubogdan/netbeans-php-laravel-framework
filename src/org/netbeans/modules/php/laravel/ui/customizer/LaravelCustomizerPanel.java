@@ -47,6 +47,10 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
         
     }
     
+    public boolean isFrameworkEnabled(){
+        return projectSupportEnabled.isSelected();
+    }
+    
     public void saveChanges(PhpModule module){
         String selectedItem = (String) RemoteTerminal.getSelectedItem();
         boolean useRemoteTerminal = !selectedItem.equals("No terminal");

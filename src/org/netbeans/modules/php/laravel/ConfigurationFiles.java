@@ -39,7 +39,7 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
     ConfigurationFiles(PhpModule phpModule) {
         assert phpModule != null;
         this.phpModule = phpModule;
-        storeInstance();
+        storeAsInstance();
     }
 
     @Override
@@ -116,7 +116,7 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
         }
     }
 
-    private void storeInstance() {
+    private void storeAsInstance() {
         String projectPath = phpModule.getProjectDirectory().getPath();
         synchronized (INSTANCES) {
             INSTANCES.put(projectPath, this);

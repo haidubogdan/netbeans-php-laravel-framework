@@ -21,6 +21,8 @@ public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExten
 
     private final PhpModule phpModule;
     private ComposerPackages composerPackages;
+    
+    private final boolean isFrameworkEnabledOriginal;
 
     // @GuardedBy(EDT)
     private LaravelCustomizerPanel component;
@@ -28,6 +30,7 @@ public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExten
     LaravelPhpModuleCustomizerExtender(PhpModule phpModule) {
         this.phpModule = phpModule;
         composerPackages = ComposerPackages.fromPhpModule(phpModule);
+        isFrameworkEnabledOriginal = LaravelPreferences.hasEnabledConfigured(phpModule);
     }
 
     @Override
@@ -82,6 +85,11 @@ public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExten
 
         component.saveChanges(pm);
         
+        if (isFrameworkEnabledOriginal != component.isFrameworkEnabled()){
+            //?? what is the purpose
+            return EnumSet.of(Change.FRAMEWORK_CHANGE);
+        }
+              
         return null;
     }
 

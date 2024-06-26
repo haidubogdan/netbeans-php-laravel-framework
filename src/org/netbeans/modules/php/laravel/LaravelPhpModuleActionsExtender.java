@@ -10,8 +10,6 @@ import javax.swing.Action;
 import org.netbeans.modules.php.laravel.ui.actions.GenerateAppKeyAction;
 import org.netbeans.modules.php.laravel.ui.actions.LaravelRunCommandAction;
 import org.netbeans.modules.php.laravel.utils.LaravelUtils;
-import org.netbeans.modules.php.spi.framework.actions.GoToActionAction;
-import org.netbeans.modules.php.spi.framework.actions.GoToViewAction;
 import org.netbeans.modules.php.spi.framework.actions.RunCommandAction;
 import org.openide.filesystems.FileObject;
 
