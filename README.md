@@ -18,7 +18,16 @@ WIP
 Folder nodes for:
   - configuration files
 
-Declaration finder for String variables possible views
+**completion**
+
+- blade template path completion on `render`, `make` and `view` methods
+- config path completion for `config` method
+
+**declaration finder**
+
+- blade template declaration finder
+- config declaration finder
+
 
 **commands**
 

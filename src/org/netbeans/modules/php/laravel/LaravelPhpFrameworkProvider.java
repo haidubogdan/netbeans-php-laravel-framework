@@ -79,10 +79,6 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
         }
         inPhpModuleChecked.put(projectHash, isInModule);
 
-        if (!LaravelPreferences.hasEnabledConfigured(phpModule)){
-            //WARNING: Going from readAccess to writeAccess
-            //LaravelPreferences.setEnabled(phpModule, isInModule);
-        }
         return isInModule;
     }
 
@@ -95,7 +91,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
 
     @Override
     public PhpModuleExtender createPhpModuleExtender(PhpModule pm) {
-        //should we disable it ??
+        //not implement it
        
         return new LaravelPhpModuleExtender();
     }
@@ -111,8 +107,8 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     @Override
     public PhpModuleProperties getPhpModuleProperties(PhpModule phpModule) {
         PhpModuleProperties properties = new PhpModuleProperties();
-        FileObject sourceDirectory = phpModule.getSourceDirectory();
-        if (sourceDirectory == null) {
+
+        if ( phpModule.getSourceDirectory() == null) {
             // broken project
             return properties;
         }

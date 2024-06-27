@@ -18,6 +18,7 @@
 **config**
 
 - 80% done ?
+- issues with "query string refresh"
 
 **blade template view**
 

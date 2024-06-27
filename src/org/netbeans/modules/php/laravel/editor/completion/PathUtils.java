@@ -3,17 +3,13 @@ Licensed to the Apache Software Foundation (ASF)
  */
 package org.netbeans.modules.php.laravel.editor.completion;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import org.netbeans.api.project.Project;
 import org.netbeans.spi.project.ui.support.ProjectConvertors;
 import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
 
 /**
  *
