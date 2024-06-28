@@ -29,6 +29,7 @@
 - not great not terrible
 - latest laravel command line requires interactions
 - display a info on the remote terminal
+- RERUN commands button
 
 ## UI
 

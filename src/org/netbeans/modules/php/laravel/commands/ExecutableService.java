@@ -10,6 +10,7 @@ import org.netbeans.api.extexecution.base.input.LineProcessor;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.php.api.executable.PhpExecutable;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import org.netbeans.modules.php.laravel.executable.DockerExecutable;
 import org.netbeans.modules.php.laravel.executable.RemoteDockerExecutable;
 import org.netbeans.modules.php.laravel.executable.TerminalComponent;
 import org.netbeans.modules.php.laravel.ui.options.LaravelOptionsPanelController;
@@ -25,20 +26,26 @@ import org.openide.filesystems.FileUtil;
 public class ExecutableService {
 
     private static final List<String> DEFAULT_PARAMS = Collections.singletonList("--ansi"); // NOI18N
-    private PhpModule phpModule;
 
     public static List<FrameworkCommand> extractArtisanCommands(PhpModule phpModule,
             ArtisanCommandSupport artisanCommandSupport) {
         List<FrameworkCommand> commands = new ArrayList<>();
-        
+
         CommandLineProcessor lineProcessor = new CommandLineProcessor(artisanCommandSupport, phpModule);
-        
+
         if (useRemoteConnection(phpModule)) {
-            RemoteDockerExecutable dockerExec = getDockerExecutable(phpModule);
+            if (useDocker(phpModule)) {
+                RemoteDockerExecutable dockerExec = getRemoteDockerExecutable(phpModule);
+                dockerExec.setCommandLineProcessor(lineProcessor);
+                dockerExec.extractCommands();
+            } else {
+                throw new UnsupportedOperationException("Not implemented yet");
+            }
+        } else if (useDocker(phpModule)) {
+            DockerExecutable dockerExec = getLocalDockerExecutable(phpModule);
             dockerExec.setCommandLineProcessor(lineProcessor);
             dockerExec.extractCommands();
         } else {
-            
             ExecutionDescriptor executionDescriptor = PhpExecutable.DEFAULT_EXECUTION_DESCRIPTOR
                     .optionsPath(LaravelOptionsPanelController.getOptionsPath())
                     .inputVisible(true);
@@ -60,10 +67,17 @@ public class ExecutableService {
         if (useRemoteConnection(phpModule)) {
             if (useDocker(phpModule)) {
                 TerminalComponent output = TerminalComponent.getInstance(phpModule);
-                RemoteDockerExecutable dockerExec = getDockerExecutable(phpModule);
+                RemoteDockerExecutable dockerExec = getRemoteDockerExecutable(phpModule);
                 dockerExec.setTerminalOutput(output);
                 dockerExec.executeArtisanCommand(params);
+            } else {
+                throw new UnsupportedOperationException("Not implemented yet");
             }
+        } else if (useDocker(phpModule)) {
+            TerminalComponent output = TerminalComponent.getInstance(phpModule);
+            DockerExecutable dockerExec = getLocalDockerExecutable(phpModule);
+            dockerExec.setTerminalOutput(output);
+            dockerExec.executeArtisanCommand(params);
         } else {
             ExecutionDescriptor executionDescriptor = PhpExecutable.DEFAULT_EXECUTION_DESCRIPTOR
                     .optionsPath(LaravelOptionsPanelController.getOptionsPath())
@@ -110,7 +124,7 @@ public class ExecutableService {
                 .workDir(FileUtil.toFile(phpModule.getSourceDirectory()));
     }
 
-    private static RemoteDockerExecutable getDockerExecutable(PhpModule phpModule) {
+    private static RemoteDockerExecutable getRemoteDockerExecutable(PhpModule phpModule) {
         ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
         String dockerContainer = getDockerContainerName(phpModule);
         String bashPath = getDockerBashPath(phpModule);
@@ -124,9 +138,27 @@ public class ExecutableService {
         } else {
             command = "php artisan ";
         }
-        
+
         return new RemoteDockerExecutable(env,
                 new RemoteDockerExecutable.DockerCommand(dockerContainer, bashPath, command), phpModule);
+    }
+
+    private static DockerExecutable getLocalDockerExecutable(PhpModule phpModule) {
+        String dockerContainer = getDockerContainerName(phpModule);
+        String bashPath = getDockerBashPath(phpModule);
+
+        String command;
+
+        String preScript = getPreScript(phpModule);
+
+        if (preScript != null && !preScript.isEmpty()) {
+            command = preScript + " " + "php artisan ";
+        } else {
+            command = "php artisan ";
+        }
+
+        return new DockerExecutable(
+                new DockerExecutable.DockerCommand(dockerContainer, bashPath, command), phpModule);
     }
 
     private static ExecutionDescriptor.InputProcessorFactory2 getOutProcessorFactory(final LineProcessor lineProcessor) {
