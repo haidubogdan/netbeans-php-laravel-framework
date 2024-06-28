@@ -28,13 +28,12 @@ Folder nodes for:
 - blade template declaration finder
 - config declaration finder
 
-
 **commands**
 
 You will able to execute php Script using `artisan` directly from the IDE.
 
 It has an inbuild customization to allow **remote connection** and **docker** usage.
 
-> Docker works only on remote
+> remote connection works only with docker
 
 - wip console commands
