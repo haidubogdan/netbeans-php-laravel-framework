@@ -2,12 +2,6 @@
 
 ## What's changed
 
-**completion**
+**script commands**
 
-- blade template path completion on `render`, `make` and `view` methods
-- config path completion for `config` method
-
-**declaration finder**
-
-- blade template declaration finder
-- config declaration finder
+- implemented **command run** using local `docker`
