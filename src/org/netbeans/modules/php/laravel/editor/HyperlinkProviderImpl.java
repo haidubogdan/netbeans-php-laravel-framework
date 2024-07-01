@@ -2,14 +2,11 @@ package org.netbeans.modules.php.laravel.editor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import javax.swing.tree.MutableTreeNode;
 import org.netbeans.api.editor.*;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
@@ -21,20 +18,18 @@ import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.modules.php.laravel.ConfigurationFiles;
-import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
-import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.netbeans.modules.php.laravel.utils.StringUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
-import org.openide.text.DataEditorSupport;
 import org.openide.text.Line;
 import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
 
 /**
- * Similar to a declaration finder
+ * Similar to a declaration finder TODO use DeclarationPopup
+ * TODO convert it to a GoSupportTo
  *
  * @author bhaidu
  */

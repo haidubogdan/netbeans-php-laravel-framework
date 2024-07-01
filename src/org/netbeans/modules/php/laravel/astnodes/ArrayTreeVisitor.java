@@ -10,9 +10,9 @@ import org.openide.filesystems.FileObject;
  *
  * @author bogdan
  */
-public final class ArrayConfigVisitor extends ArrayFileVisitor {
+public final class ArrayTreeVisitor extends ArrayFileVisitor {
 
-    public ArrayConfigVisitor(FileObject controller, Model model, boolean withOffset) {
+    public ArrayTreeVisitor(FileObject controller, Model model, boolean withOffset) {
         super(controller, model, withOffset);
     }
 

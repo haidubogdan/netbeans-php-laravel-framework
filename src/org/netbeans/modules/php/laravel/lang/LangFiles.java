@@ -1,4 +1,4 @@
-package org.netbeans.modules.php.laravel.views;
+package org.netbeans.modules.php.laravel.lang;
 
 import java.awt.Image;
 import java.util.ArrayList;
@@ -16,45 +16,46 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
-import org.openide.util.ChangeSupport;
 import org.openide.nodes.Children;
 import org.openide.util.Exceptions;
 
 /**
- *
+ * TODO
+ * this could contain a similar implementation as ConfigurationFiles
+ * 
  * @author bhaidu
  */
-public class ViewsFiles {
+public class LangFiles {
     private static final Node iconDelegate = DataFolder.findFolder(FileUtil.getConfigRoot()).getNodeDelegate();
      
-    @NodeFactory.Registration(projectType = "org-netbeans-modules-php-project", position = 400)
+    @NodeFactory.Registration(projectType = "org-netbeans-modules-php-project", position = 410)
     public static NodeFactory forPhpProject() {
-        return new BladeViewsFilesNodeFactory();
+        return new LangFilesNodeFactory();
     }
 
-    private static final class BladeViewsFilesNodeFactory implements NodeFactory {
+    private static final class LangFilesNodeFactory implements NodeFactory {
 
         @Override
         public NodeList<?> createNodes(Project project) {
             assert project != null;
             FileObject source = project.getProjectDirectory();
-            String rootPath = FileUtil.toFile(source).getAbsolutePath() + "\\resources\\views\\";
-            return new BladeViewsNodeList(project, rootPath);
+            String rootPath = FileUtil.toFile(source).getAbsolutePath() + "\\resources\\lang\\";
+            return new LangNodeList(project, rootPath);
         }
 
     }
 
-    private static final class BladeViewsNodeList implements NodeList<Node>, ChangeListener {
+    private static final class LangNodeList implements NodeList<Node>, ChangeListener {
 
 //        private final Project project;
 //        private final ChangeSupport changeSupport = new ChangeSupport(this);
-        private final List<FileObject> viewsFolders = new ArrayList<>();
+        private final List<FileObject> langFolders = new ArrayList<>();
         public String rootPath;
        
 
-        BladeViewsNodeList(Project project, String rootPath) {
+        LangNodeList(Project project, String rootPath) {
             //this.project = project;
-            FileObject viewsFolder = project.getProjectDirectory().getFileObject("resources/views");
+            FileObject viewsFolder = project.getProjectDirectory().getFileObject("resources/lang");
 
             if (viewsFolder != null && viewsFolder.isValid() && viewsFolder.isFolder()) {
                 extractFolderAsTemplatePath(viewsFolder);
@@ -75,7 +76,7 @@ public class ViewsFiles {
                     
                     //add only folders
                     if (hasFile){
-                        viewsFolders.add(file);
+                        langFolders.add(file);
                         extractFolderAsTemplatePath(file);
                     }
                 } else {
@@ -87,8 +88,8 @@ public class ViewsFiles {
         @Override
         public List<Node> keys() {
             List<Node> keysList = new ArrayList<>(1);
-            if (!viewsFolders.isEmpty()) {
-                BladeTemplateFolderNodeList folders = new BladeTemplateFolderNodeList(viewsFolders, rootPath);
+            if (!langFolders.isEmpty()) {
+                LangConfigFolderNodeList folders = new LangConfigFolderNodeList(langFolders, rootPath);
                 folders.setKeys();
                 keysList.add(new MainNode(folders));
             }
@@ -126,12 +127,12 @@ public class ViewsFiles {
         }
     }
     
-    private static final class BladeTemplateFolderNodeList extends Children.Keys<FileObject> {
+    private static final class LangConfigFolderNodeList extends Children.Keys<FileObject> {
 
         List<FileObject> files = new ArrayList<>();
         private String rootPath;
 
-        BladeTemplateFolderNodeList(List<FileObject> bladeTemplatesFiles, String rootPath) {
+        LangConfigFolderNodeList(List<FileObject> bladeTemplatesFiles, String rootPath) {
             super(true);
             this.files = bladeTemplatesFiles;
             this.rootPath = rootPath;
@@ -158,9 +159,9 @@ public class ViewsFiles {
 
     private static final class MainNode extends AbstractNode {
 
-        MainNode(BladeTemplateFolderNodeList markdownFiles) {
+        MainNode(LangConfigFolderNodeList markdownFiles) {
             super(markdownFiles);
-            setDisplayName("Blade Views files");
+            setDisplayName("International");
         }
 
         @Override

@@ -12,7 +12,7 @@ import org.netbeans.modules.parsing.spi.ParseException;
 import org.netbeans.modules.php.editor.model.Model;
 import org.netbeans.modules.php.editor.parser.PHPParseResult;
 import org.netbeans.modules.php.editor.parser.api.Utils;
-import org.netbeans.modules.php.laravel.astnodes.ArrayConfigVisitor;
+import org.netbeans.modules.php.laravel.astnodes.ArrayTreeVisitor;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
 import org.openide.filesystems.FileObject;
@@ -32,7 +32,7 @@ public class ConfigurationFileParser {
                     PHPParseResult parseResult = (PHPParseResult) resultIterator.getParserResult();
                     // find actions
                     Model model = parseResult.getModel();
-                    ArrayConfigVisitor arrayVisitor = new ArrayConfigVisitor(file, model, false);
+                    ArrayTreeVisitor arrayVisitor = new ArrayTreeVisitor(file, model, false);
                     arrayVisitor.scan(Utils.getRoot(parseResult));
                     configKeys.putAll(arrayVisitor.getConfigNamespaceString());
                 }
@@ -53,7 +53,7 @@ public class ConfigurationFileParser {
                     PHPParseResult parseResult = (PHPParseResult) resultIterator.getParserResult();
                     // find actions
                     Model model = parseResult.getModel();
-                    ArrayConfigVisitor arrayVisitor = new ArrayConfigVisitor(file, model, true);
+                    ArrayTreeVisitor arrayVisitor = new ArrayTreeVisitor(file, model, true);
                     arrayVisitor.scan(Utils.getRoot(parseResult));
                     root.children.addAll(arrayVisitor.getConfigNamespace().children);
                 }
