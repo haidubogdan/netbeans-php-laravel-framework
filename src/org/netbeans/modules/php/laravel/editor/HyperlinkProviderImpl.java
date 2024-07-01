@@ -35,6 +35,7 @@ import org.openide.util.Exceptions;
 
 /**
  * Similar to a declaration finder
+ * TODO use DeclarationPopup
  *
  * @author bhaidu
  */
