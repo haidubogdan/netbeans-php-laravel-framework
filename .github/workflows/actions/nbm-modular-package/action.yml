@@ -6,10 +6,10 @@ name: nbm modular package
 on:
   workflow_call:
     inputs:
-      NB_RELEASE_VERSION:
+      nb-meta-inf:
         required: true
         type: string
-      NB_META_INF:
+      NB_RELEASE_VERSION:
         required: true
         type: string
       NB_VERSION_NR:
@@ -36,7 +36,7 @@ jobs:
         java-version: '8'
         distribution: 'temurin'
     - name: Set META INF
-    - run: echo "::set-output name=NB_META_INF::${{ inputs.NB_META_INF }}"
+    - run: echo "::set-output name=NB_META_INF::${{ inputs.nb-meta-inf }}"
     - name: Set TAG VARSION
     - run: echo "::set-output name=RELEASE_TAG_VERSION::${{ inputs.RELEASE_TAG_VERSION }}"
     - name : get version
