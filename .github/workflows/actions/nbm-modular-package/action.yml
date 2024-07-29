@@ -5,7 +5,31 @@ name: nbm modular package
 
 on:
   workflow_call:
-
+      
+inputs:
+  NB_RELEASE_VERSION:
+    required: true
+    type: string
+  NB_META_INF:
+    required: true
+    type: string
+  NB_VERSION_NR:
+    required: true
+    type: string
+  NB_RELEASE_LABEL:
+    required: true
+    type: string
+  RELEASE_TAG_VERSION:
+    required: true
+    type: string
+  NB_PRERELEASE:
+    required: true
+    type: boolean
+    
+    
+env:
+  NB_RELEASE_VERSION: ${{ inputs.NB_RELEASE_VERSION }}  
+  NB_META_INF: ${{ inputs.NB_META_INF }}  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -20,7 +44,7 @@ jobs:
       run: echo "::set-output name=version::$(grep 'OpenIDE-Module-Specification-Version'  ./manifest.mf | cut -d':' -f 2-)"
       id: nbm_version
     - name: view version
-      run: echo ${{ steps.nbm_version.outputs.version }}    
+      run: echo ${{ inputs.NB_VERSION_NR }}
     - name : prepare the files from project
       run : mkdir -p  nb-plugin-package/src/main/java
     - name : prepare the files from project  
@@ -47,24 +71,24 @@ jobs:
       run : cp ./nbproject/project.properties nb-plugin-package/project.properties
     - name : prepare the files from project  
       run : cp ./LICENSE nb-plugin-package/LICENSE
-    - name : package nmb ${{ env.NB_VERSION_NR }}
+    - name : package nmb ${{ inputs.NB_VERSION_NR }}
       working-directory: ./nb-plugin-package
       run : mvn package  
-    - name : upload nbm ${{ env.NB_VERSION_NR }}
+    - name : upload nbm ${{ inputs.NB_VERSION_NR }}
       uses: actions/upload-artifact@v4
       with:
-        name: php-laravel-nbm-${{ env.NB_VERSION_NR }}
+        name: php-laravel-nbm-${{ inputs.NB_VERSION_NR }}
         path: ./nb-plugin-package/target/nbm/*.nbm        
-    - name: {{ env.NB_RELEASE_LABEL }}
+    - name: {{ inputs.NB_RELEASE_LABEL }}
       uses: actions/create-release@v1
       env:
           GITHUB_TOKEN: ${{ github.token }}
       id: create_release
       with:
         draft: false
-        prerelease: {{ env.NB_PRERELEASE }}
+        prerelease: {{ inputs.NB_PRERELEASE }}
         release_name: Netbeans Blade Php release ${{ steps.nbm_version.outputs.version }}  
-        tag_name: nb${{ env.NB_VERSION_NR }}laravel${{ env.RELEASE_TAG_VERSION }}
+        tag_name: nb${{ inputs.NB_VERSION_NR }}laravel${{ inputs.RELEASE_TAG_VERSION }}
         body_path: .github/workflows/CHANGELOG.md
     - name: upload nbm artifact
       uses: actions/upload-release-asset@v1
@@ -73,5 +97,5 @@ jobs:
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
         asset_path: ./nb-plugin-package/target/nbm/php.laravel.framework-1.0.0.nbm
-        asset_name: php-laravel${{ env.NB_VERSION_NR }}-${{ steps.nbm_version.outputs.version }}.nbm
+        asset_name: php-laravel${{ inputs.NB_VERSION_NR }}-${{ steps.nbm_version.outputs.version }}.nbm
         asset_content_type: application/nbm
