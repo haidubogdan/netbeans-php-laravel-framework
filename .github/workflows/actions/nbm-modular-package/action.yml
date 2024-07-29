@@ -27,9 +27,6 @@ inputs:
     type: boolean
     
     
-env:
-  NB_RELEASE_VERSION: ${{ inputs.NB_RELEASE_VERSION }}  
-  NB_META_INF: ${{ inputs.NB_META_INF }}  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -40,11 +37,13 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
+    - run: echo "::set-output name=NB_META_INF::${{ inputs.NB_META_INF }}"
+    - run: echo "::set-output name=RELEASE_TAG_VERSION::${{ inputs.RELEASE_TAG_VERSION }}"
     - name : get version
       run: echo "::set-output name=version::$(grep 'OpenIDE-Module-Specification-Version'  ./manifest.mf | cut -d':' -f 2-)"
       id: nbm_version
     - name: view version
-      run: echo ${{ inputs.NB_VERSION_NR }}
+      run: echo ${{ steps.nbm_version.outputs.version }}  
     - name : prepare the files from project
       run : mkdir -p  nb-plugin-package/src/main/java
     - name : prepare the files from project  
