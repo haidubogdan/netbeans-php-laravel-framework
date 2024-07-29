@@ -10,7 +10,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - uses: ./.github/workflows/package.yml
+    - uses: ./nbm/package.yml
       with:
         NB_RELEASE_VERSION: 220  
         NB_META_INF: 22-0d0bfcf3faf364a2643238f2a44e1bb6eb8217bd
