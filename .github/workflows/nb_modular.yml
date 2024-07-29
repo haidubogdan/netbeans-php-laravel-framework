@@ -12,7 +12,7 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Package
-      uses: ./.github/actions/nbm-modular-package
+      uses: ./.github/actions/nbm-modular-package/
       with:
         NB_RELEASE_VERSION: 220  
         NB_META_INF: 22-0d0bfcf3faf364a2643238f2a44e1bb6eb8217bd
