@@ -37,7 +37,9 @@ jobs:
       with:
         java-version: '8'
         distribution: 'temurin'
+    - name: SET META INF
     - run: echo "::set-output name=NB_META_INF::${{ INPUT_NB-META-INF }}"
+    - name: SET TAG VERSION
     - run: echo "::set-output name=RELEASE_TAG_VERSION::${{ INPUT_RELEASE_TAG_VERSION }}"
     - name : get version
       run: echo "::set-output name=version::$(grep 'OpenIDE-Module-Specification-Version'  ./manifest.mf | cut -d':' -f 2-)"
