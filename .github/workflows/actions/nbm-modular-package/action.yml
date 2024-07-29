@@ -4,7 +4,7 @@
 name: nbm modular package
 
 on:
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   build:
