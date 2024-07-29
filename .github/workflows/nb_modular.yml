@@ -5,6 +5,25 @@ name: nbm modular pre-release package 220
 
 on:
   workflow_dispatch:
+    inputs:
+      nb-meta-inf:
+        required: true
+        type: string
+      NB_RELEASE_VERSION:
+        required: true
+        type: string
+      NB_VERSION_NR:
+        required: true
+        type: string
+      NB_RELEASE_LABEL:
+        required: true
+        type: string
+      RELEASE_TAG_VERSION:
+        required: true
+        type: string
+      NB_PRERELEASE:
+        required: true
+        type: boolean
 
 jobs:
   package:
