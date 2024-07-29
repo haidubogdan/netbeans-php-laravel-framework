@@ -10,8 +10,6 @@ jobs:
   package:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Package
     - uses: ./.github/workflows/actions/nbm-modular-package
       with:
         nb-meta-inf: 22-0d0bfcf3faf364a2643238f2a44e1bb6eb8217bd
