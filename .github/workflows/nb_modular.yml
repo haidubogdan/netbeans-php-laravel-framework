@@ -5,8 +5,30 @@ name: nbm modular pre-release package 220
 
 on:
   workflow_dispatch:
+    inputs:
+        tag-version:
+            required: true
+            type: string
 
 jobs:
+  create_release:
+    name: Create pre-release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - uses: actions/checkout@v3   
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          draft: false
+          prerelease: true
+          release_name: Netbeans Blade Php release all
+          tag_name:  ${{ inputs.tag-version }}
+          body_path: .github/workflows/CHANGELOG.md
   build:
     strategy:
       matrix:
@@ -68,23 +90,12 @@ jobs:
       with:
         name: php-laravel-nbm-${{ matrix.label }}
         path: ./nb-plugin-package/target/nbm/*.nbm        
-    - name: pre-release${{ matrix.label }}
-      uses: actions/create-release@v1
-      env:
-          GITHUB_TOKEN: ${{ github.token }}
-      id: create_release
-      with:
-        draft: false
-        prerelease: true
-        release_name: Netbeans Blade Php release ${{ steps.nbm_version.outputs.version }}  
-        tag_name:  ${{ matrix.tag_version }}
-        body_path: .github/workflows/CHANGELOG.md
     - name: upload nbm artifact
       uses: actions/upload-release-asset@v1
       env:
           GITHUB_TOKEN: ${{ github.token }}
       with:
-        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
         asset_path: ./nb-plugin-package/target/nbm/php.laravel.framework-1.0.0.nbm
         asset_name: php-laravel${{ matrix.label }}-${{ steps.nbm_version.outputs.version }}.nbm
         asset_content_type: application/nbm
