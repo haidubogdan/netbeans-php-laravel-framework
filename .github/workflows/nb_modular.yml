@@ -36,7 +36,7 @@ jobs:
     needs: create_release  
     strategy:
       matrix:
-        label: [18, 19, 20, 21, 22]
+        label: [18, 19, 20, 21, 22, 23]
         include:
           - label: 18
             version: 18-7d33005615b3c744564f3d38ab9ef14bf8c3ec44
