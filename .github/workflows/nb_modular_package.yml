@@ -1,0 +1,96 @@
+# This workflow will build a Java project with Ant
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-java-with-ant
+
+name: nbm modular package
+
+on:
+  workflow_dispatch:
+    inputs:
+        tag-version:
+            required: true
+            type: string
+        pre-release:
+            required: true
+            type: boolean
+
+jobs:
+  create_release:
+    name: Create package
+    runs-on: ubuntu-latest
+  build:
+    needs: package 
+    strategy:
+      matrix:
+        label: [18, 19, 20, 21, 22, 23]
+        include:
+          - label: 18
+            version: 18-7d33005615b3c744564f3d38ab9ef14bf8c3ec44
+          - label: 19
+            version: 19-ba85468772292fd64f188f4022f9d49f77f00b89
+          - label: 20
+            version: 20-91f9ed846ac143b52d50b5ea323a42c2f7e78392
+          - label: 21
+            version: 21-b15c9b7692b2764be5a997d056e2283b72ae9131 
+          - label: 22
+            version: 22-0d0bfcf3faf364a2643238f2a44e1bb6eb8217bd
+          - label: 23
+            version: 23-2985f1fa57ce0c1877bad0f86d5e5504d65f9286
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '8'
+        distribution: 'temurin'
+    - name : get version
+      run: echo "::set-output name=version::$(grep 'OpenIDE-Module-Specification-Version'  ./manifest.mf | cut -d':' -f 2-)"
+      id: nbm_version
+    - name: Set version
+      run: echo ${{ steps.nbm_version.outputs.version }}    
+    - name : prepare the files from project
+      run : mkdir -p  nb-plugin-package/src/main/java
+    - name : prepare the files from project  
+      run : mkdir -p nb-plugin-package/src/main/nbm
+    - name : prepare the files from project  
+      run : mkdir -p nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel
+    - name : copy main app java
+      run : cp -rf ./src/org nb-plugin-package/src/main/java
+    - name : copy base resources
+      run : cp -rf ./src/org/netbeans/modules/php/laravel/resources nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel
+    - name : create ui bundle resource 
+      run : mkdir -p nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
+    - name : copy bundle customizer
+      run : cp  ./src/org/netbeans/modules/php/laravel/ui/customizer/Bundle.properties nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
+    - name : create ui bundle options resource 
+      run : mkdir -p nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/options
+    - name : copy bundle laravel options
+      run : cp  ./src/org/netbeans/modules/php/laravel/ui/options/Bundle.properties nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/options
+    - name : prepare the files from project
+      run : cp ./manifest.mf nb-plugin-package/src/main/nbm/manifest.mf
+    - name : prepare the files from project  
+      run : cp ./.github/pom.xml nb-plugin-package/pom.xml
+    - name : prepare the files from project  
+      run : cp ./nbproject/project.properties nb-plugin-package/project.properties
+    - name : prepare the files from project  
+      run : cp ./LICENSE nb-plugin-package/LICENSE
+    - name : package nbm${{ matrix.label }}
+      working-directory: ./nb-plugin-package
+      env:
+        NB_RELEASE_VERSION: ${{ matrix.label }}0 
+        NB_META_INF: ${{ matrix.version }}
+      run : echo NB_RELEASE_VERSION | mvn package  
+    - name : upload nbm ${{ matrix.label }}
+      uses: actions/upload-artifact@v4
+      with:
+        name: php-laravel-nbm-${{ matrix.label }}
+        path: ./nb-plugin-package/target/nbm/*.nbm        
+    - name: upload nbm artifact
+      uses: actions/upload-release-asset@v1
+      env:
+          GITHUB_TOKEN: ${{ github.token }}
+      with:
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
+        asset_path: ./nb-plugin-package/target/nbm/php.laravel.framework-1.0.0.nbm
+        asset_name: php-laravel${{ matrix.label }}-${{ steps.nbm_version.outputs.version }}.nbm
+        asset_content_type: application/nbm
