@@ -94,7 +94,7 @@ public class RemoteDockerExecutable {
 
         ExitStatus result = ProcessUtils.execute(env, MAIN_SCRIPT, args);
 
-        if (!result.getErrorLines().isEmpty()) {
+        if (output == null && !result.getErrorLines().isEmpty()) {
             outputErrorMessage(result);
             return;
         }
@@ -188,7 +188,7 @@ public class RemoteDockerExecutable {
 
         ExitStatus result = ProcessUtils.execute(env, "docker", args);
 
-        if (!result.getErrorLines().isEmpty()) {
+        if (!result.getErrorLines().isEmpty() && !result.getOutputString().contains("Laravel Framework")) {
             outputErrorMessage(result);
             return;
         }
