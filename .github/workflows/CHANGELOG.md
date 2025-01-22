@@ -2,4 +2,4 @@
 
 ## What's changed
 
-First release
+Continue outputing results even if the CLI reponse detects errors.
