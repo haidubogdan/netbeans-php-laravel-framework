@@ -2,4 +2,4 @@
 
 ## What's changed
 
-Continue outputing results even if the CLI reponse detects errors.
+Include netbeans 24 in the package modular
