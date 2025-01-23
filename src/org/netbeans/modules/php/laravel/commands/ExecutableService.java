@@ -189,12 +189,16 @@ public class ExecutableService {
                     int endBoundry = trimedLine.indexOf(" ");
                     String commandInfo = trimedLine.substring(0, endBoundry);
                     int commandActionPos = commandInfo.indexOf(":");
+                    String comment = "";
+                    if (line.length() > endBoundry + 1) {
+                        comment = line.substring(endBoundry + 2).trim();
+                    }
                     if (commandActionPos > 0) {
-                        String comment = "";
-                        if (line.length() > endBoundry + 1) {
-                            comment = line.substring(endBoundry + 2).trim();
-                        }
+           
 
+                        artisanCommandSupport.commands.add(new ArtisanCommand(phpModule, commandInfo,
+                                comment, commandInfo));
+                    } else {
                         artisanCommandSupport.commands.add(new ArtisanCommand(phpModule, commandInfo,
                                 comment, commandInfo));
                     }
