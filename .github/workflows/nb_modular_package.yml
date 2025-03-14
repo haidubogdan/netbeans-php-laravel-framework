@@ -16,7 +16,7 @@ jobs:
     needs: package 
     strategy:
       matrix:
-        label: [18, 19, 20, 21, 22, 23, 24]
+        label: [18, 19, 20, 21, 22, 23, 24, 25]
         include:
           - label: 18
             version: 18-7d33005615b3c744564f3d38ab9ef14bf8c3ec44
@@ -38,6 +38,9 @@ jobs:
             java: 11
           - label: 24
             version: 24-6308a54f5ac18a75f460d86cc9bb8d4cc7213564
+            java: 11
+          - label: 25
+            version: 25-0f82d968998b78ef4d323537d1149eb68e747d9a
             java: 11
     runs-on: ubuntu-latest
     steps:
