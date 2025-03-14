@@ -41,7 +41,7 @@ jobs:
             java: 11
           - label: 25
             version: 25-0f82d968998b78ef4d323537d1149eb68e747d9a
-            java: 11
+            java: 17
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
