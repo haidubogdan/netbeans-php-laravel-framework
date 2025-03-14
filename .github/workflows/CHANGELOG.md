@@ -2,4 +2,4 @@
 
 ## What's changed
 
-Include netbeans 24 in the package modular
+Include netbeans 25 in the package modular
