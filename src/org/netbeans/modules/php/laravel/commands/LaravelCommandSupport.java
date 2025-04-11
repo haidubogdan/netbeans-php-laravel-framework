@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import static org.netbeans.modules.php.laravel.commands.ArtisanCommand.ARTISAN_COMMAND;
+import static org.netbeans.modules.php.laravel.commands.ExecutableService.DEFAULT_PARAMS;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommand;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommandSupport;
 import org.openide.filesystems.FileObject;
@@ -32,7 +34,7 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
     @Override
     protected List<FrameworkCommand> getFrameworkCommandsInternal() {
         List<FrameworkCommand> commands = new ArrayList<>();
-        commands.add(new ArtisanCommand(phpModule, "", "about", "Artisan"));
+        commands.add(new ArtisanCommand(phpModule, "", "about", ARTISAN_COMMAND));// NOI18N
 
         if (artisanSupport.getCommands().isEmpty()) {
             ExecutableService.extractArtisanCommands(phpModule, artisanSupport);
@@ -49,7 +51,7 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
         }
 
         commands.addAll(artisanSupport.getCommands());
-
+        commands.add(new ArtisanCommand(phpModule, "test", "test", "test"));// NOI18N
         return commands;
     }
 
@@ -58,6 +60,7 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
         String[] commands = commandDescriptor.getFrameworkCommand().getCommands();
         String[] commandParams = commandDescriptor.getCommandParams();
         List<String> params = new ArrayList<>(commands.length + commandParams.length);
+        params.addAll(DEFAULT_PARAMS);
         params.addAll(Arrays.asList(commands));
         params.addAll(Arrays.asList(commandParams));
 

@@ -9,7 +9,7 @@ import org.netbeans.modules.php.spi.framework.commands.FrameworkCommand;
  * @author bhaidu
  */
 public class ArtisanCommand extends FrameworkCommand {
-
+    public static final String ARTISAN_COMMAND = "artisan";
     private final WeakReference<PhpModule> phpModule;
 
     public ArtisanCommand(PhpModule phpModule, String command, String description, String displayName) {
@@ -31,6 +31,6 @@ public class ArtisanCommand extends FrameworkCommand {
 
     @Override
     public String getPreview() {
-        return "artisan " + super.getPreview(); // NOI18N
+        return ARTISAN_COMMAND + " " + super.getPreview(); // NOI18N
     }
 }

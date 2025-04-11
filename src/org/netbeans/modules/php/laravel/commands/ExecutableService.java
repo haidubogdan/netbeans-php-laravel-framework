@@ -10,6 +10,7 @@ import org.netbeans.api.extexecution.base.input.LineProcessor;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.php.api.executable.PhpExecutable;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import static org.netbeans.modules.php.laravel.commands.ArtisanCommand.ARTISAN_COMMAND;
 import org.netbeans.modules.php.laravel.executable.DockerExecutable;
 import org.netbeans.modules.php.laravel.executable.RemoteDockerExecutable;
 import org.netbeans.modules.php.laravel.executable.TerminalComponent;
@@ -25,7 +26,8 @@ import org.openide.filesystems.FileUtil;
  */
 public class ExecutableService {
 
-    private static final List<String> DEFAULT_PARAMS = Collections.singletonList("--ansi"); // NOI18N
+
+    public static final List<String> DEFAULT_PARAMS = Collections.singletonList("--ansi"); // NOI18N
 
     public static List<FrameworkCommand> extractArtisanCommands(PhpModule phpModule,
             ArtisanCommandSupport artisanCommandSupport) {
@@ -119,7 +121,7 @@ public class ExecutableService {
 
     private static PhpExecutable createPhpExecutable(PhpModule phpModule) {
         String absolutePath = FileUtil.toFile(phpModule.getSourceDirectory()).getAbsolutePath();
-        return new PhpExecutable(absolutePath + "/artisan") //??
+        return new PhpExecutable(absolutePath + "/" + ARTISAN_COMMAND)
                 .environmentVariables(Collections.singletonMap("SHELL_INTERACTIVE", "true")) // NOI18N
                 .workDir(FileUtil.toFile(phpModule.getSourceDirectory()));
     }
@@ -134,9 +136,9 @@ public class ExecutableService {
         String preScript = getPreScript(phpModule);
 
         if (preScript != null && !preScript.isEmpty()) {
-            command = preScript + " " + "php artisan ";
+            command = preScript + " " + "php " + ARTISAN_COMMAND + " ";
         } else {
-            command = "php artisan ";
+            command = "php " + ARTISAN_COMMAND + " ";
         }
 
         return new RemoteDockerExecutable(env,
@@ -189,12 +191,14 @@ public class ExecutableService {
                     int endBoundry = trimedLine.indexOf(" ");
                     String commandInfo = trimedLine.substring(0, endBoundry);
                     int commandActionPos = commandInfo.indexOf(":");
+                    String comment = "";
+                    if (line.length() > endBoundry + 1) {
+                        comment = line.substring(endBoundry + 2).trim();
+                    }
                     if (commandActionPos > 0) {
-                        String comment = "";
-                        if (line.length() > endBoundry + 1) {
-                            comment = line.substring(endBoundry + 2).trim();
-                        }
-
+                        artisanCommandSupport.commands.add(new ArtisanCommand(phpModule, commandInfo,
+                                comment, commandInfo));
+                    } else {
                         artisanCommandSupport.commands.add(new ArtisanCommand(phpModule, commandInfo,
                                 comment, commandInfo));
                     }
