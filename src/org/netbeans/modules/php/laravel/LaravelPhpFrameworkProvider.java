@@ -1,5 +1,6 @@
 package org.netbeans.modules.php.laravel;
 
+import org.netbeans.modules.php.laravel.ui.actions.LaravelPhpModuleActionsExtender;
 import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.modules.php.laravel.editor.LaravelEditorExtender;
@@ -7,9 +8,7 @@ import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.modules.php.api.framework.BadgeIcon;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.phpmodule.PhpModuleProperties;
-import org.netbeans.modules.php.editor.parser.astnodes.ArrayElement;
 import org.netbeans.modules.php.laravel.commands.LaravelCommandSupport;
-import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
 import org.netbeans.modules.php.spi.editor.EditorExtender;
 import org.netbeans.modules.php.spi.framework.PhpFrameworkProvider;
@@ -21,6 +20,7 @@ import org.netbeans.modules.php.spi.framework.commands.FrameworkCommandSupport;
 import org.netbeans.modules.php.spi.phpmodule.ImportantFilesImplementation;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ImageUtilities;
+import org.openide.util.NbBundle;
 
 /**
  *
@@ -31,15 +31,17 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     @StaticResource
     private static final String ICON_PATH = "org/netbeans/modules/php/laravel/resources/laravel_badge.png"; // NOI18N
     private static final LaravelPhpFrameworkProvider INSTANCE = new LaravelPhpFrameworkProvider();
+
     private final BadgeIcon badgeIcon;
+
     private final Map<Integer, Boolean> inPhpModuleChecked = new HashMap<>();
     private boolean isInModule = false;
     private FileObject sourceDirectory;
 
     private LaravelPhpFrameworkProvider() {
-        super("Laravel 9 PHP Web Framework", // NOI18N
-                "Laravel 9",
-                "Laravel description");
+        super("Laravel PHP Web Framework", // NOI18N
+                 NbBundle.getMessage(LaravelPhpFrameworkProvider.class, "LBL_FrameworkName"),
+                NbBundle.getMessage(LaravelPhpFrameworkProvider.class, "LBL_FrameworkDescription"));
         badgeIcon = new BadgeIcon(
                 ImageUtilities.loadImage(ICON_PATH),
                 LaravelPhpFrameworkProvider.class.getResource("/" + ICON_PATH)); // NOI18N
@@ -82,18 +84,15 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
         return isInModule;
     }
 
-    //try to get the version from composer
+    //try to get the framework version from composer
     @Override
     public String getName(PhpModule phpModule) {
-
         return super.getName(phpModule);
     }
 
     @Override
     public PhpModuleExtender createPhpModuleExtender(PhpModule pm) {
-        //not implement it
-       
-        return new LaravelPhpModuleExtender();
+        return null;
     }
 
     @Override
@@ -108,11 +107,15 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     public PhpModuleProperties getPhpModuleProperties(PhpModule phpModule) {
         PhpModuleProperties properties = new PhpModuleProperties();
 
-        if ( phpModule.getSourceDirectory() == null) {
+        if (sourceDirectory == null) {
             // broken project
             return properties;
         }
+        FileObject testsDir = sourceDirectory.getFileObject("tests"); // NOI18N
 
+        if (testsDir != null) {
+            properties = properties.setTests(testsDir);
+        }
         //todo add tests
         return properties;
     }

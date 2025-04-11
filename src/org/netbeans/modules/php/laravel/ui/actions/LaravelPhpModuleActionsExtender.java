@@ -1,14 +1,12 @@
 /*
 Licensed to the Apache Software Foundation (ASF)
  */
-package org.netbeans.modules.php.laravel;
+package org.netbeans.modules.php.laravel.ui.actions;
 
+import java.util.Arrays;
 import org.netbeans.modules.php.spi.framework.PhpModuleActionsExtender;
-import java.util.Collections;
 import java.util.List;
 import javax.swing.Action;
-import org.netbeans.modules.php.laravel.ui.actions.GenerateAppKeyAction;
-import org.netbeans.modules.php.laravel.ui.actions.LaravelRunCommandAction;
 import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.netbeans.modules.php.spi.framework.actions.RunCommandAction;
 import org.openide.filesystems.FileObject;
@@ -19,12 +17,16 @@ import org.openide.filesystems.FileObject;
  */
 public class LaravelPhpModuleActionsExtender extends PhpModuleActionsExtender {
 
-    private static final List<Action> ACTIONS = Collections.<Action>singletonList(GenerateAppKeyAction.getInstance());
+    private static final List<Action> ACTIONS = Arrays.<Action>asList(
+            ClearCacheAction.getInstance(),
+            ClearViewCacheAction.getInstance(),
+            ClearRouteCacheAction.getInstance(),
+            GenerateAppKeyAction.getInstance()
+    );
 
     @Override
     public String getMenuName() {
-        //todo do use BuNdle
-        return "Laravel";
+        return "Laravel Commands"; // NOI18N
     }
 
     @Override

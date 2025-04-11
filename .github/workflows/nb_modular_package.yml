@@ -32,7 +32,6 @@ jobs:
             java: 8
           - label: 22
             version: 22-0d0bfcf3faf364a2643238f2a44e1bb6eb8217bd
-            java: 8
           - label: 23
             version: 23-2985f1fa57ce0c1877bad0f86d5e5504d65f9286
             java: 11
@@ -72,6 +71,8 @@ jobs:
       run : mkdir -p nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
     - name : copy bundle customizer
       run : cp  ./src/org/netbeans/modules/php/laravel/ui/customizer/Bundle.properties nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/customizer
+    - name : copy main bundle
+      run : cp  ./src/org/netbeans/modules/php/laravel/Bundle.properties nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel
     - name : create ui bundle options resource 
       run : mkdir -p nb-plugin-package/src/main/resources/org/netbeans/modules/php/laravel/ui/options
     - name : copy bundle laravel options

@@ -13,19 +13,19 @@ import org.openide.util.RequestProcessor;
 /**
  * @author Tomas Mysik
  */
-public final class GenerateAppKeyAction extends BaseAction {
+public final class ClearCacheAction extends BaseAction {
 
-    private static final String ACTION_NAME = "Generate App Key"; //NOI18N
-    private static final String LARAVEL_COMMAND = "key:generate"; //NOI18N
-    private static final long serialVersionUID = 36068831502227572L;
+    private static final String ACTION_NAME = "Clear Cache"; //NOI18N
+    private static final String LARAVEL_COMMAND = "cache:clear"; //NOI18N
+    private static final long serialVersionUID = 36068831502227573L;
 
-    private static final GenerateAppKeyAction INSTANCE = new GenerateAppKeyAction();
-    private static final RequestProcessor WORKER = new RequestProcessor(GenerateAppKeyAction.class.getName(), 1, true);
+    private static final ClearCacheAction INSTANCE = new ClearCacheAction();
+    private static final RequestProcessor WORKER = new RequestProcessor(ClearCacheAction.class.getName(), 1, true);
 
-    private GenerateAppKeyAction() {
+    private ClearCacheAction() {
     }
 
-    public static GenerateAppKeyAction getInstance() {
+    public static ClearCacheAction getInstance() {
         return INSTANCE;
     }
 

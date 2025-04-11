@@ -41,6 +41,13 @@ It has an inbuild customization to allow **remote connection** and **docker** us
 
 - wip console commands
 
+!! IMPORTANT
+!! **Windows**
+
+For interactive docker execution commands, it would be best to install gihtub bash for windows.
+
+Otherwise the terminal commands will try to use the default cgydrive
+
 **Configuration**
 
 Right click on the project.

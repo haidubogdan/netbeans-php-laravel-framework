@@ -23,6 +23,7 @@ import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.modules.php.laravel.ConfigurationFiles;
 import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
+import org.netbeans.modules.php.laravel.utils.PathUtils;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
 import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.netbeans.modules.php.laravel.utils.StringUtils;
@@ -119,7 +120,7 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                         module = ProjectUtils.getPhpModule(doc);
                         FileObject dir = module.getSourceDirectory();
                         if (dir != null) {
-                            String viewPath = "resources/views/" + identifiableText.replace(".", "/") + ".blade.php";
+                            String viewPath = PathUtils.LARAVEL_VIEW_PATH + "/" + identifiableText.replace(".", "/") + PathUtils.BLADE_EXT;
                             //FileObject views = dir.getFileObject("resources/views");
                             FileObject viewFile = dir.getFileObject(viewPath);
                             goToFile = viewFile;
@@ -135,8 +136,9 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                         }
                         String[] queryConfigNamespace = identifiableText.split("\\.");
 
-                        ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+//                        ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
 
+                        ConfigurationFiles confFiles = null;
                         if (confFiles == null) {
                             break;
                         }

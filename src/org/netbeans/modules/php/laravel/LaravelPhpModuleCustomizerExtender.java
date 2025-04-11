@@ -12,6 +12,7 @@ import org.netbeans.modules.php.laravel.ui.customizer.LaravelCustomizerPanel;
 import org.netbeans.modules.php.spi.framework.PhpModuleCustomizerExtender;
 import org.openide.util.HelpCtx;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
+import org.openide.util.NbBundle.Messages;
 
 /**
  *
@@ -20,9 +21,9 @@ import org.netbeans.modules.php.laravel.project.ComposerPackages;
 public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExtender {
 
     private final PhpModule phpModule;
-    private ComposerPackages composerPackages;
+    private final ComposerPackages composerPackages;
     
-    private final boolean isFrameworkEnabledOriginal;
+    private final boolean isFrameworkEnabledOnProject;
 
     // @GuardedBy(EDT)
     private LaravelCustomizerPanel component;
@@ -30,21 +31,13 @@ public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExten
     LaravelPhpModuleCustomizerExtender(PhpModule phpModule) {
         this.phpModule = phpModule;
         composerPackages = ComposerPackages.fromPhpModule(phpModule);
-        isFrameworkEnabledOriginal = LaravelPreferences.hasEnabledConfigured(phpModule);
+        isFrameworkEnabledOnProject = LaravelPreferences.hasEnabledConfigured(phpModule);
     }
 
+    @Messages("LBL_Laravel=Laravel")
     @Override
     public String getDisplayName() {
-        return "Laravel";
-    }
-
-    private LaravelCustomizerPanel getPanel() {
-        if (component == null) {
-            component = new LaravelCustomizerPanel(phpModule.getSourceDirectory());
-            component.setLaravelVersion(composerPackages.getLaravelVersion());
-            component.initModuleValues(phpModule);
-        }
-        return component;
+        return Bundle.LBL_Laravel();
     }
     
     @Override
@@ -77,6 +70,7 @@ public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExten
         return null;
     }
 
+    //TODO check flow
     @Override
     public EnumSet<Change> save(PhpModule pm) {
         if (component == null){
@@ -85,12 +79,20 @@ public class LaravelPhpModuleCustomizerExtender extends PhpModuleCustomizerExten
 
         component.saveChanges(pm);
         
-        if (isFrameworkEnabledOriginal != component.isFrameworkEnabled()){
+        if (isFrameworkEnabledOnProject != component.isFrameworkEnabled()){
             //?? what is the purpose
             return EnumSet.of(Change.FRAMEWORK_CHANGE);
         }
               
         return null;
     }
-
+    
+    private LaravelCustomizerPanel getPanel() {
+        if (component == null) {
+            component = new LaravelCustomizerPanel(phpModule.getSourceDirectory());
+            component.setLaravelVersion(composerPackages.getLaravelVersion());
+            component.initModuleValues(phpModule);
+        }
+        return component;
+    }
 }

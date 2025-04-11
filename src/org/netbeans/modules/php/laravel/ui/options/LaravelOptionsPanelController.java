@@ -21,23 +21,19 @@ import org.openide.util.Lookup;
 public class LaravelOptionsPanelController extends OptionsPanelController {
 
     static final String ID = "Laravel"; // NOI18N
-    static final String OPTIONS_PATH = UiUtils.FRAMEWORKS_AND_TOOLS_SUB_PATH + "/" + ID; // NOI18N
     public static final String OPTIONS_SUBPATH = UiUtils.FRAMEWORKS_AND_TOOLS_SUB_PATH + "/" + ID; // NOI18N
 
     private LaravelOptionsPanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
-    private volatile boolean changed;
-
+ 
     @Override
     public void update() {
         getPanel().load();
-        changed = false;
     }
 
     @Override
     public void applyChanges() {
         getPanel().store();
-        changed = false;
     }
 
     @Override
@@ -57,7 +53,7 @@ public class LaravelOptionsPanelController extends OptionsPanelController {
 
     @Override
     public HelpCtx getHelpCtx() {
-        return new HelpCtx("org.netbeans.modules.php.laravel.editor.Options"); //NOI18N
+        return new HelpCtx(LaravelOptions.OPTIONS_ID); //NOI18N
     }
 
     @Override
@@ -80,14 +76,6 @@ public class LaravelOptionsPanelController extends OptionsPanelController {
             panel = new LaravelOptionsPanel(this);
         }
         return panel;
-    }
-
-    void changed() {
-        if (!changed) {
-            changed = true;
-            pcs.firePropertyChange(OptionsPanelController.PROP_CHANGED, false, true);
-        }
-        pcs.firePropertyChange(OptionsPanelController.PROP_VALID, null, null);
     }
 
     public static String getOptionsPath() {

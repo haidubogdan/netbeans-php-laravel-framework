@@ -5,8 +5,6 @@ package org.netbeans.modules.php.laravel.preferences;
 
 import java.util.prefs.Preferences;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
-import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
@@ -21,16 +19,28 @@ public final class LaravelPreferences {
     private static final String APP_DIR = "appDir-path"; // NOI18N
     private static final String ENABLED = "laravel_enabled"; // NOI18N
     private static final String DEFAULT_APP_DIR = "app"; // NOI18N
-    private static final String USE_REMOTE_CONNECTION = "use_remote_connection";
-    private static final String USE_DOCKER = "use_docker";
+    private static final String USE_REMOTE_CONNECTION = "use_remote_connection"; // NOI18N
+    private static final String USE_DOCKER = "use_docker"; // NOI18N
     private static final String DOCKER_CONTAINER_NAME = "docker_container_name"; // NOI18N
     private static final String DOCKER_BASH_PATH = "docker_bash_path"; // NOI18N
-    private static final String PRESCRIPT = "prescript"; // NOI18N
-    private static DefaultListModel<String> terminalEnvModel = new DefaultListModel();
+    private static final String DOCKER_WORKDIR = "docker_workdir"; // NOI18N
+    private static final String DOCKER_USE_TTY = "docker_use_tty"; // NOI18N
+    private static final String DOCKER_USE_INTERACTIVE = "docker_use_interactive"; // NOI18N
+    
+    private static final boolean DEFAULT_DOCKER_TTY = true;
+    private static final boolean DEFAULT_DOCKER_INTERACTIVE = true;
 
     private LaravelPreferences() {
     }
 
+    public static void setEnabled(PhpModule module, boolean useDocker) {
+        getPreferences(module).putBoolean(ENABLED, useDocker);
+    }
+    
+    public static void setUseDocker(PhpModule module, boolean useDocker) {
+        getPreferences(module).putBoolean(USE_DOCKER, useDocker);
+    }
+    
     public static void setDockerContainerName(PhpModule module, String dockerContainerName) {
         getPreferences(module).put(DOCKER_CONTAINER_NAME, dockerContainerName);
     }
@@ -39,20 +49,20 @@ public final class LaravelPreferences {
         getPreferences(module).put(DOCKER_BASH_PATH, bashPath);
     }
 
-    public static void setPrescript(PhpModule module, String text) {
-        getPreferences(module).put(PRESCRIPT, text);
+    public static void setDockerWorkdir(PhpModule module, String text) {
+        getPreferences(module).put(DOCKER_WORKDIR, text);
     }
 
     public static void setRemoteConnectionFlag(PhpModule module, boolean remoteConnFlag) {
         getPreferences(module).putBoolean(USE_REMOTE_CONNECTION, remoteConnFlag);
     }
-
-    public static void setUseDocker(PhpModule module, boolean useDocker) {
-        getPreferences(module).putBoolean(USE_DOCKER, useDocker);
+    
+    public static void setDockerUseTty(PhpModule module, boolean bool) {
+        getPreferences(module).putBoolean(DOCKER_USE_TTY, bool);
     }
-
-    public static void setEnabled(PhpModule module, boolean useDocker) {
-        getPreferences(module).putBoolean(ENABLED, useDocker);
+    
+    public static void setDockerUseInteractive(PhpModule module, boolean bool) {
+        getPreferences(module).putBoolean(DOCKER_USE_INTERACTIVE, bool);
     }
 
     private static Preferences getPreferences(PhpModule module) {
@@ -88,13 +98,21 @@ public final class LaravelPreferences {
         return getPreferences(module).getBoolean(USE_DOCKER, false);
     }
 
-    public static String getPreScript(PhpModule module) {
-        return getPreferences(module).get(PRESCRIPT, null);
+    public static String geDockerWorkdir(PhpModule module) {
+        return getPreferences(module).get(DOCKER_WORKDIR, null);
+    }
+    
+    public static boolean getDockerUseTTy(PhpModule module) {
+        return getPreferences(module).getBoolean(DOCKER_USE_TTY, DEFAULT_DOCKER_TTY);
+    }
+        
+    public static boolean getDockerUseInteractive(PhpModule module) {
+        return getPreferences(module).getBoolean(DOCKER_USE_INTERACTIVE, DEFAULT_DOCKER_INTERACTIVE);
     }
 
     public static TerminalComboBoxModel getTerminalEnvAsModel() {
         TerminalComboBoxModel model = new TerminalComboBoxModel();
-        model.addElement("No terminal");
+        model.addElement("No terminal"); // NOI18N
         ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
         if (env == null) {
             return model;

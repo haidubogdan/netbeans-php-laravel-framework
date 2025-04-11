@@ -3,6 +3,7 @@ Licensed to the Apache Software Foundation (ASF)
  */
 package org.netbeans.modules.php.laravel.editor.completion;
 
+import org.netbeans.modules.php.laravel.utils.PathUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +21,7 @@ import org.netbeans.modules.php.laravel.ConfigurationFiles;
 import org.netbeans.modules.php.laravel.editor.EditorUtils;
 import org.netbeans.modules.php.laravel.editor.ResourceUtilities;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
+import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.netbeans.modules.php.laravel.utils.StringUtils;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionProvider;
@@ -58,13 +60,13 @@ public class LaravelCompletionProvider implements CompletionProvider {
         if (reference != null) {
             AsyncCompletionQuery completionQuery;
 
-            switch (methodName) {
-                case "config":
+            switch (methodName) { 
+                case "config": // NOI18N
                     completionQuery = new ConfigurationCompletionQuery(module);
                     break;
-                case "view":
-                case "make":
-                case "render":
+                case "view": // NOI18N
+                case "make": // NOI18N
+                case "render": // NOI18N
                     completionQuery = new ViewCompletionQuery(module);
                     break;
                 default:
@@ -105,7 +107,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
 
         PHPTokenId prevTokenId = null;
 
-        String quotedReference = "";
+        String quotedReference = ""; // NOI18N
 
         while (tokensq.movePrevious() && tokensq.offset() >= lineStart) {
             Token<PHPTokenId> token = tokensq.token();
@@ -154,7 +156,8 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 if (query == null) {
                     return;
                 }
-                ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+//                ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+                ConfigurationFiles confFiles = null;
                 if (confFiles != null) {
                     confFiles.extractConfigurationMapping(false);
                     String[] queryConfigNamespace = query.split("\\.");
@@ -172,7 +175,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
                         FileObject configFile = confFileAlias.get(entry.getKey());
                         String configPath = "";
                         if (configFile != null) {
-                            configPath = "config/" + configFile.getNameExt();
+                            configPath = LaravelUtils.DIR_CONFIG + "/" + configFile.getNameExt();
                         }
                         if (queryConfigNamespace.length == 1) {
                             if (query.endsWith(".") && !entry.getValue().isEmpty()) {
@@ -281,7 +284,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 } else {
                     pathOffset = caretOffset - query.length();
                 }
-                FileObject viewFolder = sourceDir.getFileObject("resources/views");
+                FileObject viewFolder = sourceDir.getFileObject(PathUtils.LARAVEL_VIEW_PATH);
                 List<FileObject> childrenFiles = PathUtils.getParentChildrenFromPrefixPath(viewFolder, query);
                 for (FileObject file : childrenFiles) {
                     String pathFileName = file.getName();

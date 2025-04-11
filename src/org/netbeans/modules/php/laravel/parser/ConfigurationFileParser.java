@@ -13,7 +13,6 @@ import org.netbeans.modules.php.editor.model.Model;
 import org.netbeans.modules.php.editor.parser.PHPParseResult;
 import org.netbeans.modules.php.editor.parser.api.Utils;
 import org.netbeans.modules.php.laravel.astnodes.ArrayConfigVisitor;
-import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
 import org.openide.filesystems.FileObject;
 
@@ -44,7 +43,7 @@ public class ConfigurationFileParser {
         return configKeys;
     }
     
-    public ConfigNamespace getConfigTreeWithOffset(FileObject file) {
+    public ConfigNamespace getRelativeConfigTree(FileObject file) {
         ConfigNamespace root = new ConfigNamespace(file.getName(), 0);
         try {
             ParserManager.parse(Collections.singleton(Source.create(file)), new UserTask() {

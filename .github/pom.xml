@@ -111,8 +111,6 @@
                     <verifyRuntime>warn</verifyRuntime>
                     <licenseName>LICENSE</licenseName>
                     <licenseFile>LICENSE</licenseFile>
-                    <!--not working-->
-                    <nbmNeedsRestart>true</nbmNeedsRestart>
                     <additionalArguments>
                     </additionalArguments>
                     <publicPackages>
@@ -148,6 +146,16 @@
                             <id>org.netbeans.modules:org-netbeans-modules-dlight-nativeexecution</id>
                             <type>impl</type>
                             <explicitValue>org.netbeans.modules.dlight.nativeexecution = 1</explicitValue>
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-extexecution</id>
+                            <type>impl</type>
+                            <explicitValue>org.netbeans.modules.extexecution/2 = ${env.NB_META_INF}</explicitValue>
+                        </dependency>
+                        <dependency>
+                            <id>org.netbeans.api:org-netbeans-modules-extexecution-base</id>
+                            <type>impl</type>
+                            <explicitValue>org.netbeans.modules.extexecution.base/2 = ${env.NB_META_INF}</explicitValue>
                         </dependency>
                         <dependency>
                             <id>org.netbeans.modules:org-netbeans-modules-dlight-terminal</id>
@@ -287,12 +295,6 @@
             <version>${nbversion}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-            <version>3.12.0</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-editor-completion</artifactId>
             <version>${nbversion}</version>
@@ -414,11 +416,6 @@
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
-            <artifactId>org-openide-dialogs</artifactId>
-            <version>${nbversion}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.netbeans.api</groupId>
             <artifactId>org-netbeans-modules-extexecution-base</artifactId>
             <version>${nbversion}</version>
         </dependency>
@@ -429,13 +426,18 @@
         </dependency>
         <dependency>
             <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-projectapi</artifactId>
+            <artifactId>org-netbeans-libs-jna</artifactId>
             <version>${nbversion}</version>
         </dependency>
         <dependency>
-            <groupId>org.netbeans.api</groupId>
-            <artifactId>org-netbeans-modules-projectuiapi</artifactId>
-            <version>${nbversion}</version>
+            <groupId>org.jetbrains.pty4j</groupId>
+            <artifactId>pty4j</artifactId>
+            <version>0.13.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.17</version>
         </dependency>
     </dependencies>
 </project>

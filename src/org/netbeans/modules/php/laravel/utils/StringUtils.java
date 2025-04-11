@@ -8,7 +8,8 @@ import org.openide.util.Parameters;
  * @author bhaidu
  */
 public class StringUtils {
-
+    public static final String SG_QUOTE = "'"; // NOI18N
+    public static final String ESCAPED_DB_QUOTE = "\\\""; // NOI18N
     public static String implode(Collection<String> items, String delimiter) {
         Parameters.notNull("items", items);
         Parameters.notNull("delimiter", delimiter);
@@ -28,12 +29,12 @@ public class StringUtils {
         }
         return buffer.toString();
     }
-    
+
     public static boolean isQuotedString(String text){
         if (text.length() < 2){
             return false;
         }
-        return (text.startsWith("'") && text.endsWith("'")) 
-                || (text.startsWith("\\\"") && text.endsWith("\\\""));
+        return (text.startsWith(SG_QUOTE) && text.endsWith(SG_QUOTE)) 
+                || (text.startsWith(ESCAPED_DB_QUOTE) && text.endsWith(ESCAPED_DB_QUOTE));
     }
 }

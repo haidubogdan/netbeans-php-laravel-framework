@@ -33,6 +33,32 @@
                     </run-dependency>
                 </dependency>
                 <dependency>
+                    <code-name-base>org.netbeans.lib.terminalemulator</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.jna</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <specification-version>2.18</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.libs.jna.platform</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>2</release-version>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
                     <code-name-base>org.netbeans.libs.json_simple</code-name-base>
                     <build-prerequisite/>
                     <compile-dependency/>
@@ -134,7 +160,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>2</release-version>
-                        <specification-version>1.71</specification-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -143,7 +169,7 @@
                     <compile-dependency/>
                     <run-dependency>
                         <release-version>2</release-version>
-                        <specification-version>1.28</specification-version>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -153,6 +179,15 @@
                     <run-dependency>
                         <release-version>2</release-version>
                         <specification-version>1.85.0.1</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.nbjunit</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.113</specification-version>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -242,6 +277,40 @@
                     <run-dependency>
                         <release-version>1</release-version>
                         <specification-version>1.108.0.9</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.queries</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.66</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.settings</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <release-version>1</release-version>
+                        <specification-version>1.72</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.terminal</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <implementation-version/>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>org.netbeans.modules.terminal.nb</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <implementation-version/>
                     </run-dependency>
                 </dependency>
                 <dependency>
@@ -340,14 +409,45 @@
                         <specification-version>6.99</specification-version>
                     </run-dependency>
                 </dependency>
+                <dependency>
+                    <code-name-base>slf4j.api</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.7.36</specification-version>
+                    </run-dependency>
+                </dependency>
+                <dependency>
+                    <code-name-base>slf4j.jdk14</code-name-base>
+                    <build-prerequisite/>
+                    <compile-dependency/>
+                    <run-dependency>
+                        <specification-version>1.7.36</specification-version>
+                    </run-dependency>
+                </dependency>
             </module-dependencies>
+            <test-dependencies>
+                <test-type>
+                    <name>unit</name>
+                    <test-dependency>
+                        <code-name-base>org.netbeans.libs.junit4</code-name-base>
+                        <compile-dependency/>
+                    </test-dependency>
+                    <test-dependency>
+                        <code-name-base>org.netbeans.modules.nbjunit</code-name-base>
+                        <recursive/>
+                        <compile-dependency/>
+                    </test-dependency>
+                </test-type>
+            </test-dependencies>
             <public-packages>
+                <package>org.netbeans.modules.php.api.extexecution.docker</package>
+                <package>org.netbeans.modules.php.api.extexecution.pty4j</package>
                 <package>org.netbeans.modules.php.laravel</package>
                 <package>org.netbeans.modules.php.laravel.astnodes</package>
                 <package>org.netbeans.modules.php.laravel.commands</package>
                 <package>org.netbeans.modules.php.laravel.editor</package>
                 <package>org.netbeans.modules.php.laravel.editor.completion</package>
-                <package>org.netbeans.modules.php.laravel.executable</package>
                 <package>org.netbeans.modules.php.laravel.parser</package>
                 <package>org.netbeans.modules.php.laravel.preferences</package>
                 <package>org.netbeans.modules.php.laravel.project</package>
@@ -358,6 +458,10 @@
                 <package>org.netbeans.modules.php.laravel.utils</package>
                 <package>org.netbeans.modules.php.laravel.views</package>
             </public-packages>
+            <class-path-extension>
+                <runtime-relative-path>ext/pty4j-0.13.4.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/pty4j-0.13.4.jar</binary-origin>
+            </class-path-extension>
         </data>
     </configuration>
 </project>

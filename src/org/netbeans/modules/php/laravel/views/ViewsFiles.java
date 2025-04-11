@@ -7,6 +7,8 @@ import org.openide.nodes.AbstractNode;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.project.Project;
+import static org.netbeans.modules.php.laravel.PhpNbConsts.NB_PHP_PROJECT_TYPE;
+import org.netbeans.modules.php.laravel.utils.PathUtils;
 import org.netbeans.spi.project.ui.support.NodeFactory;
 import org.netbeans.spi.project.ui.support.NodeList;
 import org.openide.filesystems.FileObject;
@@ -16,7 +18,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
-import org.openide.util.ChangeSupport;
 import org.openide.nodes.Children;
 import org.openide.util.Exceptions;
 
@@ -25,9 +26,10 @@ import org.openide.util.Exceptions;
  * @author bhaidu
  */
 public class ViewsFiles {
+    private static final String VIEWS_TITLE = "Blade Views files"; //NOI18N
     private static final Node iconDelegate = DataFolder.findFolder(FileUtil.getConfigRoot()).getNodeDelegate();
      
-    @NodeFactory.Registration(projectType = "org-netbeans-modules-php-project", position = 400)
+    @NodeFactory.Registration(projectType = NB_PHP_PROJECT_TYPE, position = 400)
     public static NodeFactory forPhpProject() {
         return new BladeViewsFilesNodeFactory();
     }
@@ -38,30 +40,24 @@ public class ViewsFiles {
         public NodeList<?> createNodes(Project project) {
             assert project != null;
             FileObject source = project.getProjectDirectory();
-            String rootAbsPath = FileUtil.toFile(source).getAbsolutePath() + "\\resources\\views\\";
-            String rootPath = FileUtil.toFile(source).getAbsolutePath() + "\\resources\\views\\";
-            return new BladeViewsNodeList(project, rootPath);
+            FileObject viewsDir = source.getFileObject(PathUtils.LARAVEL_VIEW_PATH);
+            return new BladeViewsNodeList(project, viewsDir);
         }
 
     }
 
     private static final class BladeViewsNodeList implements NodeList<Node>, ChangeListener {
 
-//        private final Project project;
-//        private final ChangeSupport changeSupport = new ChangeSupport(this);
-        private final List<FileObject> viewsFiles = new ArrayList<>();
         private final List<FileObject> viewsFolders = new ArrayList<>();
-        public String rootPath;
-       
+        private final String viewsPath;
 
-        BladeViewsNodeList(Project project, String rootPath) {
-            //this.project = project;
-            FileObject viewsFolder = project.getProjectDirectory().getFileObject("resources/views");
-
-            if (viewsFolder != null && viewsFolder.isValid() && viewsFolder.isFolder()) {
-                extractFolderAsTemplatePath(viewsFolder);
+        BladeViewsNodeList(Project project, FileObject viewsDir) {
+            if (viewsDir != null && viewsDir.isValid() && viewsDir.isFolder()) {
+                this.viewsPath = viewsDir.getPath();
+                extractFolderAsTemplatePath(viewsDir);
+            } else {
+                this.viewsPath = null;
             }
-            this.rootPath = rootPath;
         }
 
         private void extractFolderAsTemplatePath(FileObject dir) {
@@ -80,8 +76,6 @@ public class ViewsFiles {
                         viewsFolders.add(file);
                         extractFolderAsTemplatePath(file);
                     }
-                } else {
-                    
                 }
             }
         }
@@ -90,7 +84,7 @@ public class ViewsFiles {
         public List<Node> keys() {
             List<Node> keysList = new ArrayList<>(1);
             if (!viewsFolders.isEmpty()) {
-                BladeTemplateFolderNodeList folders = new BladeTemplateFolderNodeList(viewsFolders, rootPath);
+                BladeTemplateFolderNodeList folders = new BladeTemplateFolderNodeList(viewsFolders, viewsPath);
                 folders.setKeys();
                 keysList.add(new MainNode(folders));
             }
@@ -130,20 +124,20 @@ public class ViewsFiles {
     
     private static final class BladeTemplateFolderNodeList extends Children.Keys<FileObject> {
 
+        private final String viewPath;
         List<FileObject> files = new ArrayList<>();
-        private String rootPath;
 
-        BladeTemplateFolderNodeList(List<FileObject> bladeTemplatesFiles, String rootPath) {
+        BladeTemplateFolderNodeList(List<FileObject> bladeTemplatesFiles, String viewPath) {
             super(true);
+            this.viewPath = viewPath;
             this.files = bladeTemplatesFiles;
-            this.rootPath = rootPath;
         }
 
         @Override
         protected Node[] createNodes(FileObject file) {
             try {
                 DataObject dobj = DataObject.find(file);
-                FilterNode fn = new BladeFolderNode(dobj.getNodeDelegate(), file, rootPath);
+                FilterNode fn = new BladeFolderNode(dobj.getNodeDelegate(), file, viewPath);
                 return new Node[]{fn};
             } catch (DataObjectNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
@@ -162,7 +156,7 @@ public class ViewsFiles {
 
         MainNode(BladeTemplateFolderNodeList markdownFiles) {
             super(markdownFiles);
-            setDisplayName("Blade Views files");
+            setDisplayName(VIEWS_TITLE);
         }
 
         @Override
@@ -175,16 +169,16 @@ public class ViewsFiles {
             return iconDelegate.getIcon(type);
         }
     }
-    
+
     private static final class BladeFolderNode extends FilterNode {
 
-        FileObject folder;
-        String rootPath;
+        private final FileObject folder;
+        private final String viewPath;
         
-        BladeFolderNode(Node node, FileObject folder, String rootPath) {
+        BladeFolderNode(Node node, FileObject folder, String viewPath) {
             super(node);
             this.folder = folder;
-            this.rootPath = rootPath;
+            this.viewPath = viewPath;
         }
 
         @Override
@@ -199,7 +193,10 @@ public class ViewsFiles {
         
         @Override
         public String getDisplayName(){
-            return FileUtil.toFile(folder).getAbsolutePath().replace(rootPath, "").replace("\\", ".");
+            return folder.getPath()
+                    .replace(viewPath, "") //NOI18N
+                    .replace(PathUtils.SLASH, PathUtils.DOT)
+                    .replaceFirst("^.", ""); //NOI18N
         }
     }
 }

@@ -7,22 +7,20 @@ import org.netbeans.modules.php.api.util.UiUtils;
 import org.netbeans.spi.options.OptionsPanelController;
 
 /**
- *
+ * NOT USED
+ * 
  * @author bogdan
  */
 @OptionsPanelController.Keywords(
         keywords = {
-            "php", "twig"
+            "php"
         },
         location = UiUtils.OPTIONS_PATH,
         tabTitle = "Laravel tab"
 )
 public class LaravelOptionsPanel extends javax.swing.JPanel {
 
-    private final LaravelOptionsPanelController controller;
-
     LaravelOptionsPanel(LaravelOptionsPanelController controller) {
-        this.controller = controller;
         initComponents();
     }
 

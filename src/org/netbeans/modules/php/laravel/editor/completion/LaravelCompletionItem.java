@@ -14,7 +14,6 @@ import org.netbeans.modules.php.laravel.editor.ResourceUtilities;
 import org.netbeans.spi.editor.completion.CompletionItem;
 import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
-import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -185,20 +184,16 @@ public class LaravelCompletionItem implements CompletionItem {
 
         @Override
         protected ImageIcon getIcon() {
-            String path = ResourceUtilities.ICON_BASE + "icons/file.png";
-            if (isFolder) {
-                path = "org/openide/loaders/defaultFolder.gif";//NOI18N
-            }
-            return ImageUtilities.loadImageIcon(path, false);
+            return ResourceUtilities.loadFileResourceIcon(isFolder);
         }
 
         @Override
         protected String getRightHtmlText() {
-            int viewsPos = filePath.indexOf("/views/");
+            int viewsPos = filePath.indexOf("/views/"); //NOI18N
             return filePath.substring(viewsPos, filePath.length());
         }
     }
-    
+
     public static class ConfigPath extends LaravelCompletionItem {
 
         protected boolean isParent;
@@ -214,11 +209,7 @@ public class LaravelCompletionItem implements CompletionItem {
 
         @Override
         protected ImageIcon getIcon() {
-            String path = ResourceUtilities.ICON_BASE + "icons/file.png";
-            if (isParent) {
-                path = "org/openide/loaders/defaultFolder.gif";//NOI18N
-            }
-            return ImageUtilities.loadImageIcon(path, false);
+            return ResourceUtilities.loadFileResourceIcon(isParent);
         }
 
         @Override

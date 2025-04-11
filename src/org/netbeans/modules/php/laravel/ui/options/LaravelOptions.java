@@ -1,20 +1,14 @@
 package org.netbeans.modules.php.laravel.ui.options;
 
-import org.openide.util.ChangeSupport;
-
 /**
  *
  * @author bogdan
  */
 public class LaravelOptions {
 
-    private static final String PREFERENCES_PATH = "laravel"; // NOI18N
+    public static final String OPTIONS_ID = "org.netbeans.modules.php.laravel.editor.Options"; // NOI18N
 
     private static final LaravelOptions INSTANCE = new LaravelOptions();
-
-    final ChangeSupport changeSupport = new ChangeSupport(this);
-
-    private volatile boolean installerSearched = false;
 
     public static LaravelOptions getInstance() {
         return INSTANCE;

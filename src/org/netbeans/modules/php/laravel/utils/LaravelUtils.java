@@ -14,17 +14,17 @@ import org.openide.filesystems.FileUtil;
  * @author bogdan
  */
 public final class LaravelUtils {
-    private static final String DIR_CONFIG = "config"; // NOI18N
-    private static final String DIR_VIEWS = "views"; // NOI18N
-    private static final String FILE_VIEW_EXTENSION = ".blade.php"; // NOI18N
 
+    public static final String DIR_CONFIG = "config"; // NOI18N
+    public static final String DIR_VIEWS = "views"; // NOI18N
 
     private LaravelUtils() {
     }
 
     public static boolean isView(FileObject fo) {
         File file = FileUtil.toFile(fo);
-        return DIR_VIEWS.equals(file.getParentFile().getName()) && fo.getNameExt().endsWith(FILE_VIEW_EXTENSION);
+        String fileDir = file.getParentFile().getName();
+        return DIR_VIEWS.equals(fileDir) && fo.getNameExt().endsWith(PathUtils.BLADE_EXT);
     }
     
     public static boolean isConfig(FileObject fo) {

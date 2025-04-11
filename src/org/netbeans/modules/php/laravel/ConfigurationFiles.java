@@ -7,13 +7,13 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.WeakHashMap;
 import javax.swing.event.ChangeListener;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
 import org.netbeans.modules.php.laravel.parser.ConfigurationFileParser;
 import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
+import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.netbeans.modules.php.spi.phpmodule.ImportantFilesImplementation;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileObject;
@@ -26,20 +26,18 @@ import org.openide.util.ChangeSupport;
  */
 public final class ConfigurationFiles extends FileChangeAdapter implements ImportantFilesImplementation {
 
-    private static final String CONFIG_DIRECTORY = "config";
+    private static final String CONFIG_DIRECTORY = LaravelUtils.DIR_CONFIG;
     private final PhpModule phpModule;
     private final ChangeSupport changeSupport = new ChangeSupport(this);
-    // @GuardedBy("this")
     private FileObject sourceDirectory = null;
+    //TODO check where to store
     private final Map<String, Map<String, List<String>>> configurationMapping = new HashMap<>();
     private final Map<FileObject, ConfigNamespace> configFileNamespace = new HashMap<>();
     private final Map<String, FileObject> configurationFilesAlias = new HashMap<>();
-    private static final Map<String, ConfigurationFiles> INSTANCES = new WeakHashMap<>();
 
     ConfigurationFiles(PhpModule phpModule) {
         assert phpModule != null;
         this.phpModule = phpModule;
-        storeAsInstance();
     }
 
     @Override
@@ -68,7 +66,7 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
         return files;
     }
 
-    public void extractConfigurationMapping(boolean withOffset) {
+    public void extractConfigurationMapping(boolean relativeOffset) {
         FileObject sourceDir = getSourceDirectory();
         if (sourceDir == null) {
             // broken project
@@ -85,8 +83,8 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
         for (FileObject child : configDir.getChildren()) {
             if (child.isData()) {
                 configurationFilesAlias.put(child.getName(), child);
-                if(withOffset){
-                    configFileNamespace.put(child, configParser.getConfigTreeWithOffset(child));
+                if(relativeOffset){
+                    configFileNamespace.put(child, configParser.getRelativeConfigTree(child));
                 } else {
                     configurationMapping.put(child.getName(), configParser.getConfigTree(child));
                 }
@@ -114,23 +112,6 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
             // noop, already listening...
             assert false : path;
         }
-    }
-
-    private void storeAsInstance() {
-        String projectPath = phpModule.getProjectDirectory().getPath();
-        synchronized (INSTANCES) {
-            INSTANCES.put(projectPath, this);
-        }
-    }
-
-    public static ConfigurationFiles getInstance(PhpModule phpModule) {
-        String projectPath = phpModule.getProjectDirectory().getPath();
-        if (INSTANCES.get(projectPath) == null) {
-            synchronized (INSTANCES) {
-                INSTANCES.put(projectPath, new ConfigurationFiles(phpModule));
-            }
-        }
-        return INSTANCES.get(projectPath);
     }
 
     @CheckForNull
