@@ -55,6 +55,36 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
         return badgeIcon;
     }
 
+    /**
+     * Try to locate (find) a <code>relativePath</code> in source directory.
+     * Currently, it searches source dir and its subdirs (if
+     * <code>subdirs</code> equals {@code true}).
+     *
+     * @param phpModule
+     * @param relativePath
+     * @param subdirs
+     * @return {@link FileObject} or {@code null} if not found
+     */
+    public static FileObject locate(PhpModule phpModule, String relativePath, boolean subdirs) {
+        FileObject sourceDirectory = phpModule.getSourceDirectory();
+        if (sourceDirectory == null) {
+            // broken project
+            return null;
+        }
+
+        FileObject fileObject = sourceDirectory.getFileObject(relativePath);
+        if (fileObject != null || !subdirs) {
+            return fileObject;
+        }
+        for (FileObject child : sourceDirectory.getChildren()) {
+            fileObject = child.getFileObject(relativePath);
+            if (fileObject != null) {
+                return fileObject;
+            }
+        }
+        return null;
+    }
+
     @Override
     public boolean isInPhpModule(PhpModule phpModule) {
         sourceDirectory = phpModule.getSourceDirectory();
@@ -92,7 +122,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     @Override
     public PhpModuleExtender createPhpModuleExtender(PhpModule pm) {
         //not implement it
-       
+
         return new LaravelPhpModuleExtender();
     }
 
@@ -108,7 +138,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     public PhpModuleProperties getPhpModuleProperties(PhpModule phpModule) {
         PhpModuleProperties properties = new PhpModuleProperties();
 
-        if ( phpModule.getSourceDirectory() == null) {
+        if (phpModule.getSourceDirectory() == null) {
             // broken project
             return properties;
         }

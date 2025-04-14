@@ -3,10 +3,7 @@ package org.netbeans.modules.php.laravel.executable;
 import java.awt.EventQueue;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 import javax.swing.SwingUtilities;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.nativeexecution.api.util.ProcessUtils;
@@ -16,35 +13,36 @@ import org.netbeans.modules.php.api.util.StringUtils;
 import org.netbeans.modules.php.laravel.commands.ExecutableService.CommandLineProcessor;
 import org.openide.util.Exceptions;
 import org.openide.util.RequestProcessor;
-import org.openide.windows.IOContainer;
-import org.openide.windows.IOProvider;
 import org.openide.windows.InputOutput;
 
 /**
  *
  * @author bhaidu
  */
-public class DockerExecutable {
+public class RemoteDockerExecutable1 {
 
-    private static final RequestProcessor RP = new RequestProcessor(DockerExecutable.class);
+    private static final RequestProcessor RP = new RequestProcessor(RemoteDockerExecutable1.class);
+    public static final String MAIN_SCRIPT = "docker"; // NOI18N
     public static final String DOCKER_EXEC = "exec";
+    private final ExecutionEnvironment env;
     private final DockerCommand dockerCommand;
     private TerminalComponent output = null;
     private PhpModule phpModule = null;
     private CommandLineProcessor lineProcessor = null;
 
-    public DockerExecutable(DockerCommand dockerCommand,
+    public RemoteDockerExecutable1(ExecutionEnvironment env, DockerCommand dockerCommand,
             PhpModule phpModule) {
+        this.env = env;
         this.dockerCommand = dockerCommand;
         this.phpModule = phpModule;
     }
 
-    public DockerExecutable setCommandLineProcessor(CommandLineProcessor lineProcessor) {
+    public RemoteDockerExecutable1 setCommandLineProcessor(CommandLineProcessor lineProcessor) {
         this.lineProcessor = lineProcessor;
         return this;
     }
 
-    public DockerExecutable setTerminalOutput(TerminalComponent output) {
+    public RemoteDockerExecutable1 setTerminalOutput(TerminalComponent output) {
         this.output = output;
         return this;
     }
@@ -69,7 +67,7 @@ public class DockerExecutable {
         RP.post(new Runnable() {
             @Override
             public void run() {
-                runGetCommands();
+                runGetCommands(env);
             }
         });
     }
@@ -90,31 +88,13 @@ public class DockerExecutable {
     }
 
     private void executeCommand(List<String> params) {
-
-        final IOProvider ioProvider = IOProvider.get("Terminal"); // NOI18N
-        final AtomicReference<InputOutput> ioRef = new AtomicReference<>();
-        // Create a tab in EDT right after we call the method, don't let this 
-        // work to be done in RP in asynchronous manner. We need this to
-        // save tab order 
-        final org.netbeans.modules.dlight.terminal.ui.TerminalContainerTopComponent instance = org.netbeans.modules.dlight.terminal.ui.TerminalContainerTopComponent.findInstance();
-        instance.open();
-        instance.requestActive();
-        final IOContainer ioContainer = instance.getIOContainer();
-        InputOutput io = ioProvider.getIO("Terminal 1", null, ioContainer);
-        ioRef.set(io);
-        final AtomicBoolean destroyed = new AtomicBoolean(false);
-
-        if (1 == 1) {
-            return;
-        }
-
         String fullCommand = StringUtils.implode(params, " ");
-        String[] args = new String[]{"docker", DOCKER_EXEC, dockerCommand.dockerContainer,
+        String[] args = new String[]{DOCKER_EXEC, dockerCommand.dockerContainer,
             dockerCommand.bashPath, "-c", dockerCommand.command + " --ansi " + fullCommand};
-        ProcessBuilder pb = new ProcessBuilder(args);
-        ExitStatus result = ProcessUtils.execute(pb);
 
-        if (!result.getErrorLines().isEmpty()) {
+        ExitStatus result = ProcessUtils.execute(env, MAIN_SCRIPT, args);
+
+        if (output == null && !result.getErrorLines().isEmpty()) {
             outputErrorMessage(result);
             return;
         }
@@ -137,7 +117,7 @@ public class DockerExecutable {
                 } catch (IOException ex) {
                     Exceptions.printStackTrace(ex);
                 }
-                String commandPreview = "docker" + " " + DOCKER_EXEC + dockerCommand.dockerContainer
+                String commandPreview = MAIN_SCRIPT + " " + DOCKER_EXEC + dockerCommand.dockerContainer
                         + " " + dockerCommand.bashPath + " -c " + dockerCommand.command + " " + fullCommand;
 
                 io.getOut().println(TerminalComponent.colorize(commandPreview));
@@ -169,27 +149,6 @@ public class DockerExecutable {
         runTask(awtTask);
     }
 
-    private void outputInfoMessage(String command, ExitStatus result) {
-        Runnable awtTask = new Runnable() {
-            @Override
-            public void run() {
-                TerminalComponent errorOutput = TerminalComponent.getInstance(phpModule);
-
-                if (!errorOutput.isOpened()) {
-                    errorOutput.open();
-                    errorOutput.requestActive();
-                }
-                InputOutput io = errorOutput.getIo();
-                io.getOut().println(TerminalComponent.colorize(command));
-                for (String line : result.getOutputLines()) {
-                    io.getOut().println(line);
-                }
-            }
-        };
-        runTask(awtTask);
-    }
-
-    //??
     private void outputErrorMessage(String message) {
         Runnable awtTask = new Runnable() {
             @Override
@@ -219,24 +178,18 @@ public class DockerExecutable {
         }
     }
 
-    public void runGetCommands() {
-        String[] args = new String[]{"docker", DOCKER_EXEC, dockerCommand.dockerContainer,
-            dockerCommand.bashPath, "-c", dockerCommand.command + " --ansi"};// NOI18N
-        ProcessBuilder pb = new ProcessBuilder(args);
-        ExitStatus result = ProcessUtils.execute(pb);
-
-        if (result == null) {
-            outputErrorMessage("No response");
+    public void runGetCommands(ExecutionEnvironment env) {
+        if (env == null || env.getHost() == null || env.getUser() == null) {
+            outputErrorMessage("Error! Remote terminal not configured.");
             return;
         }
-        if (!result.getErrorLines().isEmpty()) {
+        String[] args = new String[]{DOCKER_EXEC, dockerCommand.dockerContainer,
+            dockerCommand.bashPath, "-c", dockerCommand.command + " --ansi"};
+
+        ExitStatus result = ProcessUtils.execute(env, "docker", args);
+
+        if (!result.getErrorLines().isEmpty() && !result.getOutputString().contains("Laravel Framework")) {
             outputErrorMessage(result);
-            return;
-        }
-
-        if (!result.isOK()) {
-            String fullCommand = StringUtils.implode(Arrays.asList(args), " ");
-            outputInfoMessage(fullCommand, result);
             return;
         }
 

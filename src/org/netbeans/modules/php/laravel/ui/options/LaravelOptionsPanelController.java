@@ -21,7 +21,6 @@ import org.openide.util.Lookup;
 public class LaravelOptionsPanelController extends OptionsPanelController {
 
     static final String ID = "Laravel"; // NOI18N
-    static final String OPTIONS_PATH = UiUtils.FRAMEWORKS_AND_TOOLS_SUB_PATH + "/" + ID; // NOI18N
     public static final String OPTIONS_SUBPATH = UiUtils.FRAMEWORKS_AND_TOOLS_SUB_PATH + "/" + ID; // NOI18N
 
     private LaravelOptionsPanel panel;

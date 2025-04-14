@@ -19,6 +19,26 @@ public class LaravelPhpModuleExtender extends PhpModuleExtender {
     private NewProjectConfigurationPanel panel = null;
 
     @Override
+    public Set<FileObject> extend(PhpModule phpModule) throws ExtendingException {
+        Set<FileObject> files = new HashSet<>();
+        LaravelPhpFrameworkProvider.getInstance().getFrameworkCommandSupport(phpModule).refreshFrameworkCommandsLater(null);
+        
+        //not very relevant without an installer
+        FileObject index = LaravelPhpFrameworkProvider.locate(phpModule, "public/index.php", true);
+        if (index != null) {
+            files.add(index);
+        }
+        return files;
+    }
+
+    private synchronized NewProjectConfigurationPanel getPanel() {
+        if (panel == null) {
+            panel = new NewProjectConfigurationPanel();
+        }
+        return panel;
+    }
+
+    @Override
     public void addChangeListener(ChangeListener listener) {
         getPanel().addChangeListener(listener);
     }
@@ -51,42 +71,6 @@ public class LaravelPhpModuleExtender extends PhpModuleExtender {
     @Override
     public String getWarningMessage() {
         return null;
-    }
-
-    @Override
-    public Set<FileObject> extend(PhpModule phpModule) throws ExtendingException {
-        return getInitialFiles(phpModule);
-    }
-
-    private Set<FileObject> getInitialFiles(PhpModule phpModule) {
-        Set<FileObject> files = new HashSet<>();
-//        addSourceFile(files, phpModule, "app/config/parameters.yml"); // NOI18N
-//        addSourceFile(files, phpModule, "src/AppBundle/Controller/DefaultController.php"); // NOI18N
-//        addSourceFile(files, phpModule, "app/Resources/views/default/index.html.twig"); // NOI18N
-        if (files.isEmpty()) {
-            //addSourceFile(files, phpModule, "web/app_dev"); // NOI18N
-        }
-        return files;
-    }
-
-    private void addSourceFile(Set<FileObject> files, PhpModule phpModule, String relativePath) {
-        FileObject sourceDirectory = phpModule.getSourceDirectory();
-        if (sourceDirectory == null) {
-            // broken project
-            assert false : "Module extender for no sources of: " + phpModule.getName();
-            return;
-        }
-        FileObject fileObject = sourceDirectory.getFileObject(relativePath);
-        if (fileObject != null) {
-            files.add(fileObject);
-        }
-    }
-
-    private synchronized NewProjectConfigurationPanel getPanel() {
-        if (panel == null) {
-            panel = new NewProjectConfigurationPanel();
-        }
-        return panel;
     }
 
 }

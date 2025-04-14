@@ -14,6 +14,7 @@ import static org.netbeans.modules.php.laravel.commands.ArtisanCommand.ARTISAN_C
 import org.netbeans.modules.php.laravel.executable.DockerExecutable;
 import org.netbeans.modules.php.laravel.executable.RemoteDockerExecutable;
 import org.netbeans.modules.php.laravel.executable.TerminalComponent;
+import org.netbeans.modules.php.laravel.executable.TerminalExecutable;
 import org.netbeans.modules.php.laravel.ui.options.LaravelOptionsPanelController;
 import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
@@ -96,7 +97,7 @@ public class ExecutableService {
 
     private static String getDisplayName(PhpModule phpModule) {
         String laravelVersion = ComposerPackages.getInstance(phpModule).getLaravelVersion();
-        return "Laravel " + laravelVersion + " CLI";
+        return phpModule.getDisplayName() + " " + laravelVersion + " CLI"; // NOI18N
     }
 
     private static String getPreScript(PhpModule phpModule) {
@@ -119,9 +120,9 @@ public class ExecutableService {
         return LaravelPreferences.getDockerBashPath(phpModule);
     }
 
-    private static PhpExecutable createPhpExecutable(PhpModule phpModule) {
+    private static TerminalExecutable createPhpExecutable(PhpModule phpModule) {
         String absolutePath = FileUtil.toFile(phpModule.getSourceDirectory()).getAbsolutePath();
-        return new PhpExecutable(absolutePath + "/" + ARTISAN_COMMAND)
+        return new TerminalExecutable(absolutePath + "/" + ARTISAN_COMMAND)
                 .environmentVariables(Collections.singletonMap("SHELL_INTERACTIVE", "true")) // NOI18N
                 .workDir(FileUtil.toFile(phpModule.getSourceDirectory()));
     }

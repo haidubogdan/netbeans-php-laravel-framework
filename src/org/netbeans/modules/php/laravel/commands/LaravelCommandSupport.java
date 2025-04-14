@@ -1,17 +1,49 @@
+/*
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package org.netbeans.modules.php.laravel.commands;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import org.netbeans.api.extexecution.ExecutionDescriptor;
+import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
+import org.netbeans.modules.nativeexecution.api.HostInfo;
+import org.netbeans.modules.nativeexecution.api.util.ConnectionManager;
+import org.netbeans.modules.nativeexecution.api.util.HostInfoUtils;
+import org.netbeans.modules.nativeexecution.api.util.WindowsSupport;
+import org.netbeans.modules.nativeexecution.pty.NbStartUtility;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import static org.netbeans.modules.php.laravel.commands.ArtisanCommand.ARTISAN_COMMAND;
 import static org.netbeans.modules.php.laravel.commands.ExecutableService.DEFAULT_PARAMS;
+import org.netbeans.modules.php.laravel.executable.CustomProcessInfo;
+import org.netbeans.modules.php.laravel.executable.TerminalExecutable;
+import org.netbeans.modules.php.laravel.ui.options.LaravelOptionsPanelController;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommand;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommandSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
+import org.openide.util.RequestProcessor;
+import org.openide.util.Utilities;
 
 /**
  *
@@ -28,43 +60,78 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
 
     @Override
     public String getFrameworkName() {
-        return "Laravel";
+        return "Laravel";// NOI18N
+    }
+
+    @Override
+    public void runCommand(CommandDescriptor commandDescriptor, Runnable postExecution) {
+
+        String[] commands = commandDescriptor.getFrameworkCommand().getCommands();
+        String[] commandParams = commandDescriptor.getCommandParams();
+        List<String> params = new ArrayList<>(commands.length + commandParams.length);
+        params.addAll(Arrays.asList(commands));
+        params.addAll(Arrays.asList(commandParams));
+
+//        ArtisanScript artisan = ArtisanScript.forPhpModule(phpModule, true);
+//
+//        if (artisan != null) {
+//            artisan.runCommand(phpModule, params, postExecution);
+//        }
+        RequestProcessor RP = new RequestProcessor(LaravelCommandSupport.class);
+
+        RP.post(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
+                    CustomProcessInfo info = new CustomProcessInfo(env);
+                    HostInfo hostInfo = HostInfoUtils.getHostInfo(env);
+                    String absolutePath = FileUtil.toFile(phpModule.getSourceDirectory()).getAbsolutePath();
+                    ExecutionDescriptor executionDescriptor = TerminalExecutable.DEFAULT_EXECUTION_DESCRIPTOR
+                            .optionsPath(LaravelOptionsPanelController.getOptionsPath())
+                            .inputVisible(true);
+                    if (postExecution != null) {
+                        executionDescriptor = executionDescriptor.postExecution(postExecution);
+                    }
+                    List<String> commands = getComands(info);
+                    new TerminalExecutable(commands.get(0))
+                            .environmentVariables(Collections.singletonMap("SHELL_INTERACTIVE", "true")) // NOI18N
+                            .displayName("dsdsds")
+                            .additionalParameters(params)
+                            .viaPhpInterpreter(false)
+                            .viaAutodetection(false)
+                            .run(executionDescriptor);
+                } catch (IOException ex) {
+                    Exceptions.printStackTrace(ex);
+                } catch (ConnectionManager.CancellationException ex) {
+                    Exceptions.printStackTrace(ex);
+                }
+            }
+        });
+
+//ExecutableService.executeCommand(phpModule, artisanSupport, params);
     }
 
     @Override
     protected List<FrameworkCommand> getFrameworkCommandsInternal() {
         List<FrameworkCommand> commands = new ArrayList<>();
-        commands.add(new ArtisanCommand(phpModule, "", "about", ARTISAN_COMMAND));// NOI18N
 
         if (artisanSupport.getCommands().isEmpty()) {
             ExecutableService.extractArtisanCommands(phpModule, artisanSupport);
-            
+
             try {
                 Thread.sleep(100);
             } catch (InterruptedException ex) {
                 Exceptions.printStackTrace(ex);
             }
-            
+
             if (artisanSupport.getCommands().isEmpty()) {
                 return null;
             }
         }
 
         commands.addAll(artisanSupport.getCommands());
-        commands.add(new ArtisanCommand(phpModule, "test", "test", "test"));// NOI18N
         return commands;
-    }
-
-    @Override
-    public void runCommand(CommandDescriptor commandDescriptor, Runnable postExecution) {
-        String[] commands = commandDescriptor.getFrameworkCommand().getCommands();
-        String[] commandParams = commandDescriptor.getCommandParams();
-        List<String> params = new ArrayList<>(commands.length + commandParams.length);
-        params.addAll(DEFAULT_PARAMS);
-        params.addAll(Arrays.asList(commands));
-        params.addAll(Arrays.asList(commandParams));
-
-        ExecutableService.executeCommand(phpModule, artisanSupport, params);
     }
 
     @Override
@@ -84,6 +151,26 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
             return FileUtil.toFile(vendor);
         }
         return null;
+    }
+
+    private List<String> getComands(CustomProcessInfo info) {
+        List<String> command = new ArrayList<>();
+        String _nbStartPath = null;
+        try {
+            _nbStartPath = NbStartUtility.getInstance().getPath(info.getExecutionEnvironment());
+        } catch (IOException ex) {
+        } finally {
+        }
+        boolean isWindows = info.getExecutionEnvironment().isLocal() && Utilities.isWindows();
+        if (isWindows) {
+            String nbStartPath = WindowsSupport.getInstance().convertToShellPath(_nbStartPath);
+
+            if (nbStartPath != null) {
+                _nbStartPath = nbStartPath;
+            }
+        }
+        command.add(_nbStartPath);
+        return command;
     }
 
 }
