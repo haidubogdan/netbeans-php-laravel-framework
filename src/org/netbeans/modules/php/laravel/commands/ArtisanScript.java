@@ -26,7 +26,6 @@ import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
 import org.netbeans.modules.php.api.executable.PhpExecutable;
 import org.netbeans.modules.php.api.executable.PhpExecutableValidator;
-import org.netbeans.modules.php.laravel.executable.TerminalExecutable;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
 import org.netbeans.modules.php.laravel.ui.options.LaravelOptionsPanelController;
@@ -81,8 +80,8 @@ public class ArtisanScript {
                 .run(getDescriptor(postExecution));
     }
 
-    private TerminalExecutable createExecutable(PhpModule phpModule) {
-        return new TerminalExecutable(artisanPath)
+    private PhpExecutable createExecutable(PhpModule phpModule) {
+        return new PhpExecutable(artisanPath)
                 .environmentVariables(Collections.singletonMap(SHELL_INTERACTIVE, "true")) // NOI18N
                 .workDir(FileUtil.toFile(phpModule.getSourceDirectory()));
     }
@@ -101,7 +100,7 @@ public class ArtisanScript {
     
     
     private ExecutionDescriptor getDescriptor(Runnable postExecution) {
-        ExecutionDescriptor executionDescriptor = TerminalExecutable.DEFAULT_EXECUTION_DESCRIPTOR
+        ExecutionDescriptor executionDescriptor = PhpExecutable.DEFAULT_EXECUTION_DESCRIPTOR
                 .optionsPath(LaravelOptionsPanelController.getOptionsPath())
                 .inputVisible(true);
         if (postExecution != null) {

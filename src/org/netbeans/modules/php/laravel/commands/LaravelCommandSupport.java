@@ -22,27 +22,16 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import org.netbeans.api.extexecution.ExecutionDescriptor;
-import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
-import org.netbeans.modules.nativeexecution.api.HostInfo;
-import org.netbeans.modules.nativeexecution.api.util.ConnectionManager;
-import org.netbeans.modules.nativeexecution.api.util.HostInfoUtils;
 import org.netbeans.modules.nativeexecution.api.util.WindowsSupport;
 import org.netbeans.modules.nativeexecution.pty.NbStartUtility;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
-import static org.netbeans.modules.php.laravel.commands.ArtisanCommand.ARTISAN_COMMAND;
-import static org.netbeans.modules.php.laravel.commands.ExecutableService.DEFAULT_PARAMS;
 import org.netbeans.modules.php.laravel.executable.CustomProcessInfo;
-import org.netbeans.modules.php.laravel.executable.TerminalExecutable;
-import org.netbeans.modules.php.laravel.ui.options.LaravelOptionsPanelController;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommand;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommandSupport;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
 import org.openide.util.Exceptions;
-import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 
 /**
@@ -72,44 +61,13 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
         params.addAll(Arrays.asList(commands));
         params.addAll(Arrays.asList(commandParams));
 
-//        ArtisanScript artisan = ArtisanScript.forPhpModule(phpModule, true);
-//
-//        if (artisan != null) {
-//            artisan.runCommand(phpModule, params, postExecution);
-//        }
-        RequestProcessor RP = new RequestProcessor(LaravelCommandSupport.class);
+        ArtisanScript artisan = ArtisanScript.forPhpModule(phpModule, true);
 
-        RP.post(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
-                    CustomProcessInfo info = new CustomProcessInfo(env);
-                    HostInfo hostInfo = HostInfoUtils.getHostInfo(env);
-                    String absolutePath = FileUtil.toFile(phpModule.getSourceDirectory()).getAbsolutePath();
-                    ExecutionDescriptor executionDescriptor = TerminalExecutable.DEFAULT_EXECUTION_DESCRIPTOR
-                            .optionsPath(LaravelOptionsPanelController.getOptionsPath())
-                            .inputVisible(true);
-                    if (postExecution != null) {
-                        executionDescriptor = executionDescriptor.postExecution(postExecution);
-                    }
-                    List<String> commands = getComands(info);
-                    new TerminalExecutable(commands.get(0))
-                            .environmentVariables(Collections.singletonMap("SHELL_INTERACTIVE", "true")) // NOI18N
-                            .displayName("dsdsds")
-                            .additionalParameters(params)
-                            .viaPhpInterpreter(false)
-                            .viaAutodetection(false)
-                            .run(executionDescriptor);
-                } catch (IOException ex) {
-                    Exceptions.printStackTrace(ex);
-                } catch (ConnectionManager.CancellationException ex) {
-                    Exceptions.printStackTrace(ex);
-                }
-            }
-        });
+        if (artisan != null) {
+            artisan.runCommand(phpModule, params, postExecution);
+        }
 
-//ExecutableService.executeCommand(phpModule, artisanSupport, params);
+        //ExecutableService.executeCommand(phpModule, artisanSupport, params);
     }
 
     @Override

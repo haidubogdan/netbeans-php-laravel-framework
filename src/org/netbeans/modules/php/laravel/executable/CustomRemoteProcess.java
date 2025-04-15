@@ -53,6 +53,7 @@ public final class CustomRemoteProcess extends CustomProcess {
         setOutputStream(streams.in);
     }
 
+    @Override
     public boolean isAlive() {
         if (streams == null || streams.channel == null) {
             return false;

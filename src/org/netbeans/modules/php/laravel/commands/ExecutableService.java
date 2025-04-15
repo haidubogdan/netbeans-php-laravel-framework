@@ -14,7 +14,6 @@ import static org.netbeans.modules.php.laravel.commands.ArtisanCommand.ARTISAN_C
 import org.netbeans.modules.php.laravel.executable.DockerExecutable;
 import org.netbeans.modules.php.laravel.executable.RemoteDockerExecutable;
 import org.netbeans.modules.php.laravel.executable.TerminalComponent;
-import org.netbeans.modules.php.laravel.executable.TerminalExecutable;
 import org.netbeans.modules.php.laravel.ui.options.LaravelOptionsPanelController;
 import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
@@ -120,9 +119,9 @@ public class ExecutableService {
         return LaravelPreferences.getDockerBashPath(phpModule);
     }
 
-    private static TerminalExecutable createPhpExecutable(PhpModule phpModule) {
+    private static PhpExecutable createPhpExecutable(PhpModule phpModule) {
         String absolutePath = FileUtil.toFile(phpModule.getSourceDirectory()).getAbsolutePath();
-        return new TerminalExecutable(absolutePath + "/" + ARTISAN_COMMAND)
+        return new PhpExecutable(absolutePath + "/" + ARTISAN_COMMAND)
                 .environmentVariables(Collections.singletonMap("SHELL_INTERACTIVE", "true")) // NOI18N
                 .workDir(FileUtil.toFile(phpModule.getSourceDirectory()));
     }

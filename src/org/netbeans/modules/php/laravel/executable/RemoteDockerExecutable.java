@@ -1,12 +1,19 @@
 package org.netbeans.modules.php.laravel.executable;
 
 import java.awt.EventQueue;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
@@ -16,8 +23,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
-import org.netbeans.api.extexecution.ExecutionDescriptor;
-import org.netbeans.api.extexecution.ExecutionService;
 import org.netbeans.modules.dlight.terminal.action.TerminalSupportImpl;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironmentFactory;
@@ -32,13 +37,12 @@ import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.util.StringUtils;
 import org.netbeans.modules.php.laravel.commands.ExecutableService.CommandLineProcessor;
 import org.netbeans.modules.terminal.api.ui.IOTerm;
-import org.netbeans.api.extexecution.base.ProcessBuilder;
+import org.netbeans.api.extexecution.input.LineProcessor;
 import org.netbeans.modules.terminal.support.TerminalPinSupport;
 import org.netbeans.modules.terminal.support.TerminalPinSupport.TerminalCreationDetails;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.util.Exceptions;
-import org.openide.util.NbBundle;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.IOContainer;
 import org.openide.windows.IOProvider;
@@ -47,10 +51,12 @@ import org.openide.windows.OutputEvent;
 import org.openide.windows.OutputListener;
 import org.openide.windows.OutputWriter;
 import org.netbeans.lib.terminalemulator.Term;
+import org.netbeans.modules.nativeexecution.api.NativeProcess;
+import org.netbeans.modules.nativeexecution.api.NativeProcess.State;
 import org.netbeans.modules.nativeexecution.api.util.HostInfoUtils;
-import org.netbeans.modules.php.api.executable.PhpExecutable;
-import org.netbeans.modules.php.laravel.ui.options.LaravelOptionsPanelController;
-import org.openide.filesystems.FileUtil;
+import org.netbeans.modules.nativeexecution.api.util.ProcessUtils.PostExecutor;
+import org.netbeans.modules.nativeexecution.api.util.ShellScriptRunner;
+import org.netbeans.modules.nativeexecution.api.util.WindowsSupport;
 
 /**
  *
@@ -66,6 +72,10 @@ public class RemoteDockerExecutable {
     private TerminalComponent output = null;
     private PhpModule phpModule = null;
     private CommandLineProcessor lineProcessor = null;
+    //TO REMOVE
+    CountDownLatch countdown;
+    private LineProcessor outputProcessor;
+    private LineProcessor errorProcessor;
 
     public RemoteDockerExecutable(ExecutionEnvironment env, DockerCommand dockerCommand,
             PhpModule phpModule) {
@@ -125,6 +135,205 @@ public class RemoteDockerExecutable {
     }
 
     private void executeCommand(List<String> params) {
+        if (1 == 1) {
+            RequestProcessor WORKER = new RequestProcessor(RemoteDockerExecutable.class.getName(), 1);
+            final Runnable runnable4 = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        HostInfo info = HostInfoUtils.getHostInfo(env);
+                        Charset scriptCS;
+                        Charset outputCS;
+                        if (env.isLocal()) {
+                            if (info.getOSFamily() == HostInfo.OSFamily.WINDOWS) {
+                                scriptCS = WindowsSupport.getInstance().getShellCharset();
+                            } else {
+                                scriptCS = Charset.defaultCharset(); // (UTF-8 ??)
+                            }
+                        } else {
+                            scriptCS = Charset.forName(ProcessUtils.getRemoteCharSet());
+                        }
+
+                        outputCS = scriptCS;
+                        NativeProcessBuilder pb = NativeProcessBuilder.newProcessBuilder(env);
+                        List<String> finalArgs = new ArrayList<>();
+                        finalArgs.add("-s"); // NOI18N
+
+                        pb.setExecutable(info.getShell()).setArguments(finalArgs.<String>toArray(new String[finalArgs.size()]));
+
+                        NativeProcess shellProcess = pb.call();
+
+                        if (shellProcess.getState() == State.ERROR) {
+                            ProcessUtils.readProcessError(shellProcess); // just in case
+                            throw new IOException("Cannot start " + info.getShell() + " -s"); // NOI18N
+                        }
+                        countdown = new CountDownLatch(3);
+
+                        RequestProcessor rp = new RequestProcessor("Shell runner", 3); // NOI18N
+                        countdown = new CountDownLatch(3);
+                        String script = "docker exec -w /var/www/html/laravel-honeypot -t php-docker-php-1 bash -c 'php artisan make:view'";
+                        Callable<Integer> scriptWriter = new Callable<Integer>() {
+                            @Override
+                            public Integer call() throws Exception {
+                                BufferedWriter scriptWriter = null;
+                                try {
+                                    scriptWriter = new BufferedWriter(new OutputStreamWriter(shellProcess.getOutputStream(), scriptCS));
+                                    scriptWriter.write(script);
+                                    scriptWriter.write('\n');
+                                    scriptWriter.flush();
+                                } finally {
+                                    if (scriptWriter != null) {
+                                        scriptWriter.close();
+                                    }
+
+                                    countdown.countDown();
+                                }
+
+                                return 0;
+                            }
+                        };
+
+                        ProcessOutputReader outReader = new ProcessOutputReader(shellProcess.getInputStream(), outputProcessor);
+                        ProcessOutputReader errReader = new ProcessOutputReader(shellProcess.getErrorStream(), errorProcessor);
+
+                        final Future<Integer> writerTask = rp.submit(scriptWriter);
+                        final Future<Integer> outReaderTask = rp.submit(outReader);
+                        final Future<Integer> errReaderTask = rp.submit(errReader);
+
+                        boolean interrupted = false;
+
+                        try {
+                            countdown.await();
+                        } catch (InterruptedException ex) {
+                            interrupted = true;
+                        }
+
+                        IOException exception = null;
+
+                        try {
+                            writerTask.get();
+                        } catch (InterruptedException ex) {
+                            interrupted = true;
+                        } catch (ExecutionException ex) {
+                            exception = new IOException(ex.getCause());
+                        }
+
+                        try {
+                            outReaderTask.get();
+                        } catch (InterruptedException ex) {
+                            interrupted = true;
+                        } catch (ExecutionException ex) {
+                            exception = new IOException(ex.getCause());
+                        }
+
+                        try {
+                            errReaderTask.get();
+                        } catch (InterruptedException ex) {
+                            interrupted = true;
+                        } catch (ExecutionException ex) {
+                            exception = new IOException(ex.getCause());
+                        }
+
+                        rp.shutdown();
+
+                        if (exception != null) {
+                            throw exception;
+                        }
+
+                        if (interrupted) {
+                            int y = 1;
+                        }
+
+                        int result = 1;
+
+                        try {
+                            result = shellProcess.waitFor();
+                        } catch (InterruptedException ex) {
+                            int sss = 3;
+                        }
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    } catch (ConnectionManager.CancellationException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                }
+            };
+            WORKER.submit(runnable4);
+            return;
+        }
+        if (1 == 1) {
+            RequestProcessor WORKER = new RequestProcessor(RemoteDockerExecutable.class.getName(), 1);
+            final Runnable runnable4 = new Runnable() {
+                @Override
+                public void run() {
+                    final StringBuilder output = new StringBuilder();
+                    String script = "docker exec -w /var/www/html/laravel-honeypot -t php-docker-php-1 bash -c 'php artisan make:view'";
+                    ShellScriptRunner scriptRunner = new ShellScriptRunner(env, script, new LineProcessor() {
+                        @Override
+                        public void processLine(String line) {
+                            output.append(line).append('\n');
+                            if (line.equals("")) {
+                                close();
+                            }
+                            //System.err.println(line);
+                        }
+
+                        @Override
+                        public void reset() {
+                        }
+
+                        @Override
+                        public void close() {
+                            int end = 1;
+                            WORKER.shutdown();
+                        }
+                    });
+                    try {
+                        int rc = scriptRunner.execute();
+                        String ttt = output.toString();
+                        int xxxx = 1;
+                    } catch (IOException ex) {
+                        Exceptions.printStackTrace(ex);
+                    } catch (ConnectionManager.CancellationException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+
+                }
+            };
+            WORKER.post(runnable4);
+            return;
+        }
+        if (1 == 1) {
+            RequestProcessor WORKER = new RequestProcessor(RemoteDockerExecutable.class.getName(), 1, true);
+            final Runnable runnable3 = new Runnable() {
+                @Override
+                public void run() {
+//                    String[] args = new String[]{"exec","docker exec -i php-docker-php-1 bash -c pwd"};
+                    String[] args = new String[]{"exec", "-w", "/var/www/html/laravel-honeypot", "-t", "php-docker-php-1", "bash", "-c", "php artisan make:view"};
+                    java.lang.ProcessBuilder pb = new java.lang.ProcessBuilder(args);
+                    Future<ExitStatus> status = ProcessUtils.execute(env, WORKER, new PostExecutor() {
+                        @Override
+                        public void processFinished(ExitStatus es) {
+                            int y = 1;
+                        }
+                    }, "docker", args);
+                    try {
+                        ExitStatus tt = status.get();
+                        int y = 1;
+                    } catch (InterruptedException ex) {
+                        Exceptions.printStackTrace(ex);
+                    } catch (ExecutionException ex) {
+                        Exceptions.printStackTrace(ex);
+                    }
+                    int x = 1;
+
+                }
+            };
+
+            WORKER.post(runnable3);
+            return;
+        }
+
         final IOProvider ioProvider = IOProvider.get("Terminal"); // NOI18N
         final AtomicReference<InputOutput> ioRef = new AtomicReference<>();
         // Create a tab in EDT right after we call the method, don't let this 
@@ -606,4 +815,39 @@ public class RemoteDockerExecutable {
         }
     }
 
+    //TO REMOVE
+    private class ProcessOutputReader implements Callable<Integer> {
+
+        private final LineProcessor lineProcessor;
+        private final InputStream in;
+
+        ProcessOutputReader(InputStream in, LineProcessor lineProcessor) {
+            this.in = in;
+            this.lineProcessor = lineProcessor;
+        }
+
+        @Override
+        public Integer call() throws Exception {
+            BufferedReader reader = null;
+            try {
+                reader = new BufferedReader(new InputStreamReader(in));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (lineProcessor != null) {
+                        lineProcessor.processLine(line);
+                    }
+                }
+            } finally {
+                if (reader != null) {
+                    reader.close();
+                }
+                if (lineProcessor != null) {
+                    lineProcessor.close();
+                }
+                countdown.countDown();
+            }
+
+            return 0;
+        }
+    }
 }
