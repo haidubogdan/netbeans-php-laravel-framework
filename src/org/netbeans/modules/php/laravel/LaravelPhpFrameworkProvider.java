@@ -1,5 +1,6 @@
 package org.netbeans.modules.php.laravel;
 
+import org.netbeans.modules.php.laravel.ui.actions.LaravelPhpModuleActionsExtender;
 import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.modules.php.laravel.editor.LaravelEditorExtender;
@@ -7,9 +8,7 @@ import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.modules.php.api.framework.BadgeIcon;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.phpmodule.PhpModuleProperties;
-import org.netbeans.modules.php.editor.parser.astnodes.ArrayElement;
 import org.netbeans.modules.php.laravel.commands.LaravelCommandSupport;
-import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
 import org.netbeans.modules.php.spi.editor.EditorExtender;
 import org.netbeans.modules.php.spi.framework.PhpFrameworkProvider;
@@ -31,7 +30,9 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     @StaticResource
     private static final String ICON_PATH = "org/netbeans/modules/php/laravel/resources/laravel_badge.png"; // NOI18N
     private static final LaravelPhpFrameworkProvider INSTANCE = new LaravelPhpFrameworkProvider();
+
     private final BadgeIcon badgeIcon;
+
     private final Map<Integer, Boolean> inPhpModuleChecked = new HashMap<>();
     private boolean isInModule = false;
     private FileObject sourceDirectory;
@@ -53,36 +54,6 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     @Override
     public BadgeIcon getBadgeIcon() {
         return badgeIcon;
-    }
-
-    /**
-     * Try to locate (find) a <code>relativePath</code> in source directory.
-     * Currently, it searches source dir and its subdirs (if
-     * <code>subdirs</code> equals {@code true}).
-     *
-     * @param phpModule
-     * @param relativePath
-     * @param subdirs
-     * @return {@link FileObject} or {@code null} if not found
-     */
-    public static FileObject locate(PhpModule phpModule, String relativePath, boolean subdirs) {
-        FileObject sourceDirectory = phpModule.getSourceDirectory();
-        if (sourceDirectory == null) {
-            // broken project
-            return null;
-        }
-
-        FileObject fileObject = sourceDirectory.getFileObject(relativePath);
-        if (fileObject != null || !subdirs) {
-            return fileObject;
-        }
-        for (FileObject child : sourceDirectory.getChildren()) {
-            fileObject = child.getFileObject(relativePath);
-            if (fileObject != null) {
-                return fileObject;
-            }
-        }
-        return null;
     }
 
     @Override
@@ -115,15 +86,12 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     //try to get the version from composer
     @Override
     public String getName(PhpModule phpModule) {
-
         return super.getName(phpModule);
     }
 
     @Override
     public PhpModuleExtender createPhpModuleExtender(PhpModule pm) {
-        //not implement it
-
-        return new LaravelPhpModuleExtender();
+        return null;
     }
 
     @Override
@@ -138,11 +106,15 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
     public PhpModuleProperties getPhpModuleProperties(PhpModule phpModule) {
         PhpModuleProperties properties = new PhpModuleProperties();
 
-        if (phpModule.getSourceDirectory() == null) {
+        if (sourceDirectory == null) {
             // broken project
             return properties;
         }
+        FileObject testsDir = sourceDirectory.getFileObject("tests"); // NOI18N
 
+        if (testsDir != null) {
+            properties = properties.setTests(testsDir);
+        }
         //todo add tests
         return properties;
     }

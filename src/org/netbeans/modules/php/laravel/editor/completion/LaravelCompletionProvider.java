@@ -154,7 +154,8 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 if (query == null) {
                     return;
                 }
-                ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+//                ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+                ConfigurationFiles confFiles = null;
                 if (confFiles != null) {
                     confFiles.extractConfigurationMapping(false);
                     String[] queryConfigNamespace = query.split("\\.");

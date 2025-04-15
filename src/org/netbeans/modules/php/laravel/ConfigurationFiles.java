@@ -26,20 +26,18 @@ import org.openide.util.ChangeSupport;
  */
 public final class ConfigurationFiles extends FileChangeAdapter implements ImportantFilesImplementation {
 
-    private static final String CONFIG_DIRECTORY = "config";
+    private static final String CONFIG_DIRECTORY = "config"; // NOI18N
     private final PhpModule phpModule;
     private final ChangeSupport changeSupport = new ChangeSupport(this);
-    // @GuardedBy("this")
     private FileObject sourceDirectory = null;
+    //TODO check where to store
     private final Map<String, Map<String, List<String>>> configurationMapping = new HashMap<>();
     private final Map<FileObject, ConfigNamespace> configFileNamespace = new HashMap<>();
     private final Map<String, FileObject> configurationFilesAlias = new HashMap<>();
-    private static final Map<String, ConfigurationFiles> INSTANCES = new WeakHashMap<>();
 
     ConfigurationFiles(PhpModule phpModule) {
         assert phpModule != null;
         this.phpModule = phpModule;
-        storeAsInstance();
     }
 
     @Override
@@ -114,23 +112,6 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
             // noop, already listening...
             assert false : path;
         }
-    }
-
-    private void storeAsInstance() {
-        String projectPath = phpModule.getProjectDirectory().getPath();
-        synchronized (INSTANCES) {
-            INSTANCES.put(projectPath, this);
-        }
-    }
-
-    public static ConfigurationFiles getInstance(PhpModule phpModule) {
-        String projectPath = phpModule.getProjectDirectory().getPath();
-        if (INSTANCES.get(projectPath) == null) {
-            synchronized (INSTANCES) {
-                INSTANCES.put(projectPath, new ConfigurationFiles(phpModule));
-            }
-        }
-        return INSTANCES.get(projectPath);
     }
 
     @CheckForNull

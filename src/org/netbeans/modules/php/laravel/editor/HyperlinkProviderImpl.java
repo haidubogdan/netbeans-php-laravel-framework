@@ -135,8 +135,9 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                         }
                         String[] queryConfigNamespace = identifiableText.split("\\.");
 
-                        ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+//                        ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
 
+                        ConfigurationFiles confFiles = null;
                         if (confFiles == null) {
                             break;
                         }
