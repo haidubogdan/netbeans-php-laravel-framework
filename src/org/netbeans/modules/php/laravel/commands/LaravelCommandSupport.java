@@ -18,6 +18,7 @@
  */
 package org.netbeans.modules.php.laravel.commands;
 
+import org.netbeans.modules.php.laravel.ArtisanScript;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -72,6 +73,9 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
 
     @Override
     protected List<FrameworkCommand> getFrameworkCommandsInternal() {
+        if (1==1) {
+            return ArtisanScript.forPhpModule(phpModule, true).getCommands(phpModule);
+        }
         List<FrameworkCommand> commands = new ArrayList<>();
 
         if (artisanSupport.getCommands().isEmpty()) {
@@ -94,7 +98,7 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
 
     @Override
     protected String getOptionsPath() {
-        return null;
+        return ArtisanScript.getOptionsPath();
     }
 
     @Override
