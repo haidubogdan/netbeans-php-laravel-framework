@@ -121,6 +121,7 @@ public class ArtisanScript {
     public void runCommand(PhpModule phpModule, List<String> parameters, Runnable postExecution) {
         createExecutable(phpModule)
                 .displayName(getDisplayName(phpModule))
+                .workDir(FileUtil.toFile(phpModule.getSourceDirectory()))
                 .additionalParameters(getAllParameters(parameters))
                 .run(getDescriptor(postExecution));
     }

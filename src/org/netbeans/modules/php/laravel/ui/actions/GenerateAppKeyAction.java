@@ -7,6 +7,7 @@ import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.List;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import org.netbeans.modules.php.laravel.ArtisanScript;
 import org.netbeans.modules.php.laravel.commands.ArtisanCommandSupport;
 import org.netbeans.modules.php.laravel.commands.ExecutableService;
 import org.netbeans.modules.php.laravel.executable.RemoteDockerExecutable;
@@ -30,22 +31,12 @@ public final class GenerateAppKeyAction extends BaseAction {
 
     @Override
     public void actionPerformed(PhpModule phpModule) {
-        //todo add action
-        ArtisanCommandSupport artisanSupport = ArtisanCommandSupport.getInstance(phpModule);
-        List<String> params = new ArrayList<>();
-        params.add("key:generate");
-        RequestProcessor RP = new RequestProcessor(GenerateAppKeyAction.class);
-        RP.post(new Runnable() {
-            @Override
-            public void run() {
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                        ExecutableService.executeCommand(phpModule, artisanSupport, params);
-                    }
-                });
-            }
-        });
+            ArtisanScript artisan = ArtisanScript.forPhpModule(phpModule, true);
+        List<String> params = new ArrayList<>(1);
+        params.add("generate:key");
+        if (artisan != null) {
+            artisan.runCommand(phpModule, params, null);
+        }
         
     }
 

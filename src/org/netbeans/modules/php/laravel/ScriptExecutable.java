@@ -20,6 +20,7 @@ package org.netbeans.modules.php.laravel;
 
 import java.io.File;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Future;
@@ -31,6 +32,8 @@ import org.netbeans.modules.php.api.executable.PhpExecutable;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import static org.netbeans.modules.php.laravel.ArtisanScript.SCRIPT_NAME;
 import static org.netbeans.modules.php.laravel.ArtisanScript.validate;
+import org.netbeans.modules.php.laravel.api.DockerExecutable;
+import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
 import org.openide.filesystems.FileObject;
@@ -48,14 +51,17 @@ public class ScriptExecutable {
     private Map<String, String> environmentVariables = Collections.<String, String>emptyMap();
     private String displayName = null;
     private final String scriptName;
+    //TODO implement a config solution
+    private final PhpModule phpModule;
 
-    private ScriptExecutable(String scriptName) {
+    private ScriptExecutable(String scriptName, PhpModule phpModule) {
         this.scriptName = scriptName;
+        this.phpModule = phpModule;
     }
     
     @CheckForNull
     public static ScriptExecutable forPhpModule(PhpModule phpModule, String scriptName) {
-        return new ScriptExecutable(scriptName);
+        return new ScriptExecutable(scriptName, phpModule);
     }
 
     /**
@@ -65,7 +71,7 @@ public class ScriptExecutable {
      *
      * @param workDir working directory for {@link #run() running} this
      * executable
-     * @return the PHP Executable instance itself
+     * @return the ScriptExecutable instance itself
      */
     public ScriptExecutable workDir(@NonNull File workDir) {
         this.workDir = workDir;
@@ -79,7 +85,7 @@ public class ScriptExecutable {
      *
      * @param additionalParameters addition parameters for
      * {@link #run() running}.
-     * @return the PHP Executable instance itself
+     * @return the ScriptExecutable instance itself
      */
     public ScriptExecutable additionalParameters(@NonNull List<String> additionalParameters) {
         this.additionalParameters = additionalParameters;
@@ -94,7 +100,7 @@ public class ScriptExecutable {
      * {@link #getParameters() parameters}.
      *
      * @param displayName display name that is used for executable running
-     * @return the PHP Executable instance itself
+     * @return the ScriptExecutable instance itself
      */
     public ScriptExecutable displayName(String displayName) {
         this.displayName = displayName;
@@ -106,9 +112,9 @@ public class ScriptExecutable {
      * <p>
      * The default value is empty list (it means no additional parameters).
      *
-     * @param additionalParameters addition parameters for
+     * @param environmentVariables addition parameters for
      * {@link #run() running}.
-     * @return the PHP Executable instance itself
+     * @return the ScriptExecutable instance itself
      */
     public ScriptExecutable environmentVariables(Map<String, String> environmentVariables) {
         this.environmentVariables = environmentVariables;
@@ -124,6 +130,7 @@ public class ScriptExecutable {
      * {@link PhpExecutable#run(ExecutionDescriptor, ExecutionDescriptor.InputProcessorFactory2) run(ExecutionDescriptor, ExecutionDescriptor.InputProcessorFactory2)}
      * instead.
      *
+     * @param executionDescriptor
      * @return task representing the actual run, value representing result of
      * the {@link Future} is exit code of the process or {@code null} if the
      * executable cannot be run
@@ -155,14 +162,42 @@ public class ScriptExecutable {
      */
     @CheckForNull
     public Future<Integer> run(@NonNull ExecutionDescriptor executionDescriptor, @NullAllowed ExecutionDescriptor.InputProcessorFactory2 outProcessorFactory) {
-        return runInternal(executionDescriptor, outProcessorFactory, false);
+        return runInternal(executionDescriptor, outProcessorFactory);
     }
 
-    private Future<Integer> runInternal(ExecutionDescriptor executionDescriptor, ExecutionDescriptor.InputProcessorFactory2 outProcessorFactory, boolean debug) {
-        PhpExecutable phpExecutable = new PhpExecutable(scriptName);
-        Future<Integer> result = phpExecutable.displayName(displayName)
+    private Future<Integer> runInternal(ExecutionDescriptor executionDescriptor, ExecutionDescriptor.InputProcessorFactory2 outProcessorFactory) {
+        Future<Integer> result;
+        
+        if (!useDocker()){
+            PhpExecutable phpExecutable = new PhpExecutable(scriptName);
+            result = phpExecutable.displayName(displayName)
+                .workDir(workDir)
                 .additionalParameters(additionalParameters)
+                .environmentVariables(environmentVariables)
                 .run(executionDescriptor, outProcessorFactory);
+        } else {
+            DockerExecutable dockerExecutable = new DockerExecutable(scriptName);
+            if (environmentVariables.isEmpty()){
+                environmentVariables = new HashMap<>();
+            }
+            if (getDockerWorkdir() != null) {
+                environmentVariables.put("-w", getDockerWorkdir());
+            }
+            result = dockerExecutable.displayName(displayName)
+                .workDir(workDir)
+                .additionalParameters(additionalParameters)
+                .environmentVariables(environmentVariables)
+                .run(executionDescriptor, outProcessorFactory);
+        }
+
         return result;
+    }
+    
+    private boolean useDocker() {
+        return LaravelPreferences.getUseDocker(phpModule);
+    }
+    
+    private String getDockerWorkdir() {
+        return LaravelPreferences.getDockerWorkdir(phpModule);
     }
 }

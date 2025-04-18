@@ -118,7 +118,7 @@ public class ExecutableService {
     private static String getDockerBashPath(PhpModule phpModule) {
         return LaravelPreferences.getDockerBashPath(phpModule);
     }
-
+    
     private static PhpExecutable createPhpExecutable(PhpModule phpModule) {
         String absolutePath = FileUtil.toFile(phpModule.getSourceDirectory()).getAbsolutePath();
         return new PhpExecutable(absolutePath + "/" + ARTISAN_COMMAND)

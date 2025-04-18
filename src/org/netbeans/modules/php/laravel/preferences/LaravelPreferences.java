@@ -26,6 +26,7 @@ public final class LaravelPreferences {
     private static final String DOCKER_CONTAINER_NAME = "docker_container_name"; // NOI18N
     private static final String DOCKER_BASH_PATH = "docker_bash_path"; // NOI18N
     private static final String PRESCRIPT = "prescript"; // NOI18N
+    private static final String DOCKER_WORKDIR = "docker_workdir"; // NOI18N
     private static DefaultListModel<String> terminalEnvModel = new DefaultListModel();
 
     private LaravelPreferences() {
@@ -43,6 +44,10 @@ public final class LaravelPreferences {
         getPreferences(module).put(PRESCRIPT, text);
     }
 
+    public static void setDockerWorkdir(PhpModule module, String text) {
+        getPreferences(module).put(DOCKER_WORKDIR, text);
+    }
+        
     public static void setRemoteConnectionFlag(PhpModule module, boolean remoteConnFlag) {
         getPreferences(module).putBoolean(USE_REMOTE_CONNECTION, remoteConnFlag);
     }
@@ -92,6 +97,10 @@ public final class LaravelPreferences {
         return getPreferences(module).get(PRESCRIPT, null);
     }
 
+    public static String getDockerWorkdir(PhpModule module) {
+        return getPreferences(module).get(DOCKER_WORKDIR, null);
+    }
+    
     public static TerminalComboBoxModel getTerminalEnvAsModel() {
         TerminalComboBoxModel model = new TerminalComboBoxModel();
         model.addElement("No terminal");
