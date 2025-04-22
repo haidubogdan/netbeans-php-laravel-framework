@@ -33,6 +33,7 @@ import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import static org.netbeans.modules.php.laravel.ArtisanScript.SCRIPT_NAME;
 import static org.netbeans.modules.php.laravel.ArtisanScript.validate;
 import org.netbeans.modules.php.laravel.api.DockerExecutable;
+import org.netbeans.modules.php.laravel.api.DockerExecutable2;
 import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.openide.DialogDisplayer;
 import org.openide.NotifyDescriptor;
@@ -176,18 +177,23 @@ public class ScriptExecutable {
                 .environmentVariables(environmentVariables)
                 .run(executionDescriptor, outProcessorFactory);
         } else {
-            DockerExecutable dockerExecutable = new DockerExecutable(scriptName);
-            if (environmentVariables.isEmpty()){
-                environmentVariables = new HashMap<>();
+            if (1>1) {
+                DockerExecutable2 dockerExecutable = new DockerExecutable2(scriptName);
+                if (environmentVariables.isEmpty()){
+                    environmentVariables = new HashMap<>();
+                }
+                if (getDockerWorkdir() != null) {
+                    environmentVariables.put("-w", getDockerWorkdir());
+                }
+                result = dockerExecutable.displayName(displayName)
+                    .workDir(workDir)
+                    .additionalParameters(additionalParameters)
+                    .environmentVariables(environmentVariables)
+                    .run(executionDescriptor, outProcessorFactory);
             }
-            if (getDockerWorkdir() != null) {
-                environmentVariables.put("-w", getDockerWorkdir());
-            }
-            result = dockerExecutable.displayName(displayName)
-                .workDir(workDir)
-                .additionalParameters(additionalParameters)
-                .environmentVariables(environmentVariables)
-                .run(executionDescriptor, outProcessorFactory);
+            result = null;
+            DockerExecutable de = new DockerExecutable();
+            de.run();
         }
 
         return result;
