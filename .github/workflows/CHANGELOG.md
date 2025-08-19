@@ -2,7 +2,7 @@
 
 ## What's changed
 
-Update executable tool via docker for laravel commands.
+Bug fixes for `view` and `config` method string param autocomplete, CTRL + Click
 
 **Windows**
 

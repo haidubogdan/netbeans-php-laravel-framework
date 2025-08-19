@@ -2,14 +2,11 @@ package org.netbeans.modules.php.laravel.editor;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import javax.swing.tree.MutableTreeNode;
 import org.netbeans.api.editor.*;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
@@ -25,11 +22,9 @@ import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
 import org.netbeans.modules.php.laravel.utils.PathUtils;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
-import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.netbeans.modules.php.laravel.utils.StringUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
-import org.openide.text.DataEditorSupport;
 import org.openide.text.Line;
 import org.openide.text.NbDocument;
 import org.openide.util.Exceptions;
@@ -114,9 +109,11 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                 PhpModule module;
                 //tooltip text
                 switch (methodName) {
-                    case "view":
-                    case "make":
-                    case "render":
+                    case "view": // NOI18N
+                    case "make": // NOI18N
+                    case "render": // NOI18N
+                    case "send": // NOI18N
+                    case "loadView": // NOI18N 
                         module = ProjectUtils.getPhpModule(doc);
                         FileObject dir = module.getSourceDirectory();
                         if (dir != null) {
@@ -129,16 +126,15 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                             goToOffset = 0;
                         }
                         return new int[]{startOffset, startOffset + currentToken.length()};
-                    case "config":
+                    case "config": // NOI18N
                         module = ProjectUtils.getPhpModule(doc);
                         if (module == null) {
                             break;
                         }
                         String[] queryConfigNamespace = identifiableText.split("\\.");
 
-//                        ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
+                        ConfigurationFiles confFiles = (ConfigurationFiles) LaravelPhpFrameworkProvider.getInstance().getConfigurationFiles2(module);
 
-                        ConfigurationFiles confFiles = null;
                         if (confFiles == null) {
                             break;
                         }
@@ -201,6 +197,8 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                     case "view":
                     case "make":
                     case "render":
+                    case "send":
+                    case "loadView":
                     case "config":
                         if (goToFile != null) {
                             openDocument(goToFile, goToOffset);

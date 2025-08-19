@@ -18,6 +18,7 @@ import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.util.FileUtils;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.modules.php.laravel.ConfigurationFiles;
+import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 import org.netbeans.modules.php.laravel.editor.EditorUtils;
 import org.netbeans.modules.php.laravel.editor.ResourceUtilities;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
@@ -41,7 +42,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
 
     private String methodName;
 
-    public static String[] QUERY_METHODS = new String[]{"config", "view", "make", "render"};
+    public static String[] QUERY_METHODS = new String[]{"config", "view", "make", "render", "send", "loadView"}; // NOI18N 
 
     @Override
     public CompletionTask createTask(int queryType, JTextComponent component) {
@@ -60,13 +61,15 @@ public class LaravelCompletionProvider implements CompletionProvider {
         if (reference != null) {
             AsyncCompletionQuery completionQuery;
 
-            switch (methodName) { 
+            switch (methodName) {
                 case "config": // NOI18N
                     completionQuery = new ConfigurationCompletionQuery(module);
                     break;
                 case "view": // NOI18N
                 case "make": // NOI18N
                 case "render": // NOI18N
+                case "send": // NOI18N
+                case "loadView": // NOI18N 
                     completionQuery = new ViewCompletionQuery(module);
                     break;
                 default:
@@ -156,8 +159,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 if (query == null) {
                     return;
                 }
-//                ConfigurationFiles confFiles = ConfigurationFiles.getInstance(module);
-                ConfigurationFiles confFiles = null;
+                ConfigurationFiles confFiles = (ConfigurationFiles) LaravelPhpFrameworkProvider.getInstance().getConfigurationFiles2(module);
                 if (confFiles != null) {
                     confFiles.extractConfigurationMapping(false);
                     String[] queryConfigNamespace = query.split("\\.");

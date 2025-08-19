@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.0.13]
+
+Bug fixes for `view` and `config` method string param autocomplete, CTRL + Click
+
 ## [1.0.0.12]
 
 Update executable tool via docker for laravel commands.

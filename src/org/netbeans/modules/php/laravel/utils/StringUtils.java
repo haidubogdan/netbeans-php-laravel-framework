@@ -9,7 +9,7 @@ import org.openide.util.Parameters;
  */
 public class StringUtils {
     public static final String SG_QUOTE = "'"; // NOI18N
-    public static final String ESCAPED_DB_QUOTE = "\\\""; // NOI18N
+    public static final String ESCAPED_DB_QUOTE = "\""; // NOI18N
     public static String implode(Collection<String> items, String delimiter) {
         Parameters.notNull("items", items);
         Parameters.notNull("delimiter", delimiter);

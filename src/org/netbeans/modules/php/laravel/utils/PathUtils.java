@@ -94,10 +94,10 @@ public class PathUtils {
         if (unixPath.endsWith(SLASH)) {
             //add children
 
-            list.addAll(Arrays.asList(viewDir.getChildren()));
-
             if (relativeViewRoot != null) {
                 list.addAll(Arrays.asList(relativeViewRoot.getChildren()));
+            } else {
+                list.addAll(Arrays.asList(viewDir.getChildren()));
             }
         } else {
             //filter by filename in relative context
