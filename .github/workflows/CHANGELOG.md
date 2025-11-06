@@ -2,4 +2,4 @@
 
 ## What's changed
 
-- create plugin for Netbeans 27
+- Include basic info on PHP -> Frameworks & Tools -> Laravel option

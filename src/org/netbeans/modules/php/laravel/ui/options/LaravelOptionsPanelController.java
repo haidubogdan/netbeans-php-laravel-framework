@@ -15,7 +15,7 @@ import org.openide.util.Lookup;
 
 @UiUtils.PhpOptionsPanelRegistration(
         id = LaravelOptionsPanelController.ID,
-        displayName = "Laravel 9",
+        displayName = "Laravel",
         position = 2200
 )
 public class LaravelOptionsPanelController extends OptionsPanelController {

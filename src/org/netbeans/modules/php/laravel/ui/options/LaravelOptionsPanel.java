@@ -3,8 +3,13 @@ Licensed to the Apache Software Foundation (ASF)
  */
 package org.netbeans.modules.php.laravel.ui.options;
 
+import java.awt.Cursor;
+import java.net.MalformedURLException;
+import java.net.URL;
 import org.netbeans.modules.php.api.util.UiUtils;
 import org.netbeans.spi.options.OptionsPanelController;
+import org.openide.awt.HtmlBrowser;
+import org.openide.util.Exceptions;
 
 /**
  * NOT USED
@@ -34,8 +39,35 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         jLabel1 = new javax.swing.JLabel();
+        noteLabel = new javax.swing.JLabel();
+        versionLabel = new javax.swing.JLabel();
+        installationInstructionsLabel = new javax.swing.JLabel();
+        learnMoreLabel = new javax.swing.JLabel();
+        versionLabel1 = new javax.swing.JLabel();
+        versionLabel2 = new javax.swing.JLabel();
 
+        jLabel1.setFont(new java.awt.Font("Cantarell", 1, 15)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.jLabel1.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(noteLabel, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.noteLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(versionLabel, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.versionLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(installationInstructionsLabel, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.installationInstructionsLabel.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(learnMoreLabel, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.learnMoreLabel.text")); // NOI18N
+        learnMoreLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                learnMoreLabelMouseEntered(evt);
+            }
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                learnMoreLabelMousePressed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(versionLabel1, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.versionLabel1.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(versionLabel2, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.versionLabel2.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -43,17 +75,48 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(jLabel1)
-                .addContainerGap(357, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(noteLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(versionLabel)
+                    .addComponent(jLabel1)
+                    .addComponent(installationInstructionsLabel)
+                    .addComponent(learnMoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(versionLabel1)
+                    .addComponent(versionLabel2))
+                .addContainerGap(10, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel1)
-                .addContainerGap(278, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(noteLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(versionLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(versionLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(versionLabel2)
+                .addGap(18, 18, 18)
+                .addComponent(installationInstructionsLabel)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(learnMoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(116, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+
+    private void learnMoreLabelMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_learnMoreLabelMouseEntered
+        evt.getComponent().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+    }//GEN-LAST:event_learnMoreLabelMouseEntered
+
+    private void learnMoreLabelMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_learnMoreLabelMousePressed
+        try {
+            HtmlBrowser.URLDisplayer.getDefault().showURL(new URL("https://laravel.com/docs/installation")); // NOI18N
+        } catch (MalformedURLException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }//GEN-LAST:event_learnMoreLabelMousePressed
 
     void load() {
         //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
@@ -77,6 +140,12 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel installationInstructionsLabel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel learnMoreLabel;
+    private javax.swing.JLabel noteLabel;
+    private javax.swing.JLabel versionLabel;
+    private javax.swing.JLabel versionLabel1;
+    private javax.swing.JLabel versionLabel2;
     // End of variables declaration//GEN-END:variables
 }
