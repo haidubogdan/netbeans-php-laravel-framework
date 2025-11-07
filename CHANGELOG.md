@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.0.15]
+
+- Display error message if pty4j is not working on windows
+
 ## [1.0.0.14]
 
 - Include basic info on PHP -> Frameworks & Tools -> Laravel option

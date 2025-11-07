@@ -12,12 +12,12 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <nbversion>RELEASE270</nbversion>
-        <nnbmetaversion>27-312307d41168e81225f112a1365f8706d843e5ea</nnbmetaversion>
+        <nbmetaversion>27-312307d41168e81225f112a1365f8706d843e5ea</nbmetaversion>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
-    <version>1.27.1</version>
+    <version>1.27.0.1</version>
     <packaging>nbm</packaging>
 
     <developers>
@@ -97,6 +97,7 @@
                     <verifyRuntime>warn</verifyRuntime>
                     <licenseName>LICENSE</licenseName>
                     <licenseFile>LICENSE</licenseFile>
+                    <requiresRestart>true</requiresRestart>
                     <additionalArguments>
                     </additionalArguments>
                     <publicPackages>

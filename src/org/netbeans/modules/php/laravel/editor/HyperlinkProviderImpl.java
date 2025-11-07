@@ -22,6 +22,8 @@ import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 import org.netbeans.modules.php.laravel.astnodes.ArrayFileVisitor.ConfigNamespace;
 import org.netbeans.modules.php.laravel.utils.PathUtils;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
+import static org.netbeans.modules.php.laravel.utils.LaravelUtils.CONFIG_METHOD;
+import static org.netbeans.modules.php.laravel.utils.LaravelUtils.VIEW_METHOD;
 import org.netbeans.modules.php.laravel.utils.StringUtils;
 import org.openide.filesystems.FileObject;
 import org.openide.loaders.DataObject;
@@ -109,7 +111,7 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                 PhpModule module;
                 //tooltip text
                 switch (methodName) {
-                    case "view": // NOI18N
+                    case VIEW_METHOD: // NOI18N
                     case "make": // NOI18N
                     case "render": // NOI18N
                     case "send": // NOI18N
@@ -126,7 +128,7 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                             goToOffset = 0;
                         }
                         return new int[]{startOffset, startOffset + currentToken.length()};
-                    case "config": // NOI18N
+                    case CONFIG_METHOD: // NOI18N
                         module = ProjectUtils.getPhpModule(doc);
                         if (module == null) {
                             break;
@@ -194,12 +196,12 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
         switch (type) {
             case GO_TO_DECLARATION:
                 switch (methodName) {
-                    case "view":
+                    case CONFIG_METHOD:
+                    case VIEW_METHOD:    
                     case "make":
                     case "render":
                     case "send":
                     case "loadView":
-                    case "config":
                         if (goToFile != null) {
                             openDocument(goToFile, goToOffset);
                             triggeredEvent++;
@@ -211,7 +213,6 @@ public class HyperlinkProviderImpl implements HyperlinkProviderExt {
                 JTextComponent focused = EditorRegistry.focusedComponent();
                 if (focused != null && focused.getDocument() == doc) {
                     focused.setCaretPosition(offset);
-                    //GoToImplementation.goToImplementation(focused);
                 }
                 break;
         }

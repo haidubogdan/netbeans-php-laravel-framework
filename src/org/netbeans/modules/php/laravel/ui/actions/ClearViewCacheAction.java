@@ -15,9 +15,9 @@ import org.openide.util.RequestProcessor;
  */
 public final class ClearViewCacheAction extends BaseAction {
 
+    private static final long serialVersionUID = 36068831502227574L;
     private static final String ACTION_NAME = "Clear ViewCache"; //NOI18N
     private static final String LARAVEL_COMMAND = "view:clear"; //NOI18N
-    private static final long serialVersionUID = 36068831502227574L;
 
     private static final ClearViewCacheAction INSTANCE = new ClearViewCacheAction();
     private static final RequestProcessor WORKER = new RequestProcessor(ClearViewCacheAction.class.getName(), 1, true);

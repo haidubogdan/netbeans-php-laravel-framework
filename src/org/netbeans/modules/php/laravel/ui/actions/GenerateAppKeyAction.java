@@ -15,9 +15,10 @@ import org.openide.util.RequestProcessor;
  */
 public final class GenerateAppKeyAction extends BaseAction {
 
+    private static final long serialVersionUID = 36068831502227572L;
+    
     private static final String ACTION_NAME = "Generate App Key"; //NOI18N
     private static final String LARAVEL_COMMAND = "key:generate"; //NOI18N
-    private static final long serialVersionUID = 36068831502227572L;
 
     private static final GenerateAppKeyAction INSTANCE = new GenerateAppKeyAction();
     private static final RequestProcessor WORKER = new RequestProcessor(GenerateAppKeyAction.class.getName(), 1, true);

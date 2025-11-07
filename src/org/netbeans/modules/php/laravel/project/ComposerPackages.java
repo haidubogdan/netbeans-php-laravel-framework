@@ -40,6 +40,8 @@ public class ComposerPackages {
     private static final Map<String, ComposerPackages> INSTANCES = new WeakHashMap<>();
     private Map<String, Object> composerJsonContent = new HashMap<>();
     private boolean composerFileFound = false;
+    
+    private final String LARAVEL_PACKAGE_NAME = "laravel/framework"; //NOI18N
 
     private ComposerPackages(PhpModule phpModule) {
         this.phpModule = phpModule;
@@ -52,7 +54,7 @@ public class ComposerPackages {
         if (sourceDir == null) {
             return;
         }
-        FileObject composerJsonFile = sourceDir.getFileObject("composer.json");
+        FileObject composerJsonFile = sourceDir.getFileObject("composer.json"); //NOI18N
 
         if (composerJsonFile == null) {
             return;
@@ -84,7 +86,7 @@ public class ComposerPackages {
             return null;
         }
 
-        String laravelVersion = (String) require.get("laravel/framework");
+        String laravelVersion = (String) require.get(LARAVEL_PACKAGE_NAME);
         return laravelVersion;
     }
 

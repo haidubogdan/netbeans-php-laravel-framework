@@ -15,9 +15,9 @@ import org.openide.util.RequestProcessor;
  */
 public final class ClearRouteCacheAction extends BaseAction {
 
+    private static final long serialVersionUID = 36068831502227575L;
     private static final String ACTION_NAME = "Clear Route Cache"; //NOI18N
     private static final String LARAVEL_COMMAND = "route:clear"; //NOI18N
-    private static final long serialVersionUID = 36068831502227575L;
 
     private static final ClearRouteCacheAction INSTANCE = new ClearRouteCacheAction();
     private static final RequestProcessor WORKER = new RequestProcessor(ClearRouteCacheAction.class.getName(), 1, true);

@@ -21,6 +21,7 @@ import org.netbeans.spi.editor.completion.support.CompletionUtilities;
  */
 public class LaravelCompletionItem implements CompletionItem {
 
+    public static final String VIEWS_FOLDER_FRAGMENT = "/views/";
     protected static final int DEFAULT_SORT_PRIORITY = 20;
     protected int substitutionOffset;
     protected String text;
@@ -168,7 +169,7 @@ public class LaravelCompletionItem implements CompletionItem {
     protected void reindent(JTextComponent c) {
 
     }
-    
+
     public static class ViewPath extends LaravelCompletionItem {
 
         protected boolean isFolder;
@@ -189,8 +190,11 @@ public class LaravelCompletionItem implements CompletionItem {
 
         @Override
         protected String getRightHtmlText() {
-            int viewsPos = filePath.indexOf("/views/"); //NOI18N
-            return filePath.substring(viewsPos, filePath.length());
+            int viewsPos = filePath.indexOf(VIEWS_FOLDER_FRAGMENT);
+            if (viewsPos >= 0) {
+                return filePath.substring(viewsPos, filePath.length());
+            }
+            return filePath;
         }
     }
 
@@ -214,8 +218,11 @@ public class LaravelCompletionItem implements CompletionItem {
 
         @Override
         protected String getRightHtmlText() {
-            int viewsPos = filePath.indexOf("/views/");
-            return filePath.substring(viewsPos, filePath.length());
+            int viewsPos = filePath.indexOf(VIEWS_FOLDER_FRAGMENT);
+            if (viewsPos >= 0) {
+                return filePath.substring(viewsPos, filePath.length());
+            }
+            return filePath;
         }
     }
 }

@@ -27,11 +27,13 @@ import java.util.UUID;
 import java.util.concurrent.Callable;
 import org.netbeans.api.annotations.common.NonNull;
 import org.netbeans.modules.extexecution.base.WrapperProcess;
+import org.openide.DialogDisplayer;
+import org.openide.NotifyDescriptor;
 import org.openide.util.Parameters;
 
 /**
  * used just for windows gitbash terminal through pty4j library
- * 
+ *
  * @author bogdan
  */
 public class PtyCliProcessBuilder implements Callable<Process> {
@@ -49,10 +51,18 @@ public class PtyCliProcessBuilder implements Callable<Process> {
         env.put("LANG", "C.UTF-8"); // NOI18N
 
         String[] cmd = arguments.toArray(new String[0]);
-        PtyProcess process = PtyProcess.exec(cmd, env, System.getProperty("user.home"));
-        String uuid = UUID.randomUUID().toString();
-        WrapperProcess wp = new WrapperProcess(process, uuid);
-        return wp;
+        try {
+            PtyProcess process = PtyProcess.exec(cmd, env, System.getProperty("user.home"));
+            String uuid = UUID.randomUUID().toString();
+            WrapperProcess wp = new WrapperProcess(process, uuid);
+            return wp;
+        } catch (Exception ex) {
+            NotifyDescriptor.Message message = new NotifyDescriptor.Message(
+                    ex.getMessage(),
+                    NotifyDescriptor.ERROR_MESSAGE);
+            DialogDisplayer.getDefault().notify(message);
+        }
+        return null;
     }
 
     public void setArguments(@NonNull List<String> arguments) {
