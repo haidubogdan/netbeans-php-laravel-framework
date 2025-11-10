@@ -10,7 +10,7 @@ import org.openide.filesystems.FileUtil;
 /**
  *
  * todo check what is necessary
- * 
+ *
  * @author bogdan
  */
 public final class LaravelUtils {
@@ -28,7 +28,7 @@ public final class LaravelUtils {
         String fileDir = file.getParentFile().getName();
         return DIR_VIEWS.equals(fileDir) && fo.getNameExt().endsWith(PathUtils.BLADE_EXT);
     }
-    
+
     public static boolean isConfig(FileObject fo) {
         File file = FileUtil.toFile(fo);
         return DIR_CONFIG.equals(file.getParentFile().getName());
@@ -36,5 +36,9 @@ public final class LaravelUtils {
 
     public static boolean isViewWithAction(FileObject fo) {
         return isView(fo);
+    }
+
+    public static boolean isVariable(String identifier) {
+        return identifier.startsWith("$"); // NOI18N
     }
 }

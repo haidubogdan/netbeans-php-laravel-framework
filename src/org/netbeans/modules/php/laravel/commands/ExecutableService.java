@@ -76,8 +76,13 @@ public class ExecutableService {
     }
 
     private static String getDisplayName(PhpModule phpModule) {
-        String laravelVersion = ComposerPackages.getInstance(phpModule).getLaravelVersion();
-        return phpModule.getDisplayName() + " " + laravelVersion + " CLI"; // NOI18N
+        ComposerPackages composerPackages = ComposerPackages.loadFromPhpModule(phpModule);
+
+        if (composerPackages == null || composerPackages.getLaravelVersion() == null) {
+            return phpModule.getDisplayName() + " CLI"; // NOI18N
+        }
+
+        return phpModule.getDisplayName() + " " + composerPackages.getLaravelVersion() + " CLI"; // NOI18N
     }
 
     private static boolean useRemoteConnection(PhpModule phpModule) {
@@ -164,15 +169,15 @@ public class ExecutableService {
                         comment = line.substring(endBoundry + 2).trim();
                     }
                     if (commandActionPos > 0) {
-                        artisanCommandSupport.commands.add(new ArtisanCommand(phpModule, commandInfo,
+                        artisanCommandSupport.addCommand(new ArtisanCommand(phpModule, commandInfo,
                                 comment, commandInfo));
                     } else {
-                        artisanCommandSupport.commands.add(new ArtisanCommand(phpModule, commandInfo,
+                        artisanCommandSupport.addCommand(new ArtisanCommand(phpModule, commandInfo,
                                 comment, commandInfo));
                     }
                 }
             }
-            if (line.contains("Available commands:")) {
+            if (line.contains("Available commands:")) { // NOI18N
                 collectCommands = true;
             }
         }

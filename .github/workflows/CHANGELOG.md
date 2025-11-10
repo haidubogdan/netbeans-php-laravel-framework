@@ -2,4 +2,4 @@
 
 ## What's changed
 
-- Add docker user config
+- support for netbeans 28, raw method completion in route files

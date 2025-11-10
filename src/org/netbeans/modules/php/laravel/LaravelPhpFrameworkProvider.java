@@ -5,9 +5,11 @@ import java.util.HashMap;
 import java.util.Map;
 import org.netbeans.modules.php.laravel.editor.LaravelEditorExtender;
 import org.netbeans.api.annotations.common.StaticResource;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.php.api.framework.BadgeIcon;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.phpmodule.PhpModuleProperties;
+import static org.netbeans.modules.php.laravel.PhpNbConsts.NB_PHP_PROJECT_TYPE;
 import org.netbeans.modules.php.laravel.commands.LaravelCommandSupport;
 import org.netbeans.modules.php.laravel.project.ComposerPackages;
 import org.netbeans.modules.php.spi.editor.EditorExtender;
@@ -18,9 +20,12 @@ import org.netbeans.modules.php.spi.framework.PhpModuleExtender;
 import org.netbeans.modules.php.spi.framework.PhpModuleIgnoredFilesExtender;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommandSupport;
 import org.netbeans.modules.php.spi.phpmodule.ImportantFilesImplementation;
+import org.netbeans.spi.project.LookupProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ImageUtilities;
+import org.openide.util.Lookup;
 import org.openide.util.NbBundle;
+import org.openide.util.lookup.Lookups;
 
 /**
  *
@@ -36,6 +41,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
 
     private final Map<Integer, Boolean> inPhpModuleChecked = new HashMap<>();
     private boolean isInModule = false;
+    private boolean frameworkRegistered = false;
     private FileObject sourceDirectory;
 
     private LaravelPhpFrameworkProvider() {
@@ -45,6 +51,8 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
         badgeIcon = new BadgeIcon(
                 ImageUtilities.loadImage(ICON_PATH),
                 LaravelPhpFrameworkProvider.class.getResource("/" + ICON_PATH)); // NOI18N
+        
+        frameworkRegistered = true;
     }
 
     @PhpFrameworkProvider.Registration(position = 203)
@@ -73,7 +81,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
             return inPhpModuleChecked.get(projectHash);
         }
 
-        ComposerPackages composerPackages = ComposerPackages.fromPhpModule(phpModule);
+        ComposerPackages composerPackages = ComposerPackages.fromProjectDir(sourceDirectory);
 
         if (composerPackages != null) {
             String laravelVersion = composerPackages.getLaravelVersion();
@@ -90,11 +98,13 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
         return super.getName(phpModule);
     }
 
+    //extender used for new Project wizard
     @Override
     public PhpModuleExtender createPhpModuleExtender(PhpModule pm) {
         return null;
     }
 
+    //configuration
     @Override
     public PhpModuleCustomizerExtender createPhpModuleCustomizerExtender(PhpModule phpModule) {
         if (isInPhpModule(phpModule)) {
@@ -103,6 +113,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
         return null;
     }
 
+    //not relevant for the moment
     @Override
     public PhpModuleProperties getPhpModuleProperties(PhpModule phpModule) {
         PhpModuleProperties properties = new PhpModuleProperties();
@@ -116,7 +127,7 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
         if (testsDir != null) {
             properties = properties.setTests(testsDir);
         }
-        //todo add tests
+
         return properties;
     }
 
@@ -159,6 +170,10 @@ public class LaravelPhpFrameworkProvider extends PhpFrameworkProvider {
 
     public FileObject getSourceDirectory() {
         return sourceDirectory;
+    }
+    
+    public boolean frameworkRegistered() {
+        return frameworkRegistered;
     }
 
 }

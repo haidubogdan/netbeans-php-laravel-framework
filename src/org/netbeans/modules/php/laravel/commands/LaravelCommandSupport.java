@@ -39,7 +39,7 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
 
     public LaravelCommandSupport(PhpModule phpModule) {
         super(phpModule);
-        artisanSupport = ArtisanCommandSupport.getInstance(phpModule);
+        artisanSupport = ArtisanCommandSupport.fromPhpModule(phpModule);
     }
 
     @Override

@@ -7,13 +7,16 @@ import org.netbeans.modules.php.laravel.utils.PathUtils;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.document.LineDocumentUtils;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
+import org.netbeans.api.project.Project;
 import org.netbeans.editor.BaseDocument;
+import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.util.FileUtils;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
@@ -31,7 +34,9 @@ import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
+import org.openide.awt.NotificationDisplayer;
 import org.openide.filesystems.FileObject;
+import org.openide.util.ImageUtilities;
 
 /**
  *
@@ -42,11 +47,31 @@ public class LaravelCompletionProvider implements CompletionProvider {
 
     private String methodName;
 
-    public static String[] QUERY_METHODS = new String[]{"config", "view", "make", "render", "send", "loadView"}; // NOI18N 
+    public static String[] QUERY_METHODS = new String[]{
+        "config", // NOI18N 
+        "view", // NOI18N
+        "make",
+        "render",
+        "send",
+        "loadView",
+        "get",
+        "put",
+        "delete",
+        "post",
+        "group",
+        "resource",
+        "only"
+    };
 
     @Override
     public CompletionTask createTask(int queryType, JTextComponent component) {
-        PhpModule module = ProjectUtils.getPhpModule(component.getDocument());
+        FileObject currentFile = NbEditorUtilities.getFileObject(component.getDocument());
+        
+        if (currentFile == null) {
+            return null;
+        }
+        
+        PhpModule module = ProjectUtils.getPhpModule(currentFile);
 
         if (module == null) {
             return null;
@@ -57,6 +82,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
         }
 
         String reference = getQueryString(component.getDocument(), component.getCaretPosition());
+        //
 
         if (reference != null) {
             AsyncCompletionQuery completionQuery;
@@ -71,6 +97,26 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 case "send": // NOI18N
                 case "loadView": // NOI18N 
                     completionQuery = new ViewCompletionQuery(module);
+                    break;
+                case "get":
+                case "post":
+                case "group":
+                case "delete":
+                case "put":
+                case "resource":
+                case "only":
+                    if (reference.startsWith("/")) {
+                        return null;
+                    }
+                    switch (currentFile.getNameExt()) {
+                        case "web.php":
+                        case "auth.php":
+                        case "api.php":
+                            completionQuery = new RouteCompletionQuery();
+                            break;
+                        default:
+                            return null;
+                    }
                     break;
                 default:
                     return null;
@@ -93,9 +139,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
     }
 
     private String getQueryString(Document doc, int offset) {
-        BaseDocument baseDoc = (BaseDocument) doc;
-
-        int lineStart = LineDocumentUtils.getLineStart(baseDoc, offset);
+        
         TokenSequence<PHPTokenId> tokensq = EditorUtils.getTokenSequence(doc, offset);
 
         if (tokensq == null) {
@@ -111,19 +155,26 @@ public class LaravelCompletionProvider implements CompletionProvider {
         PHPTokenId prevTokenId = null;
 
         String quotedReference = ""; // NOI18N
-
-        while (tokensq.movePrevious() && tokensq.offset() >= lineStart) {
+        int tokenCount = 0;
+        while (tokensq.movePrevious() && tokenCount <= 6) {
             Token<PHPTokenId> token = tokensq.token();
             if (token == null) {
                 break;
             }
+
             String text = token.text().toString();
             PHPTokenId id = token.id();
 
-            if (prevTokenId != null && id.equals(PHPTokenId.PHP_STRING)
-                    && (Arrays.asList(QUERY_METHODS).indexOf(text) > -1)) {
-                methodName = text;
-                quotedReference = currentToken.text().toString();
+            if (id.equals(PHPTokenId.WHITESPACE) || text.equals("[") || text.equals(",")) {
+                continue;
+            }
+
+            tokenCount++;
+            if (prevTokenId != null && id.equals(PHPTokenId.PHP_STRING)) {
+                if (Arrays.asList(QUERY_METHODS).indexOf(text) > -1) {
+                    methodName = text;
+                    quotedReference = currentToken.text().toString();
+                }
                 break;
             }
 
@@ -132,7 +183,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
             }
         }
 
-        if (quotedReference.length() < 2 || quotedReference.startsWith("$")) {
+        if (quotedReference.length() < 2 || LaravelUtils.isVariable(quotedReference)) {
             return null;
         }
         if (StringUtils.isQuotedString(quotedReference)) {
@@ -232,15 +283,17 @@ public class LaravelCompletionProvider implements CompletionProvider {
         }
 
         private void addConfigCompletionItem(String prefix, String value, String filePath, int caretOffset, CompletionResultSet resultSet) {
-            String previewValue;
+            String completionValue = value;
             int insertOffset = caretOffset;
+            String previewValue = value;
             if (prefix.contains(".")) {
-                previewValue = value.replace(prefix, "");
+                completionValue = value.replace(prefix, "");
+                int lastSeparatorPos = value.lastIndexOf(".");
+                previewValue = value.substring(lastSeparatorPos);
             } else {
-                previewValue = value;
                 insertOffset = caretOffset - prefix.length();
             }
-            CompletionItem item = CompletionUtilities.newCompletionItemBuilder(previewValue)
+            CompletionItem item = CompletionUtilities.newCompletionItemBuilder(completionValue)
                     .iconResource(ResourceUtilities.ICON_BASE + "icons/config.png")
                     .startOffset(insertOffset)
                     .leftHtmlText(previewValue)
@@ -321,5 +374,74 @@ public class LaravelCompletionProvider implements CompletionProvider {
                     .build();
             resultSet.addItem(item);
         }
+    }
+
+    private class RouteCompletionQuery extends AsyncCompletionQuery {
+
+        public RouteCompletionQuery() {
+
+        }
+
+        @Override
+        protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
+            try {
+
+                LaravelCompletionSupport support = getCompletionSupport(doc);
+
+                if (support == null) {
+                    return;
+                }
+                
+                String query = getQueryString(doc, caretOffset);
+                if (query == null) {
+                    return;
+                }
+
+                Map<String, Set<String>> methods = support.getControllerClassQuery().findClassReferences(query);
+                
+                for (Map.Entry<String, Set<String>> methodEntry : methods.entrySet()) {
+                    String methodName = methodEntry.getKey();
+                    int insertOffset = caretOffset - query.length();
+                    for (String classes : methodEntry.getValue()) {
+                        addMethodCompletionItem(methodName, classes, resultSet, insertOffset);
+                    }
+                }
+                
+            } finally {
+                resultSet.finish();
+            }
+        }
+        
+        private void addMethodCompletionItem(String method, String className,
+                CompletionResultSet resultSet, int insertOffset) {
+            CompletionItem item = CompletionUtilities.newCompletionItemBuilder(method)
+                    .iconResource("org/netbeans/modules/websvc/saas/ui/resources/method.png")
+                    .startOffset(insertOffset)
+                    .leftHtmlText(method)
+                    .rightHtmlText(className)
+                    .sortPriority(1)
+                    .build();
+            resultSet.addItem(item);
+        }
+    }
+
+    private LaravelCompletionSupport getCompletionSupport(Document doc) {
+        Project project = ProjectUtils.get(doc);
+        LaravelCompletionSupport support = project.getLookup().lookup(LaravelCompletionSupport.class);
+
+        if (support == null) {
+            return null;
+        }
+
+        if (!support.filesScanned()) {
+            support.parseControllerFiles();
+            NotificationDisplayer.getDefault().notify("Laravel: Controller files parsed",
+                    ImageUtilities.loadImageIcon("org/netbeans/modules/git/resources/icons/info.png", false),
+                    "",
+                    evt -> { }
+            );
+        }
+
+        return support;
     }
 }

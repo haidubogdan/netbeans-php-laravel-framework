@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.netbeans.api.annotations.common.CheckForNull;
 import org.netbeans.api.extexecution.ExecutionDescriptor;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.php.api.executable.PhpExecutable;
 import org.netbeans.modules.php.api.executable.PhpExecutableValidator;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
@@ -86,8 +87,13 @@ public class ArtisanScript {
     }
 
     private String getDisplayName(PhpModule phpModule) {
-        String laravelVersion = ComposerPackages.getInstance(phpModule).getLaravelVersion();
-        return phpModule.getDisplayName() + " " + laravelVersion + " CLI"; // NOI18N
+        ComposerPackages composerPackages = ComposerPackages.loadFromPhpModule(phpModule);
+
+        if (composerPackages == null || composerPackages.getLaravelVersion() == null) {
+            return phpModule.getDisplayName() + " CLI"; // NOI18N
+        }
+
+        return phpModule.getDisplayName() + " " + composerPackages.getLaravelVersion() + " CLI"; // NOI18N
     }
 
     private List<String> getAllParameters(List<String> params) {

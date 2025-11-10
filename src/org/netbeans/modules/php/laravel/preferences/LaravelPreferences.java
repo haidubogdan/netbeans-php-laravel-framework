@@ -118,25 +118,4 @@ public final class LaravelPreferences {
     public static String getDockerUser(PhpModule module) {
         return getPreferences(module).get(DOCKER_USER, null);
     }
-
-    public static TerminalComboBoxModel getTerminalEnvAsModel() {
-        TerminalComboBoxModel model = new TerminalComboBoxModel();
-        model.addElement("No terminal"); // NOI18N
-        ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
-        if (env == null) {
-            return model;
-        }
-        String name = env.getDisplayName();
-        model.addElement(name);
-        return model;
-    }
-
-    public static class TerminalComboBoxModel extends DefaultComboBoxModel<String> {
-
-        /**
-         * serializable
-         */
-        private static final long serialVersionUID = -158789765465878745L;
-
-    }
 }

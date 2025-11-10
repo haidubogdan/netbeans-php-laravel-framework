@@ -21,7 +21,7 @@ import org.netbeans.spi.editor.completion.support.CompletionUtilities;
  */
 public class LaravelCompletionItem implements CompletionItem {
 
-    public static final String VIEWS_FOLDER_FRAGMENT = "/views/";
+    public static final String VIEWS_FOLDER_FRAGMENT = "/views/"; // NOI18N 
     protected static final int DEFAULT_SORT_PRIORITY = 20;
     protected int substitutionOffset;
     protected String text;

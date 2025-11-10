@@ -22,7 +22,8 @@ import org.openide.util.ChangeSupport;
 
 /**
  *
- * @author bogdan
+ * todo
+ * No action done on listeners
  */
 public final class ConfigurationFiles extends FileChangeAdapter implements ImportantFilesImplementation {
 

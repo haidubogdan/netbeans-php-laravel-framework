@@ -1,5 +1,10 @@
 # Change Log
 
+## [1.0.1.3]
+
+- support for netbeans 28
+- basic method completion in routes
+
 ## [1.0.0.16]
 
 - Add docker user config

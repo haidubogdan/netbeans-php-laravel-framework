@@ -3,8 +3,11 @@ Licensed to the Apache Software Foundation (ASF)
  */
 package org.netbeans.modules.php.laravel.ui.customizer;
 
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.event.ChangeListener;
+import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import org.netbeans.modules.php.laravel.commands.DlightTerminalEnvironment;
 import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ChangeSupport;
@@ -14,6 +17,8 @@ import org.openide.util.ChangeSupport;
  * @author bogdan
  */
 public class LaravelCustomizerPanel extends javax.swing.JPanel {
+    
+    public static String DEFAULT_TERMINAL_VALUE = "No terminal"; // NOI18N
     private final ChangeSupport changeSupport;
 
     /**
@@ -53,7 +58,7 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
 
     public void saveChanges(PhpModule module){
         String selectedItem = (String) RemoteTerminal.getSelectedItem();
-        boolean useRemoteTerminal = !selectedItem.equals("No terminal");
+        boolean useRemoteTerminal = !selectedItem.equals(DEFAULT_TERMINAL_VALUE);
         LaravelPreferences.setEnabled(module, projectSupportEnabled.isSelected());
         LaravelPreferences.setDockerContainerName(module, dockerContainerName.getText());
         LaravelPreferences.setDockerBashPath(module, dockerBashPath.getText());
@@ -72,6 +77,27 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
 
     public void removeChangeListener(ChangeListener changeListener) {
         changeSupport.removeChangeListener(changeListener);
+    }
+
+    private TerminalComboBoxModel getTerminalEnvAsModel() {
+        TerminalComboBoxModel model = new TerminalComboBoxModel();
+        model.addElement(DEFAULT_TERMINAL_VALUE);
+        ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
+        if (env == null) {
+            return model;
+        }
+        String name = env.getDisplayName();
+        model.addElement(name);
+        return model;
+    }
+
+    private static class TerminalComboBoxModel extends DefaultComboBoxModel<String> {
+
+        /**
+         * serializable
+         */
+        private static final long serialVersionUID = -158789765465878745L;
+
     }
 
     /**
@@ -136,7 +162,7 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
             }
         });
 
-        RemoteTerminal.setModel(LaravelPreferences.getTerminalEnvAsModel());
+        RemoteTerminal.setModel(getTerminalEnvAsModel());
 
         org.openide.awt.Mnemonics.setLocalizedText(jLabel8, org.openide.util.NbBundle.getMessage(LaravelCustomizerPanel.class, "LaravelCustomizerPanel.jLabel8.text")); // NOI18N
 

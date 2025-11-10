@@ -23,38 +23,37 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.WeakHashMap;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.netbeans.api.project.Project;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import static org.netbeans.modules.php.laravel.PhpNbConsts.NB_PHP_PROJECT_TYPE;
+import org.netbeans.spi.project.LookupProvider;
 import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
+import org.openide.util.lookup.Lookups;
 
-/**
- *
- * @author bogdan
- */
 public class ComposerPackages {
 
-    private final PhpModule phpModule;
-    private static final Map<String, ComposerPackages> INSTANCES = new WeakHashMap<>();
+    private final FileObject projectDir;
     private Map<String, Object> composerJsonContent = new HashMap<>();
-    private boolean composerFileFound = false;
     
     private final String LARAVEL_PACKAGE_NAME = "laravel/framework"; //NOI18N
+    public static final String COMPOSER_FILENAME = "composer.json"; //NOI18N
+    private String laravelVersion;
 
-    private ComposerPackages(PhpModule phpModule) {
-        this.phpModule = phpModule;
+    private ComposerPackages(FileObject projectDir) {
+        this.projectDir = projectDir;
         this.extractPackageInfo();
     }
 
     private void extractPackageInfo() {
-        FileObject sourceDir = phpModule.getSourceDirectory();
-
-        if (sourceDir == null) {
+        if (projectDir == null) {
             return;
         }
-        FileObject composerJsonFile = sourceDir.getFileObject("composer.json"); //NOI18N
+
+        FileObject composerJsonFile = projectDir.getFileObject(COMPOSER_FILENAME); //NOI18N
 
         if (composerJsonFile == null) {
             return;
@@ -64,7 +63,10 @@ public class ComposerPackages {
 
         try {
             composerJsonContent = (Map<String, Object>) parser.parse(new FileReader(composerJsonFile.getPath()));
-            composerFileFound = true;
+
+            if (composerJsonContent != null) {
+                extractLaravelVersion();
+            }
         } catch (FileNotFoundException ex) {
             Exceptions.printStackTrace(ex);
         } catch (IOException | ParseException ex) {
@@ -76,7 +78,7 @@ public class ComposerPackages {
         return composerJsonContent;
     }
 
-    public String getLaravelVersion() {
+    private String extractLaravelVersion() {
         if (composerJsonContent == null) {
             return null;
         }
@@ -86,37 +88,34 @@ public class ComposerPackages {
             return null;
         }
 
-        String laravelVersion = (String) require.get(LARAVEL_PACKAGE_NAME);
+        laravelVersion = (String) require.get(LARAVEL_PACKAGE_NAME);
         return laravelVersion;
     }
 
-    public static ComposerPackages fromPhpModule(PhpModule phpModule) {
-        return new ComposerPackages(phpModule);
+    public String getLaravelVersion() {
+        return laravelVersion;
+    }
+    
+    public static ComposerPackages fromProjectDir(FileObject projectDir) {
+        return new ComposerPackages(projectDir);
     }
 
-    public static ComposerPackages getInstance(PhpModule phpModule) {
-        String projectPath = phpModule.getProjectDirectory().getPath();
+    public static ComposerPackages loadFromPhpModule(PhpModule phpModule) {
+        Project project = phpModule.getLookup().lookup(Project.class);
+        assert project != null;
+        return project.getLookup().lookup(ComposerPackages.class);
+    }
 
-        synchronized (INSTANCES) {
-            ComposerPackages composerPackage = INSTANCES.get(projectPath);
-            if (composerPackage == null) {
-                composerPackage = fromPhpModule(phpModule);
-                INSTANCES.put(projectPath, composerPackage);
+    @LookupProvider.Registration(projectType = NB_PHP_PROJECT_TYPE)
+    public static LookupProvider createJavaBaseProvider() {
+        return new LookupProvider() {
+            @Override
+            public Lookup createAdditionalLookup(Lookup baseContext) {
+                Project project = baseContext.lookup(Project.class);
+                return Lookups.fixed(
+                        fromProjectDir(project.getProjectDirectory())
+                );
             }
-            return composerPackage;
-        }
-    }
-
-    public static ComposerPackages getInstance(String projectPath) {
-        ComposerPackages composerPackage = INSTANCES.get(projectPath);
-        return composerPackage;
-    }
-
-    public boolean composerFileFound() {
-        return composerFileFound;
-    }
-
-    public boolean hasPhpModule() {
-        return phpModule != null;
+        };
     }
 }

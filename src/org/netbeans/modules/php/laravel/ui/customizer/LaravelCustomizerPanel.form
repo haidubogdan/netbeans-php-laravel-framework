@@ -253,7 +253,7 @@
     <Component class="javax.swing.JComboBox" name="RemoteTerminal">
       <Properties>
         <Property name="model" type="javax.swing.ComboBoxModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
-          <Connection code="LaravelPreferences.getTerminalEnvAsModel()" type="code"/>
+          <Connection code="getTerminalEnvAsModel()" type="code"/>
         </Property>
       </Properties>
       <AuxValues>

@@ -75,7 +75,7 @@ public class PathUtils {
 
             relativeViewRoot = viewDir.getFileObject(unixPath.substring(0, relativeSlash));
 
-            if (!relativeViewRoot.isValid()) {
+            if (relativeViewRoot != null && !relativeViewRoot.isValid()) {
                 relativeViewRoot = null;
             }
 
