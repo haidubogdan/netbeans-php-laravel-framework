@@ -26,6 +26,7 @@ public final class LaravelPreferences {
     private static final String DOCKER_WORKDIR = "docker_workdir"; // NOI18N
     private static final String DOCKER_USE_TTY = "docker_use_tty"; // NOI18N
     private static final String DOCKER_USE_INTERACTIVE = "docker_use_interactive"; // NOI18N
+    private static final String DOCKER_USER = "docker_user"; // NOI18N
     
     private static final boolean DEFAULT_DOCKER_TTY = true;
     private static final boolean DEFAULT_DOCKER_INTERACTIVE = true;
@@ -64,7 +65,11 @@ public final class LaravelPreferences {
     public static void setDockerUseInteractive(PhpModule module, boolean bool) {
         getPreferences(module).putBoolean(DOCKER_USE_INTERACTIVE, bool);
     }
-
+    
+    public static void setDockerUser(PhpModule module, String text) {
+        getPreferences(module).put(DOCKER_USER, text);
+    }
+    
     private static Preferences getPreferences(PhpModule module) {
         return module.getPreferences(LaravelPhpFrameworkProvider.class, true);
     }
@@ -108,6 +113,10 @@ public final class LaravelPreferences {
         
     public static boolean getDockerUseInteractive(PhpModule module) {
         return getPreferences(module).getBoolean(DOCKER_USE_INTERACTIVE, DEFAULT_DOCKER_INTERACTIVE);
+    }
+    
+    public static String getDockerUser(PhpModule module) {
+        return getPreferences(module).get(DOCKER_USER, null);
     }
 
     public static TerminalComboBoxModel getTerminalEnvAsModel() {

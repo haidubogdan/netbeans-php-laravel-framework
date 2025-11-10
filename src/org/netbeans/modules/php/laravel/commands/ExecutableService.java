@@ -47,6 +47,7 @@ public class ExecutableService {
                     .containerWorkDir(getDockerWorkdir(phpModule))
                     .setUserInteractive(getDockerUseInteractive(phpModule))
                     .setUseTTY(getDockerUseTTY(phpModule))
+                    .setDockerUser(getDockerUser(phpModule))
                     ;
 
             ExecutionDescriptor.InputProcessorFactory2 descriptor = null;
@@ -105,6 +106,10 @@ public class ExecutableService {
 
     private static boolean getDockerUseTTY(PhpModule phpModule) {
         return LaravelPreferences.getDockerUseTTy(phpModule);
+    }
+    
+    private static String getDockerUser(PhpModule phpModule) {
+        return LaravelPreferences.getDockerUser(phpModule);
     }
     
     private static PhpExecutable createPhpExecutable(PhpModule phpModule) {

@@ -92,7 +92,7 @@
                                       <EmptySpace type="separate" max="-2" attributes="0"/>
                                       <Group type="103" groupAlignment="0" attributes="0">
                                           <Component id="dockerContainerName" alignment="0" max="32767" attributes="0"/>
-                                          <Component id="dockerContainerName1" alignment="0" max="32767" attributes="0"/>
+                                          <Component id="dockerUser" alignment="0" max="32767" attributes="0"/>
                                           <Component id="dockerBashPath" max="32767" attributes="0"/>
                                       </Group>
                                   </Group>
@@ -150,7 +150,7 @@
               </Group>
               <EmptySpace max="-2" attributes="0"/>
               <Group type="103" groupAlignment="3" attributes="0">
-                  <Component id="dockerContainerName1" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="dockerUser" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="jLabel13" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
@@ -318,10 +318,10 @@
         </Property>
       </Properties>
     </Component>
-    <Component class="javax.swing.JTextField" name="dockerContainerName1">
+    <Component class="javax.swing.JTextField" name="dockerUser">
       <Properties>
         <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/netbeans/modules/php/laravel/ui/customizer/Bundle.properties" key="LaravelCustomizerPanel.dockerContainerName1.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
+          <ResourceString bundle="org/netbeans/modules/php/laravel/ui/customizer/Bundle.properties" key="LaravelCustomizerPanel.dockerUser.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
     </Component>

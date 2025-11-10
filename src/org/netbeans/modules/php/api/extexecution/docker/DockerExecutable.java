@@ -42,9 +42,9 @@ public class DockerExecutable {
 
     private boolean interactive = true;
     private boolean asTerminal = true;
+    private String dockerUser;
 
     private String containerWorkDir;
-    private boolean noInfo = false;
 
     private String terminalName = "PtyTerminal";// NOI18N
 
@@ -79,6 +79,11 @@ public class DockerExecutable {
         return this;
     }
 
+    public DockerExecutable setDockerUser(String user) {
+        this.dockerUser = user;
+        return this;
+    }
+    
     public Future<Integer> run(ExecutionDescriptor executionDescriptor, ExecutionDescriptor.InputProcessorFactory2 outProcessorFactory) {
         Parameters.notNull("executionDescriptor", executionDescriptor); // NOI18N
         Callable<Process> processBuilder = getProcessBuilder();
@@ -141,6 +146,11 @@ public class DockerExecutable {
             arguments.add("-" + interactionMode);
         }
 
+        if (dockerUser != null) {
+            arguments.add("-u");
+            arguments.add(dockerUser);
+        }
+        
         arguments.add(containerName);
         arguments.add(bashType);
         arguments.add("-c"); // NOI18N
@@ -173,10 +183,6 @@ public class DockerExecutable {
     }
 
     private ExecutionDescriptor.InputProcessorFactory2 getInfoOutputProcessorFactory() {
-        if (noInfo) {
-            // no info
-            return null;
-        }
         return new ExecutionDescriptor.InputProcessorFactory2() {
             @Override
             public InputProcessor newInputProcessor(InputProcessor defaultProcessor) {
