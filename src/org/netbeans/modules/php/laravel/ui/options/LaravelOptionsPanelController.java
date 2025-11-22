@@ -3,7 +3,6 @@ Licensed to the Apache Software Foundation (ASF)
  */
 package org.netbeans.modules.php.laravel.ui.options;
 
-import org.netbeans.spi.options.OptionsPanelController;
 
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;

@@ -16,7 +16,7 @@ jobs:
     needs: package 
     strategy:
       matrix:
-        label: [23, 24, 25, 26, 27, 28]
+        label: [23, 24, 25, 26, 27, 28, 29]
         include:
           - label: 23
             version: 23-2985f1fa57ce0c1877bad0f86d5e5504d65f9286
@@ -35,7 +35,10 @@ jobs:
             java: 17
           - label: 28
             version: 28-bb4f5c31012229fb1577f019127e203b6925ab33
-            java: 17  
+            java: 17
+          - label: 29
+            version: 29-e45e218307fce4891f6ea1d58efb5ff7031518e2
+            java: 21
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3

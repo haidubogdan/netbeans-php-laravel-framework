@@ -9,10 +9,6 @@ import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 
-/**
- *
- * @author bogdan
- */
 public class EditorUtils {
 
     public static TokenSequence<PHPTokenId> getTokenSequence(Document doc, int offset) {
@@ -30,6 +26,9 @@ public class EditorUtils {
             tokenSequence.moveNext();
         }
         return tokenSequence;
+    }
 
+    public static boolean isOpenParenToken(PHPTokenId id, String text) {
+        return id.equals(PHPTokenId.PHP_TOKEN) && text.equals("("); // NOI18N
     }
 }

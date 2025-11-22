@@ -149,7 +149,11 @@
                             <type>impl</type>
                             <explicitValue>org.netbeans.modules.dlight.terminal = 1</explicitValue>
                         </dependency>
-
+                       <dependency>
+                            <id>org.netbeans.modules:org-netbeans-modules-web-clientproject-api</id>
+                            <type>impl</type>
+                            <explicitValue>org.netbeans.modules.web.clientproject.api = ${nbmetaversion}</explicitValue>
+                        </dependency>
                     </moduleDependencies>
                 </configuration>
             </plugin>

@@ -1,13 +1,9 @@
-package org.netbeans.modules.php.laravel.editor.completion;
+package org.netbeans.modules.php.laravel.editor.model;
 
 import java.util.HashSet;
 import java.util.Set;
 import org.openide.filesystems.FileObject;
 
-/**
- *
- * @author bhaidu
- */
 public class ControllerModel {
 
     private final FileObject file;

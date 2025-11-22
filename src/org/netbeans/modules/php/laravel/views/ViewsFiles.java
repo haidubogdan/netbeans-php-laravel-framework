@@ -29,7 +29,7 @@ public class ViewsFiles {
     private static final String VIEWS_TITLE = "Blade Views files"; //NOI18N
     private static final Node iconDelegate = DataFolder.findFolder(FileUtil.getConfigRoot()).getNodeDelegate();
      
-    @NodeFactory.Registration(projectType = NB_PHP_PROJECT_TYPE, position = 400)
+    @NodeFactory.Registration(projectType = NB_PHP_PROJECT_TYPE, position = 401)
     public static NodeFactory forPhpProject() {
         return new BladeViewsFilesNodeFactory();
     }

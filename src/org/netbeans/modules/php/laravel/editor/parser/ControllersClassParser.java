@@ -1,6 +1,6 @@
-package org.netbeans.modules.php.laravel;
+package org.netbeans.modules.php.laravel.editor.parser;
 
-import org.netbeans.modules.php.laravel.editor.completion.ControllerModel;
+import org.netbeans.modules.php.laravel.editor.model.ControllerModel;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -14,27 +14,23 @@ import org.netbeans.modules.parsing.api.ResultIterator;
 import org.netbeans.modules.parsing.api.Source;
 import org.netbeans.modules.parsing.api.UserTask;
 import org.netbeans.modules.parsing.spi.ParseException;
-import org.netbeans.modules.php.editor.model.Model;
 import org.netbeans.modules.php.editor.parser.PHPParseResult;
-import org.netbeans.modules.php.editor.parser.api.Utils;
 import org.netbeans.modules.php.editor.parser.astnodes.ASTNode;
 import org.netbeans.modules.php.editor.parser.astnodes.ClassDeclaration;
 import org.netbeans.modules.php.editor.parser.astnodes.Expression;
 import org.netbeans.modules.php.editor.parser.astnodes.MethodDeclaration;
 import org.netbeans.modules.php.editor.parser.astnodes.visitors.DefaultVisitor;
-import org.netbeans.modules.php.laravel.astnodes.ArrayConfigVisitor;
 import org.openide.filesystems.FileChangeAdapter;
 import org.openide.filesystems.FileEvent;
 import org.openide.filesystems.FileObject;
-import org.openide.util.Pair;
 
 /**
  *
  * @author bhaidu
  */
-public class ControllersClassQuery extends FileChangeAdapter {
+public class ControllersClassParser extends FileChangeAdapter {
 
-    private static final Logger LOGGER = Logger.getLogger(ControllersClassQuery.class.getName());
+    private static final Logger LOGGER = Logger.getLogger(ControllersClassParser.class.getName());
     public static final String CONTROLLER_PATH = "app/Http/Controllers"; // NOI18N
     //not sure about it
     private final Map<FileObject, ControllerModel> collection = new HashMap<>();

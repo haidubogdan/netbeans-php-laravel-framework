@@ -12,9 +12,9 @@ import org.openide.awt.HtmlBrowser;
 import org.openide.util.Exceptions;
 
 /**
- * NOT USED
+ * Just a visual display
  * 
- * @author bogdan
+ * @author bhaidu
  */
 @OptionsPanelController.Keywords(
         keywords = {
@@ -119,15 +119,15 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
     }//GEN-LAST:event_learnMoreLabelMousePressed
 
     void load() {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+
     }
 
     void store() {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+
     }
 
     void cancel() {
-        //throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+
     }
 
     boolean valid() {

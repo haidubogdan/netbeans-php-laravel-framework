@@ -34,20 +34,21 @@ public class ExecutableService {
     public static void executeCommand(PhpModule phpModule,
             List<String> params, LineProcessor outLineProcessor) {
 
-        if (useDocker(phpModule)) {
+        LaravelPreferences prefs = LaravelPreferences.fromPhpModule(phpModule);
+        if (useDocker(prefs)) {
             params.add(0, PhpNbConsts.PHP_COMMAND);
             params.add(1, ArtisanScript.SCRIPT_NAME);
-            boolean isRemote = useRemoteConnection(phpModule);
+            boolean isRemote = useRemoteConnection(prefs);
             DockerExecutable exec = new DockerExecutable(
-                    getDockerContainerName(phpModule),
-                    getDockerBashPath(phpModule),
+                    getDockerContainerName(prefs),
+                    getDockerBashPath(prefs),
                     params,
                     isRemote
             ).displayName(getDisplayName(phpModule))
-                    .containerWorkDir(getDockerWorkdir(phpModule))
-                    .setUserInteractive(getDockerUseInteractive(phpModule))
-                    .setUseTTY(getDockerUseTTY(phpModule))
-                    .setDockerUser(getDockerUser(phpModule))
+                    .containerWorkDir(getDockerWorkdir(prefs))
+                    .setUserInteractive(getDockerUseInteractive(prefs))
+                    .setUseTTY(getDockerUseTTY(prefs))
+                    .setDockerUser(getDockerUser(prefs))
                     ;
 
             ExecutionDescriptor.InputProcessorFactory2 descriptor = null;
@@ -85,36 +86,36 @@ public class ExecutableService {
         return phpModule.getDisplayName() + " " + composerPackages.getLaravelVersion() + " CLI"; // NOI18N
     }
 
-    private static boolean useRemoteConnection(PhpModule phpModule) {
-        return LaravelPreferences.getRemoteConnectionFlag(phpModule);
+    private static boolean useRemoteConnection(LaravelPreferences prefs) {
+        return prefs.getRemoteConnectionFlag();
     }
 
-    private static boolean useDocker(PhpModule phpModule) {
-        return LaravelPreferences.getUseDocker(phpModule);
+    private static boolean useDocker(LaravelPreferences prefs) {
+        return prefs.getUseDocker();
     }
 
-    private static String getDockerContainerName(PhpModule phpModule) {
-        return LaravelPreferences.getDockerContainerName(phpModule);
+    private static String getDockerContainerName(LaravelPreferences prefs) {
+        return prefs.getDockerContainerName();
     }
 
-    private static String getDockerWorkdir(PhpModule phpModule) {
-        return LaravelPreferences.geDockerWorkdir(phpModule);
+    private static String getDockerWorkdir(LaravelPreferences prefs) {
+        return prefs.geDockerWorkdir();
     }
 
-    private static String getDockerBashPath(PhpModule phpModule) {
-        return LaravelPreferences.getDockerBashPath(phpModule);
+    private static String getDockerBashPath(LaravelPreferences prefs) {
+        return prefs.getDockerBashPath();
     }
 
-    private static boolean getDockerUseInteractive(PhpModule phpModule) {
-        return LaravelPreferences.getDockerUseInteractive(phpModule);
+    private static boolean getDockerUseInteractive(LaravelPreferences prefs) {
+        return prefs.getDockerUseInteractive();
     }
 
-    private static boolean getDockerUseTTY(PhpModule phpModule) {
-        return LaravelPreferences.getDockerUseTTy(phpModule);
+    private static boolean getDockerUseTTY(LaravelPreferences prefs) {
+        return prefs.getDockerUseTTy();
     }
     
-    private static String getDockerUser(PhpModule phpModule) {
-        return LaravelPreferences.getDockerUser(phpModule);
+    private static String getDockerUser(LaravelPreferences prefs) {
+        return prefs.getDockerUser();
     }
     
     private static PhpExecutable createPhpExecutable(PhpModule phpModule) {

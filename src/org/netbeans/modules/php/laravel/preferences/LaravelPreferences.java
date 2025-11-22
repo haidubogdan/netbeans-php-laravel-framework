@@ -31,91 +31,97 @@ public final class LaravelPreferences {
     private static final boolean DEFAULT_DOCKER_TTY = true;
     private static final boolean DEFAULT_DOCKER_INTERACTIVE = true;
 
-    private LaravelPreferences() {
+    private final Preferences modulePreferences;
+    
+    private LaravelPreferences(PhpModule module) {
+        this.modulePreferences = getModulePreferences(module);
     }
 
     public static void setEnabled(PhpModule module, boolean useDocker) {
-        getPreferences(module).putBoolean(ENABLED, useDocker);
+        getModulePreferences(module).putBoolean(ENABLED, useDocker);
     }
     
     public static void setUseDocker(PhpModule module, boolean useDocker) {
-        getPreferences(module).putBoolean(USE_DOCKER, useDocker);
+        getModulePreferences(module).putBoolean(USE_DOCKER, useDocker);
     }
     
     public static void setDockerContainerName(PhpModule module, String dockerContainerName) {
-        getPreferences(module).put(DOCKER_CONTAINER_NAME, dockerContainerName);
+        getModulePreferences(module).put(DOCKER_CONTAINER_NAME, dockerContainerName);
     }
 
     public static void setDockerBashPath(PhpModule module, String bashPath) {
-        getPreferences(module).put(DOCKER_BASH_PATH, bashPath);
+        getModulePreferences(module).put(DOCKER_BASH_PATH, bashPath);
     }
 
     public static void setDockerWorkdir(PhpModule module, String text) {
-        getPreferences(module).put(DOCKER_WORKDIR, text);
+        getModulePreferences(module).put(DOCKER_WORKDIR, text);
     }
 
     public static void setRemoteConnectionFlag(PhpModule module, boolean remoteConnFlag) {
-        getPreferences(module).putBoolean(USE_REMOTE_CONNECTION, remoteConnFlag);
+        getModulePreferences(module).putBoolean(USE_REMOTE_CONNECTION, remoteConnFlag);
     }
     
     public static void setDockerUseTty(PhpModule module, boolean bool) {
-        getPreferences(module).putBoolean(DOCKER_USE_TTY, bool);
+        getModulePreferences(module).putBoolean(DOCKER_USE_TTY, bool);
     }
     
     public static void setDockerUseInteractive(PhpModule module, boolean bool) {
-        getPreferences(module).putBoolean(DOCKER_USE_INTERACTIVE, bool);
+        getModulePreferences(module).putBoolean(DOCKER_USE_INTERACTIVE, bool);
     }
     
     public static void setDockerUser(PhpModule module, String text) {
-        getPreferences(module).put(DOCKER_USER, text);
+        getModulePreferences(module).put(DOCKER_USER, text);
     }
     
-    private static Preferences getPreferences(PhpModule module) {
+    public static Preferences getModulePreferences(PhpModule module) {
         return module.getPreferences(LaravelPhpFrameworkProvider.class, true);
     }
 
-    public static String getAppDir(PhpModule module) {
-        return getPreferences(module).get(APP_DIR, DEFAULT_APP_DIR);
+    public String getAppDir() {
+        return modulePreferences.get(APP_DIR, DEFAULT_APP_DIR);
     }
 
-    public static boolean hasEnabledConfigured(PhpModule module) {
-        Preferences pref = getPreferences(module);
-        return pref.get(ENABLED, null) != null;
+    public boolean hasEnabledConfigured() {
+        return modulePreferences.get(ENABLED, null) != null;
     }
 
-    public static boolean isEnabled(PhpModule module) {
-        return getPreferences(module).getBoolean(ENABLED, false);
+    public boolean isEnabled() {
+        return modulePreferences.getBoolean(ENABLED, false);
     }
 
-    public static String getDockerContainerName(PhpModule module) {
-        return getPreferences(module).get(DOCKER_CONTAINER_NAME, null);
+    public String getDockerContainerName() {
+        return modulePreferences.get(DOCKER_CONTAINER_NAME, null);
     }
 
-    public static String getDockerBashPath(PhpModule module) {
-        return getPreferences(module).get(DOCKER_BASH_PATH, null);
+    public String getDockerBashPath() {
+        return modulePreferences.get(DOCKER_BASH_PATH, null);
     }
 
-    public static boolean getRemoteConnectionFlag(PhpModule module) {
-        return getPreferences(module).getBoolean(USE_REMOTE_CONNECTION, false);
+    public boolean getRemoteConnectionFlag() {
+        return modulePreferences.getBoolean(USE_REMOTE_CONNECTION, false);
     }
 
-    public static boolean getUseDocker(PhpModule module) {
-        return getPreferences(module).getBoolean(USE_DOCKER, false);
+    public boolean getUseDocker() {
+        return modulePreferences.getBoolean(USE_DOCKER, false);
     }
 
-    public static String geDockerWorkdir(PhpModule module) {
-        return getPreferences(module).get(DOCKER_WORKDIR, null);
+    public String geDockerWorkdir() {
+        return modulePreferences.get(DOCKER_WORKDIR, null);
     }
     
-    public static boolean getDockerUseTTy(PhpModule module) {
-        return getPreferences(module).getBoolean(DOCKER_USE_TTY, DEFAULT_DOCKER_TTY);
+    public boolean getDockerUseTTy() {
+        return modulePreferences.getBoolean(DOCKER_USE_TTY, DEFAULT_DOCKER_TTY);
     }
         
-    public static boolean getDockerUseInteractive(PhpModule module) {
-        return getPreferences(module).getBoolean(DOCKER_USE_INTERACTIVE, DEFAULT_DOCKER_INTERACTIVE);
+    public boolean getDockerUseInteractive() {
+        return modulePreferences.getBoolean(DOCKER_USE_INTERACTIVE, DEFAULT_DOCKER_INTERACTIVE);
     }
     
-    public static String getDockerUser(PhpModule module) {
-        return getPreferences(module).get(DOCKER_USER, null);
+    public String getDockerUser() {
+        return modulePreferences.get(DOCKER_USER, null);
+    }
+    
+    public static LaravelPreferences fromPhpModule(PhpModule module) {
+        return new LaravelPreferences(module);
     }
 }

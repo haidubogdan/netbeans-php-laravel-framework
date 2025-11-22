@@ -1,4 +1,4 @@
-package org.netbeans.modules.php.laravel.parser;
+package org.netbeans.modules.php.laravel.editor.parser;
 
 import java.util.Collections;
 import java.util.HashMap;

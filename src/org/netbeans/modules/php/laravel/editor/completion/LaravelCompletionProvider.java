@@ -3,6 +3,7 @@ Licensed to the Apache Software Foundation (ASF)
  */
 package org.netbeans.modules.php.laravel.editor.completion;
 
+import org.netbeans.modules.php.laravel.project.LaravelAppSupport;
 import org.netbeans.modules.php.laravel.utils.PathUtils;
 import java.util.Arrays;
 import java.util.List;
@@ -10,12 +11,10 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
-import org.netbeans.api.editor.document.LineDocumentUtils;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.api.project.Project;
-import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.util.FileUtils;
@@ -24,6 +23,7 @@ import org.netbeans.modules.php.laravel.ConfigurationFiles;
 import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
 import org.netbeans.modules.php.laravel.editor.EditorUtils;
 import org.netbeans.modules.php.laravel.editor.ResourceUtilities;
+import org.netbeans.modules.php.laravel.editor.model.ConfigurationModel;
 import org.netbeans.modules.php.laravel.project.ProjectUtils;
 import org.netbeans.modules.php.laravel.utils.LaravelUtils;
 import org.netbeans.modules.php.laravel.utils.StringUtils;
@@ -38,18 +38,14 @@ import org.openide.awt.NotificationDisplayer;
 import org.openide.filesystems.FileObject;
 import org.openide.util.ImageUtilities;
 
-/**
- *
- * @author bogdan
- */
 @MimeRegistration(mimeType = FileUtils.PHP_MIME_TYPE, service = CompletionProvider.class)
 public class LaravelCompletionProvider implements CompletionProvider {
 
     private String methodName;
 
     public static String[] QUERY_METHODS = new String[]{
-        "config", // NOI18N 
-        "view", // NOI18N
+        "config",
+        "view",
         "make",
         "render",
         "send",
@@ -60,17 +56,18 @@ public class LaravelCompletionProvider implements CompletionProvider {
         "post",
         "group",
         "resource",
-        "only"
-    };
+        "only",
+        "route"
+    }; // NOI18N 
 
     @Override
     public CompletionTask createTask(int queryType, JTextComponent component) {
         FileObject currentFile = NbEditorUtilities.getFileObject(component.getDocument());
-        
+
         if (currentFile == null) {
             return null;
         }
-        
+
         PhpModule module = ProjectUtils.getPhpModule(currentFile);
 
         if (module == null) {
@@ -98,24 +95,21 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 case "loadView": // NOI18N 
                     completionQuery = new ViewCompletionQuery(module);
                     break;
-                case "get":
-                case "post":
-                case "group":
-                case "delete":
-                case "put":
-                case "resource":
-                case "only":
-                    if (reference.startsWith("/")) {
+                case "route":
+                    completionQuery = new RouteLabelCompletionQuery();
+                    break;
+                //ROUTING info completion   
+                case "get": // NOI18N 
+                case "post": // NOI18N 
+                case "group": // NOI18N 
+                case "delete": // NOI18N 
+                case "put": // NOI18N 
+                case "resource": // NOI18N 
+                case "only": // NOI18N 
+                    if (reference.startsWith("/") || !ProjectUtils.isRouteFile(currentFile)) { // NOI18N 
                         return null;
-                    }
-                    switch (currentFile.getNameExt()) {
-                        case "web.php":
-                        case "auth.php":
-                        case "api.php":
-                            completionQuery = new RouteCompletionQuery();
-                            break;
-                        default:
-                            return null;
+                    } else {
+                        completionQuery = new RouteCompletionQuery();
                     }
                     break;
                 default:
@@ -139,7 +133,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
     }
 
     private String getQueryString(Document doc, int offset) {
-        
+
         TokenSequence<PHPTokenId> tokensq = EditorUtils.getTokenSequence(doc, offset);
 
         if (tokensq == null) {
@@ -152,7 +146,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
             return null;
         }
 
-        PHPTokenId prevTokenId = null;
+        PHPTokenId openParenToken = null;
 
         String quotedReference = ""; // NOI18N
         int tokenCount = 0;
@@ -170,7 +164,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
             }
 
             tokenCount++;
-            if (prevTokenId != null && id.equals(PHPTokenId.PHP_STRING)) {
+            if (openParenToken != null && id.equals(PHPTokenId.PHP_STRING)) {
                 if (Arrays.asList(QUERY_METHODS).indexOf(text) > -1) {
                     methodName = text;
                     quotedReference = currentToken.text().toString();
@@ -178,8 +172,8 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 break;
             }
 
-            if (id.equals(PHPTokenId.PHP_TOKEN) && text.equals("(")) {
-                prevTokenId = id;
+            if (EditorUtils.isOpenParenToken(id, text)) {
+                openParenToken = id;
             }
         }
 
@@ -211,11 +205,12 @@ public class LaravelCompletionProvider implements CompletionProvider {
                     return;
                 }
                 ConfigurationFiles confFiles = (ConfigurationFiles) LaravelPhpFrameworkProvider.getInstance().getConfigurationFiles2(module);
-                if (confFiles != null) {
-                    confFiles.extractConfigurationMapping(false);
+                if (confFiles != null && confFiles.getConfigDirectory() != null) {
+                    FileObject configDirectory = confFiles.getConfigDirectory();
+                    ConfigurationModel model = ConfigurationModel.getModel(configDirectory);
                     String[] queryConfigNamespace = query.split("\\.");
-                    Map<String, Map<String, List<String>>> confFileList = confFiles.getConfigurationMapping();
-                    Map<String, FileObject> confFileAlias = confFiles.getConfigurationFilesAlias();
+                    Map<String, Map<String, List<String>>> confFileList = model.getConfigurationMapping();
+                    Map<String, FileObject> confFileAlias = model.getConfigurationFilesAlias();
                     String filterQuery = query;
                     if (query.endsWith(".")) {
                         filterQuery = query.substring(0, query.length() - 1);
@@ -344,7 +339,7 @@ public class LaravelCompletionProvider implements CompletionProvider {
                 for (FileObject file : childrenFiles) {
                     String pathFileName = file.getName();
                     if (!file.isFolder()) {
-                        pathFileName = pathFileName.replace(".blade", "");
+                        pathFileName = pathFileName.replace(".blade", ""); //NOI18N
                     }
                     addViewCompletionItem(pathFileName, file, sourceDir, pathOffset, resultSet);
                 }
@@ -376,6 +371,55 @@ public class LaravelCompletionProvider implements CompletionProvider {
         }
     }
 
+    private class RouteLabelCompletionQuery extends AsyncCompletionQuery {
+
+        public RouteLabelCompletionQuery() {
+
+        }
+
+        @Override
+        protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
+            try {
+
+                LaravelAppSupport support = LaravelAppSupport.getInstance(doc);
+
+                if (support == null) {
+                    return;
+                }
+
+                String query = getQueryString(doc, caretOffset);
+                if (query == null) {
+                    return;
+                }
+
+                Set<String> routeLabels = support.getRoutesConfigParser().getRoutesLabel();
+                int insertOffset = caretOffset - query.length();
+                for (String routelabel : routeLabels) {
+                    
+                    if (routelabel.startsWith(query)) {
+                        addMethodCompletionItem(routelabel, " - route label", resultSet, insertOffset);
+                    }
+
+                }
+
+            } finally {
+                resultSet.finish();
+            }
+        }
+
+        private void addMethodCompletionItem(String method, String rightInfo,
+                CompletionResultSet resultSet, int insertOffset) {
+            CompletionItem item = CompletionUtilities.newCompletionItemBuilder(method)
+                    .iconResource("org/netbeans/modules/websvc/saas/ui/resources/method.png")
+                    .startOffset(insertOffset)
+                    .leftHtmlText(method)
+                    .rightHtmlText(rightInfo)
+                    .sortPriority(1)
+                    .build();
+            resultSet.addItem(item);
+        }
+    }
+
     private class RouteCompletionQuery extends AsyncCompletionQuery {
 
         public RouteCompletionQuery() {
@@ -386,32 +430,33 @@ public class LaravelCompletionProvider implements CompletionProvider {
         protected void query(CompletionResultSet resultSet, Document doc, int caretOffset) {
             try {
 
-                LaravelCompletionSupport support = getCompletionSupport(doc);
+                LaravelAppSupport support = LaravelAppSupport.getInstance(doc);
 
                 if (support == null) {
                     return;
                 }
-                
+
                 String query = getQueryString(doc, caretOffset);
                 if (query == null) {
                     return;
                 }
 
-                Map<String, Set<String>> methods = support.getControllerClassQuery().findClassReferences(query);
-                
+                Map<String, Set<String>> methods = support.getControllerClassParser().findClassReferences(query);
+                int insertOffset = caretOffset - query.length();
+
                 for (Map.Entry<String, Set<String>> methodEntry : methods.entrySet()) {
                     String methodName = methodEntry.getKey();
-                    int insertOffset = caretOffset - query.length();
+                    
                     for (String classes : methodEntry.getValue()) {
                         addMethodCompletionItem(methodName, classes, resultSet, insertOffset);
                     }
                 }
-                
+
             } finally {
                 resultSet.finish();
             }
         }
-        
+
         private void addMethodCompletionItem(String method, String className,
                 CompletionResultSet resultSet, int insertOffset) {
             CompletionItem item = CompletionUtilities.newCompletionItemBuilder(method)
@@ -423,25 +468,5 @@ public class LaravelCompletionProvider implements CompletionProvider {
                     .build();
             resultSet.addItem(item);
         }
-    }
-
-    private LaravelCompletionSupport getCompletionSupport(Document doc) {
-        Project project = ProjectUtils.get(doc);
-        LaravelCompletionSupport support = project.getLookup().lookup(LaravelCompletionSupport.class);
-
-        if (support == null) {
-            return null;
-        }
-
-        if (!support.filesScanned()) {
-            support.parseControllerFiles();
-            NotificationDisplayer.getDefault().notify("Laravel: Controller files parsed",
-                    ImageUtilities.loadImageIcon("org/netbeans/modules/git/resources/icons/info.png", false),
-                    "",
-                    evt -> { }
-            );
-        }
-
-        return support;
     }
 }
