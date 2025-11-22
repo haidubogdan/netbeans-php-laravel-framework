@@ -29,7 +29,7 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
 
     private static final String CONFIG_DIRECTORY = LaravelUtils.DIR_CONFIG;
     private final PhpModule phpModule;
-    private final ChangeSupport changeSupport = new ChangeSupport(this);
+
     private FileObject sourceDirectory = null;
     //TODO check where to store
     private final Map<String, Map<String, List<String>>> configurationMapping = new HashMap<>();
@@ -41,6 +41,7 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
         this.phpModule = phpModule;
     }
 
+    //node tree
     @Override
     public Collection<FileInfo> getFiles() {
         FileObject sourceDir = getSourceDirectory();
@@ -67,6 +68,8 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
         return files;
     }
 
+    //for code completion
+    //is this the right place?
     public void extractConfigurationMapping(boolean relativeOffset) {
         FileObject sourceDir = getSourceDirectory();
         if (sourceDir == null) {
@@ -105,36 +108,22 @@ public final class ConfigurationFiles extends FileChangeAdapter implements Impor
         return configurationFilesAlias;
     }
 
-
-    private void addListener(File path) {
-        try {
-            FileUtil.addFileChangeListener(this, path);
-        } catch (IllegalArgumentException ex) {
-            // noop, already listening...
-            assert false : path;
-        }
-    }
-
     @CheckForNull
     private synchronized FileObject getSourceDirectory() {
         if (sourceDirectory == null) {
             sourceDirectory = phpModule.getSourceDirectory();
-            if (sourceDirectory != null) {
-                File sources = FileUtil.toFile(sourceDirectory);
-                addListener(new File(new File(sources, LaravelPreferences.getAppDir(phpModule)), CONFIG_DIRECTORY));
-            }
         }
         return sourceDirectory;
     }
 
     @Override
     public void addChangeListener(ChangeListener listener) {
-        changeSupport.addChangeListener(listener);
+        //not relevant for the moment
     }
 
     @Override
     public void removeChangeListener(ChangeListener cl) {
-        changeSupport.removeChangeListener(cl);
+        //not relevant for the moment
     }
 
 }
