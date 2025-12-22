@@ -1,7 +1,5 @@
 package org.netbeans.modules.php.laravel.editor.completion;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.netbeans.api.project.Project;
 import org.netbeans.modules.php.laravel.ControllersClassQuery;
 import static org.netbeans.modules.php.laravel.PhpNbConsts.NB_PHP_PROJECT_TYPE;
