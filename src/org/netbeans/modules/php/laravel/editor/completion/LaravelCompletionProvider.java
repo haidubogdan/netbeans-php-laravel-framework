@@ -12,9 +12,9 @@ import java.util.Set;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 import org.netbeans.api.editor.mimelookup.MimeRegistration;
+import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
-import org.netbeans.api.project.Project;
 import org.netbeans.modules.editor.NbEditorUtilities;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.api.util.FileUtils;
@@ -34,11 +34,12 @@ import org.netbeans.spi.editor.completion.CompletionTask;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionQuery;
 import org.netbeans.spi.editor.completion.support.AsyncCompletionTask;
 import org.netbeans.spi.editor.completion.support.CompletionUtilities;
-import org.openide.awt.NotificationDisplayer;
 import org.openide.filesystems.FileObject;
-import org.openide.util.ImageUtilities;
 
-@MimeRegistration(mimeType = FileUtils.PHP_MIME_TYPE, service = CompletionProvider.class)
+@MimeRegistrations({
+    @MimeRegistration(mimeType = FileUtils.PHP_MIME_TYPE, service = CompletionProvider.class),
+    @MimeRegistration(mimeType = "text/x-blade", service = CompletionProvider.class)   
+})
 public class LaravelCompletionProvider implements CompletionProvider {
 
     private String methodName;

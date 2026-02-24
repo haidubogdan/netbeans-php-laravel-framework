@@ -17,7 +17,7 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
-    <version>1.29.0.2</version>
+    <version>1.29.0.3</version>
     <packaging>nbm</packaging>
 
     <developers>

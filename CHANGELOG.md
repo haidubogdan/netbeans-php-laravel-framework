@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.1.5]
+
+- Support for decl finder and completion provider inside blade files (text/x-blade)
+
 ## [1.0.1.4]
 
 - support for netbeans 29

@@ -12,11 +12,13 @@ import org.netbeans.api.editor.mimelookup.MimeRegistration;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkProviderExt;
 import org.netbeans.lib.editor.hyperlink.spi.HyperlinkType;
 import org.netbeans.api.editor.document.LineDocumentUtils;
+import org.netbeans.api.editor.mimelookup.MimeRegistrations;
 import org.netbeans.api.lexer.Token;
 import org.netbeans.api.lexer.TokenSequence;
 import org.netbeans.editor.BaseDocument;
 import org.netbeans.modules.csl.api.OffsetRange;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import org.netbeans.modules.php.api.util.FileUtils;
 import org.netbeans.modules.php.editor.lexer.PHPTokenId;
 import org.netbeans.modules.php.laravel.ConfigurationFiles;
 import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
@@ -41,7 +43,10 @@ import org.openide.util.Exceptions;
  *
  * @author bhaidu
  */
-@MimeRegistration(mimeType = "text/x-php5", service = HyperlinkProviderExt.class)
+@MimeRegistrations({
+    @MimeRegistration(mimeType = FileUtils.PHP_MIME_TYPE, service = HyperlinkProviderExt.class),
+    @MimeRegistration(mimeType = "text/x-blade", service = HyperlinkProviderExt.class)   
+})
 public class HyperlinkProviderImpl implements HyperlinkProviderExt {
 
     private static final int MIN_QUOTED_QUERY_TEXT_LENGTH = 5;
