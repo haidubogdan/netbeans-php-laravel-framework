@@ -22,11 +22,16 @@ Folder nodes for:
 
 - blade template path completion on `render`, `make` and `view` methods
 - config path completion for `config` method
+- route label completion
+- inertia view path completion
+- validation rule completion
 
 **declaration finder**
 
 - blade template declaration finder
 - config declaration finder
+- route label declaration finder
+- inertia view path completion
 
 **Commands**
 
