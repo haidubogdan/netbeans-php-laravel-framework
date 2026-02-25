@@ -17,7 +17,7 @@
         <maven.compiler.target>8</maven.compiler.target>
     </properties>
 
-    <version>1.27.0.3</version>
+    <version>1.27.0.3.1</version>
     <packaging>nbm</packaging>
 
     <developers>
@@ -462,6 +462,11 @@
         <dependency>
             <groupId>org.netbeans.modules</groupId>
             <artifactId>org-netbeans-modules-php-api-executable</artifactId>
+            <version>${nbversion}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.netbeans.modules</groupId>
+            <artifactId>org-netbeans-modules-web-clientproject-api</artifactId>
             <version>${nbversion}</version>
         </dependency>
         <dependency>
