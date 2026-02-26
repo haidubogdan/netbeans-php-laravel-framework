@@ -68,7 +68,7 @@ jobs:
       with:
         draft: false
         prerelease: true
-        release_name: Netbeans Blade Php release ${{ steps.nbm_version.outputs.version }}  
+        release_name: Netbeans Laravel framework release ${{ steps.nbm_version.outputs.version }}  
         tag_name: nb200laravelv1.0.1
         body_path: .github/workflows/CHANGELOG.md
     - name: upload nbm artifact
