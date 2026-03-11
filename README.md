@@ -39,6 +39,9 @@ You will able to execute php Script using `artisan` directly from the IDE.
 
 ![image](https://github.com/user-attachments/assets/3b284d8f-8a95-47c5-8984-e5e96800f2f3)
 
+This will include vendor/bin commands if available
+
+![image](https://github.com/user-attachments/assets/9c9e199a-39df-4976-9131-935728bd489e)
 
 It has an inbuild customization to allow **remote connection** and **docker** usage.
 

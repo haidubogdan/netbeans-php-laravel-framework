@@ -36,8 +36,12 @@ public class ExecutableService {
 
         LaravelPreferences prefs = LaravelPreferences.fromPhpModule(phpModule);
         if (useDocker(prefs)) {
-            params.add(0, PhpNbConsts.PHP_COMMAND);
-            params.add(1, ArtisanScript.SCRIPT_NAME);
+            if (!params.isEmpty() && params.get(0).startsWith("./vendor")) { // NOI18N
+                //do nothing
+            } else {
+                params.add(0, PhpNbConsts.PHP_COMMAND);
+                params.add(1, ArtisanScript.SCRIPT_NAME);
+            }
             boolean isRemote = useRemoteConnection(prefs);
             DockerExecutable exec = new DockerExecutable(
                     getDockerContainerName(prefs),
@@ -170,10 +174,10 @@ public class ExecutableService {
                         comment = line.substring(endBoundry + 2).trim();
                     }
                     if (commandActionPos > 0) {
-                        artisanCommandSupport.addCommand(new ArtisanCommand(phpModule, commandInfo,
+                        artisanCommandSupport.addCommand(new ArtisanCommand(commandInfo,
                                 comment, commandInfo));
                     } else {
-                        artisanCommandSupport.addCommand(new ArtisanCommand(phpModule, commandInfo,
+                        artisanCommandSupport.addCommand(new ArtisanCommand(commandInfo,
                                 comment, commandInfo));
                     }
                 }

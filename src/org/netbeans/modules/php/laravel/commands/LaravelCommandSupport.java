@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import static org.netbeans.modules.php.laravel.commands.VendorBinCommand.VENDOR_COMMAND;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommand;
 import org.netbeans.modules.php.spi.framework.commands.FrameworkCommandSupport;
 import org.openide.filesystems.FileObject;
@@ -78,6 +79,21 @@ public class LaravelCommandSupport extends FrameworkCommandSupport {
         }
 
         commands.addAll(artisanSupport.getCommands());
+        
+        FileObject projectDir = phpModule.getSourceDirectory();
+        if (projectDir != null) {
+            FileObject vendorBin = projectDir.getFileObject("vendor/bin");
+            if (vendorBin != null) {
+                for (FileObject child : vendorBin.getChildren()) {
+                    if (child.isFolder()) {
+                        continue;
+                    }
+                    String fullVendorCommand = VENDOR_COMMAND + child.getName();
+                    commands.add(new VendorBinCommand(fullVendorCommand, "vendor command", child.getName()));
+                }
+            }
+        }
+        
         return commands;
     }
 
