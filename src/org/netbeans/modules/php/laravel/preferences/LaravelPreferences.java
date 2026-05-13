@@ -30,6 +30,8 @@ public final class LaravelPreferences {
     
     private static final boolean DEFAULT_DOCKER_TTY = true;
     private static final boolean DEFAULT_DOCKER_INTERACTIVE = true;
+    
+    private static final boolean DEFAULT_ENABLED = true;
 
     private final Preferences modulePreferences;
     
@@ -86,7 +88,7 @@ public final class LaravelPreferences {
     }
 
     public boolean isEnabled() {
-        return modulePreferences.getBoolean(ENABLED, false);
+        return modulePreferences.getBoolean(ENABLED, DEFAULT_ENABLED);
     }
 
     public String getDockerContainerName() {

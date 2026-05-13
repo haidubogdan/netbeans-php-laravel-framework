@@ -51,7 +51,7 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
     }
 
     public void initModuleValues() {
-        projectSupportEnabled.setSelected(preferences.hasEnabledConfigured());
+        projectSupportEnabled.setSelected(preferences.isEnabled());
         initDockerSettings();
     }
 
