@@ -2,6 +2,6 @@
 
 ## What's changed
 
-- add `vendor/bin` commands under laravel commands
+- workflow for Netbeans 30
 
 ![image](https://github.com/user-attachments/assets/9c9e199a-39df-4976-9131-935728bd489e)

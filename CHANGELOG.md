@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.1.7]
+
+- workflow for netbeans 30
+
 ## [1.0.1.6]
 
 - Add vendor/bin commands under laravel commands

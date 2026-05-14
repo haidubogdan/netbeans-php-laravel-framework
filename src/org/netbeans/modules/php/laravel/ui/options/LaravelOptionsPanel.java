@@ -45,6 +45,8 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
         learnMoreLabel = new javax.swing.JLabel();
         versionLabel1 = new javax.swing.JLabel();
         versionLabel2 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jLabel3 = new javax.swing.JLabel();
 
         jLabel1.setFont(new java.awt.Font("Cantarell", 1, 15)); // NOI18N
         org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.jLabel1.text")); // NOI18N
@@ -69,6 +71,10 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(versionLabel2, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.versionLabel2.text")); // NOI18N
 
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel2, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.jLabel2.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel3, org.openide.util.NbBundle.getMessage(LaravelOptionsPanel.class, "LaravelOptionsPanel.jLabel3.text")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
@@ -82,8 +88,10 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
                     .addComponent(installationInstructionsLabel)
                     .addComponent(learnMoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(versionLabel1)
-                    .addComponent(versionLabel2))
-                .addContainerGap(10, Short.MAX_VALUE))
+                    .addComponent(versionLabel2)
+                    .addComponent(jLabel2)
+                    .addComponent(jLabel3))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -102,7 +110,11 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
                 .addComponent(installationInstructionsLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(learnMoreLabel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(116, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel2)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel3)
+                .addContainerGap(66, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
@@ -142,6 +154,8 @@ public class LaravelOptionsPanel extends javax.swing.JPanel {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel installationInstructionsLabel;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel learnMoreLabel;
     private javax.swing.JLabel noteLabel;
     private javax.swing.JLabel versionLabel;
