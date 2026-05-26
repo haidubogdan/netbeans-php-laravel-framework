@@ -146,7 +146,7 @@ public class DockerExecutable {
             arguments.add("-" + interactionMode);
         }
 
-        if (dockerUser != null) {
+        if (dockerUser != null && !dockerUser.trim().isEmpty()) {
             arguments.add("-u");
             arguments.add(dockerUser);
         }
