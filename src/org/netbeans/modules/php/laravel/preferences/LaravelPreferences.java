@@ -4,11 +4,8 @@ Licensed to the Apache Software Foundation (ASF)
 package org.netbeans.modules.php.laravel.preferences;
 
 import java.util.prefs.Preferences;
-import javax.swing.DefaultComboBoxModel;
-import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
 import org.netbeans.modules.php.laravel.LaravelPhpFrameworkProvider;
-import org.netbeans.modules.php.laravel.commands.DlightTerminalEnvironment;
 
 /**
  *

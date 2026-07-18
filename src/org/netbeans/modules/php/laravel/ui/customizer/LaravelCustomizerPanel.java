@@ -9,6 +9,7 @@ import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableModel;
 import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.php.api.phpmodule.PhpModule;
+import org.netbeans.modules.php.laravel.GlobalDockerPreferences;
 import org.netbeans.modules.php.laravel.LaravelPluginProvider;
 import org.netbeans.modules.php.laravel.commands.DlightTerminalEnvironment;
 import org.netbeans.modules.php.laravel.preferences.LaravelPreferences;
@@ -36,6 +37,7 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
 
     public void initDockerSettings() {
         useDocker.setSelected(preferences.getUseDocker());
+        dockerExecPath.setText(GlobalDockerPreferences.getDockerExecPath());
         dockerContainerName.setText(preferences.getDockerContainerName());
         dockerBashPath.setText(preferences.getDockerBashPath());
         dockerWorkdir.setText(preferences.geDockerWorkdir());
@@ -78,6 +80,7 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
         LaravelPreferences.setUseDocker(module, useDocker.isSelected());
         LaravelPreferences.setDockerWorkdir(module, dockerWorkdir.getText());
         LaravelPreferences.setDockerUser(module, dockerUser.getText());
+        GlobalDockerPreferences.setDockerExecPath(dockerExecPath.getText());
 
         useDocker.setEnabled(projectSupportEnabled.isSelected());
         dockerBashPath.setEditable(projectSupportEnabled.isSelected());
@@ -147,6 +150,8 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
         jLabel11 = new javax.swing.JLabel();
         jLabel12 = new javax.swing.JLabel();
         dockerWorkdir = new javax.swing.JTextField();
+        dockerExecPath = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
         Plugins = new javax.swing.JPanel();
         jScrollPane1 = new javax.swing.JScrollPane();
         pluginPackageTable = new javax.swing.JTable();
@@ -212,6 +217,10 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
 
         dockerWorkdir.setText(org.openide.util.NbBundle.getMessage(LaravelCustomizerPanel.class, "LaravelCustomizerPanel.dockerWorkdir.text")); // NOI18N
 
+        dockerExecPath.setText(org.openide.util.NbBundle.getMessage(LaravelCustomizerPanel.class, "LaravelCustomizerPanel.dockerExecPath.text")); // NOI18N
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel6, org.openide.util.NbBundle.getMessage(LaravelCustomizerPanel.class, "LaravelCustomizerPanel.jLabel6.text")); // NOI18N
+
         javax.swing.GroupLayout GeneralLayout = new javax.swing.GroupLayout(General);
         General.setLayout(GeneralLayout);
         GeneralLayout.setHorizontalGroup(
@@ -220,29 +229,6 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
             .addComponent(jSeparator2)
             .addGroup(GeneralLayout.createSequentialGroup()
                 .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(GeneralLayout.createSequentialGroup()
-                        .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(GeneralLayout.createSequentialGroup()
-                                .addGap(19, 19, 19)
-                                .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jLabel11)
-                                    .addGroup(GeneralLayout.createSequentialGroup()
-                                        .addComponent(jLabel8)
-                                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                        .addComponent(RemoteTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))))
-                            .addGroup(GeneralLayout.createSequentialGroup()
-                                .addComponent(jLabel1)
-                                .addGap(28, 28, 28)
-                                .addComponent(projectSupportEnabled))
-                            .addGroup(GeneralLayout.createSequentialGroup()
-                                .addComponent(jLabel2)
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(laravelVersion))
-                            .addComponent(jLabel3)
-                            .addGroup(GeneralLayout.createSequentialGroup()
-                                .addGap(10, 10, 10)
-                                .addComponent(jLabel9)))
-                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(GeneralLayout.createSequentialGroup()
                         .addGap(13, 13, 13)
                         .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -257,10 +243,8 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
                                 .addGap(18, 18, 18)
                                 .addComponent(dockerWorkdir))
                             .addGroup(GeneralLayout.createSequentialGroup()
-                                .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(useDocker)
-                                    .addComponent(jLabel10))
-                                .addGap(0, 58, Short.MAX_VALUE))
+                                .addComponent(useDocker)
+                                .addGap(0, 119, Short.MAX_VALUE))
                             .addGroup(GeneralLayout.createSequentialGroup()
                                 .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(jLabel5)
@@ -270,7 +254,36 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
                                 .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                     .addComponent(dockerContainerName)
                                     .addComponent(dockerUser)
-                                    .addComponent(dockerBashPath))))))
+                                    .addComponent(dockerBashPath)))))
+                    .addGroup(GeneralLayout.createSequentialGroup()
+                        .addComponent(jLabel1)
+                        .addGap(28, 28, 28)
+                        .addComponent(projectSupportEnabled))
+                    .addGroup(GeneralLayout.createSequentialGroup()
+                        .addComponent(jLabel2)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(laravelVersion))
+                    .addComponent(jLabel3)
+                    .addGroup(GeneralLayout.createSequentialGroup()
+                        .addGap(10, 10, 10)
+                        .addComponent(jLabel9))
+                    .addGroup(GeneralLayout.createSequentialGroup()
+                        .addGap(19, 19, 19)
+                        .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel11)
+                            .addGroup(GeneralLayout.createSequentialGroup()
+                                .addComponent(jLabel8)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(RemoteTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, 159, javax.swing.GroupLayout.PREFERRED_SIZE))))
+                    .addGroup(GeneralLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel10)
+                            .addGroup(GeneralLayout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(jLabel6)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(dockerExecPath)))))
                 .addGap(20, 20, 20))
         );
         GeneralLayout.setVerticalGroup(
@@ -298,9 +311,13 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
                     .addComponent(RemoteTerminal, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel11)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel10)
-                .addGap(6, 6, 6)
+                .addGap(7, 7, 7)
+                .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(dockerExecPath, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 26, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(useDocker)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
@@ -323,7 +340,7 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
                 .addGroup(GeneralLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
                     .addComponent(dockerWorkdir, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(111, Short.MAX_VALUE))
+                .addContainerGap(102, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab(org.openide.util.NbBundle.getMessage(LaravelCustomizerPanel.class, "LaravelCustomizerPanel.General.TabConstraints.tabTitle"), General); // NOI18N
@@ -407,6 +424,7 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
     private javax.swing.JComboBox<String> RemoteTerminal;
     private javax.swing.JTextField dockerBashPath;
     private javax.swing.JTextField dockerContainerName;
+    private javax.swing.JTextField dockerExecPath;
     private javax.swing.JTextField dockerUser;
     private javax.swing.JTextField dockerWorkdir;
     private javax.swing.JCheckBox interactiveOption;
@@ -420,6 +438,7 @@ public class LaravelCustomizerPanel extends javax.swing.JPanel {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;

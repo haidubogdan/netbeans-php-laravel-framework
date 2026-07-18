@@ -1,5 +1,9 @@
 # Change Log
 
+## [1.0.1.8]
+
+- global docker exec path config
+
 ## [1.0.1.7]
 
 - workflow for netbeans 30

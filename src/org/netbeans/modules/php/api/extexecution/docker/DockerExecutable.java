@@ -14,6 +14,7 @@ import org.netbeans.modules.nativeexecution.api.ExecutionEnvironment;
 import org.netbeans.modules.nativeexecution.api.NativeProcessBuilder;
 import org.netbeans.modules.php.api.extexecution.pty4j.PtyCliProcessBuilder;
 import org.netbeans.modules.php.api.util.StringUtils;
+import org.netbeans.modules.php.laravel.GlobalDockerPreferences;
 import static org.netbeans.modules.php.laravel.PhpNbConsts.LARAVEL_UI_OPTIONS_PATH;
 import org.netbeans.modules.php.laravel.commands.DlightTerminalEnvironment;
 import org.openide.util.BaseUtilities;
@@ -83,6 +84,10 @@ public class DockerExecutable {
         this.dockerUser = user;
         return this;
     }
+
+    public static String getDockerExecPath() {
+        return GlobalDockerPreferences.getDockerExecPath();
+    }
     
     public Future<Integer> run(ExecutionDescriptor executionDescriptor, ExecutionDescriptor.InputProcessorFactory2 outProcessorFactory) {
         Parameters.notNull("executionDescriptor", executionDescriptor); // NOI18N
@@ -122,7 +127,7 @@ public class DockerExecutable {
         List<String> arguments = new ArrayList<>();
         boolean isUnix = BaseUtilities.isUnix();
         if (!isRemote && !isUnix) {
-            arguments.add(DOCKER_COMMAND);
+            arguments.add(DockerExecutable.getDockerExecPath());
         }
 
         arguments.add(DOCKER_EXEC);
@@ -163,13 +168,13 @@ public class DockerExecutable {
         if (isRemote) {
             ExecutionEnvironment env = DlightTerminalEnvironment.getRemoteConfig();
             NativeProcessBuilder processBuilder = NativeProcessBuilder.newProcessBuilder(env);
-            processBuilder.setExecutable(DOCKER_COMMAND);
+            processBuilder.setExecutable(DockerExecutable.getDockerExecPath());
             processBuilder.setArguments(arguments.toArray(new String[0]));
             processBuilder.setUsePty(true);
             return processBuilder;
         } else if (isUnix) {
             NativeProcessBuilder processBuilder = NativeProcessBuilder.newLocalProcessBuilder();
-            processBuilder.setExecutable(DOCKER_COMMAND);
+            processBuilder.setExecutable(DockerExecutable.getDockerExecPath());
             processBuilder.setArguments(arguments.toArray(new String[0]));
             processBuilder.setUsePty(true);
             return processBuilder;
