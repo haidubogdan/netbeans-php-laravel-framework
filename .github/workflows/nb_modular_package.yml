@@ -42,14 +42,14 @@ jobs:
           - label: 30
             version: 30-46c1feab2cb98b58ae1eccb4f9fba1c29137cf5d
             java: 21
-          - label: 30
+          - label: 31
             version: 31-f8ac37e0f2434a7f000fbe3360f1a92aa3ea67bc
-            java: 25  
+            java: 21
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK 17
-      uses: actions/setup-java@v3
+    - uses: actions/checkout@v7
+    - name: Set up Java JDK
+      uses: actions/setup-java@v5
       with:
         java-version: '${{ matrix.java }}'
         distribution: 'temurin'
