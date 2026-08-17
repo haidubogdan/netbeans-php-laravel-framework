@@ -2,4 +2,4 @@
 
 ## What's changed
 
-- global docker exec path config. Include docker exec path for Macos
+- include NB-31 in the package action

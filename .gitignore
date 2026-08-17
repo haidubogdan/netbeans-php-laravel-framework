@@ -7,3 +7,4 @@ pom.xml.asc
 test/unit/data/debugfiles/*.php
 /.github/target/
 *.jar
+.DS_Store

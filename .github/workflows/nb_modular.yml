@@ -36,7 +36,7 @@ jobs:
     needs: create_release 
     strategy:
       matrix:
-        label: [23, 24, 25, 26, 27, 28, 29, 30]
+        label: [23, 24, 25, 26, 27, 28, 29, 30, 31]
         include:
           - label: 23
             version: 23-2985f1fa57ce0c1877bad0f86d5e5504d65f9286
@@ -61,7 +61,10 @@ jobs:
             java: 21
           - label: 30
             version: 30-46c1feab2cb98b58ae1eccb4f9fba1c29137cf5d
-            java: 21  
+            java: 21
+          - label: 31
+            version: 31-f8ac37e0f2434a7f000fbe3360f1a92aa3ea67bc
+            java: 21   
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
